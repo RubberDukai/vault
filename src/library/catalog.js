@@ -103,29 +103,88 @@ async function search(query, { count = 40, lang = null } = {}) {
 }
 
 /**
+ * Pack names are not written consistently between a ZIM's own metadata and the
+ * catalogue — the same archive is `wikipedia_en_simple_all` in one and
+ * `wikipedia_en-simple_all` in the other. Collapse every separator so the two
+ * compare equal.
+ */
+function normaliseName(name) {
+  return String(name || '').toLowerCase().replace(/[-_\s]+/g, '_').replace(/^_|_$/g, '');
+}
+
+/**
+ * Turn a pack name into something the catalogue's text search will match.
+ *
+ * Searching the full `wikipedia_en_simple_all` finds nothing, because "en" and
+ * "all" appear in no title. Dropping the structural tokens leaves "wikipedia
+ * simple", which finds it immediately.
+ */
+const NOISE_TOKENS = new Set([
+  'all', 'nopic', 'maxi', 'mini', 'novid', 'nodet', 'nopet',
+  'en', 'eng', 'fr', 'de', 'es', 'zh', 'hi', 'ja', 'ar', 'ru', 'pt', 'it',
+]);
+
+function searchTerms(packName) {
+  const tokens = String(packName).split(/[-_\s]+/).filter(Boolean);
+  const useful = tokens.filter((t) => !NOISE_TOKENS.has(t.toLowerCase()) && t.length > 1);
+  return useful.length ? useful.join(' ') : tokens.join(' ');
+}
+
+/**
  * Find the current published build of a pack.
  *
- * A local file's metadata Name is usually `wikipedia_en_simple_all_nopic`,
- * while the catalogue splits that into name `wikipedia_en_simple_all` plus
- * flavour `nopic`, so match against both shapes.
+ * A local file's metadata Name is usually `wikipedia_en_simple_all` with a
+ * separate Flavour of `nopic`, but some packs fold the flavour into the name,
+ * and separators vary. Try several queries and match loosely.
  */
-async function findLatest(packName, flavour = '') {
+async function findLatest(packName, flavour = '', title = '') {
   if (!packName) return null;
-  const bare = flavour && packName.endsWith(`_${flavour}`)
+
+  const bare = flavour && packName.toLowerCase().endsWith(`_${flavour.toLowerCase()}`)
     ? packName.slice(0, -(flavour.length + 1))
     : packName;
 
-  const entries = await search(bare.replace(/_/g, ' '), { count: 60 });
-  const candidates = entries.filter((e) => {
-    const combined = e.flavour ? `${e.name}_${e.flavour}` : e.name;
-    return e.name === packName || e.name === bare || combined === packName;
-  });
+  const targets = new Set([normaliseName(packName), normaliseName(bare)]);
+
+  // Several queries, because the catalogue's text search is fussy.
+  const queries = [];
+  const terms = searchTerms(bare);
+  if (terms) queries.push(terms);
+  if (title) queries.push(title);
+  queries.push(bare.split(/[-_]/)[0]);
+
+  const seen = new Set();
+  const candidates = [];
+
+  for (const query of queries) {
+    if (!query || seen.has(query)) continue;
+    seen.add(query);
+
+    let entries;
+    try {
+      entries = await search(query, { count: 60 });
+    } catch {
+      continue;
+    }
+
+    for (const entry of entries) {
+      const name = normaliseName(entry.name);
+      const combined = normaliseName(entry.flavour ? `${entry.name}_${entry.flavour}` : entry.name);
+      if (targets.has(name) || targets.has(combined)) candidates.push(entry);
+    }
+    if (candidates.length) break;
+  }
+
   if (candidates.length === 0) return null;
 
   if (flavour) {
-    const exact = candidates.find((c) => c.flavour === flavour);
-    if (exact) return exact;
+    const exact = candidates.filter((c) => normaliseName(c.flavour) === normaliseName(flavour));
+    if (exact.length) {
+      exact.sort((a, b) => String(b.updated || '').localeCompare(String(a.updated || '')));
+      return exact[0];
+    }
   }
+
   candidates.sort((a, b) => String(b.updated || '').localeCompare(String(a.updated || '')));
   return candidates[0];
 }

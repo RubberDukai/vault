@@ -119,7 +119,7 @@ class LibraryManager {
 
     for (const pack of targets) {
       try {
-        const latest = await catalog.findLatest(pack.name, pack.flavour);
+        const latest = await catalog.findLatest(pack.name, pack.flavour, pack.title);
         if (!latest) {
           pack.update = { checked: new Date().toISOString(), found: false };
           results.push({ id: pack.id, found: false });
