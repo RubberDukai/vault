@@ -1,0 +1,33 @@
+{
+  "title": "Survival phrases",
+  "description": "The phrases that matter when something has gone wrong, plus the basic courtesies that open every door in Japan.",
+  "order": 2,
+  "cards": [
+    { "front": "助けて！", "reading": "tasukete!", "back": "Help!", "note": "The one to know. Shout it." },
+    { "front": "危ない！", "reading": "abunai!", "back": "Danger! / Look out!" },
+    { "front": "水をください", "reading": "mizu o kudasai", "back": "Water, please" },
+    { "front": "医者が必要です", "reading": "isha ga hitsuyou desu", "back": "I need a doctor" },
+    { "front": "病院はどこですか", "reading": "byouin wa doko desu ka", "back": "Where is the hospital?" },
+    { "front": "大丈夫ですか", "reading": "daijoubu desu ka", "back": "Are you all right?", "note": "Also used as a statement: 大丈夫です = I'm fine" },
+    { "front": "こんにちは", "reading": "konnichiwa", "back": "Hello", "note": "Daytime greeting" },
+    { "front": "おはようございます", "reading": "ohayou gozaimasu", "back": "Good morning" },
+    { "front": "こんばんは", "reading": "konbanwa", "back": "Good evening" },
+    { "front": "ありがとうございます", "reading": "arigatou gozaimasu", "back": "Thank you" },
+    { "front": "すみません", "reading": "sumimasen", "back": "Excuse me / Sorry", "note": "Enormously useful — apology, attention-getting and thanks all in one" },
+    { "front": "お願いします", "reading": "onegaishimasu", "back": "Please / I request it", "note": "Softens any request" },
+    { "front": "はい", "reading": "hai", "back": "Yes" },
+    { "front": "いいえ", "reading": "iie", "back": "No" },
+    { "front": "わかりません", "reading": "wakarimasen", "back": "I don't understand" },
+    { "front": "日本語が話せません", "reading": "nihongo ga hanasemasen", "back": "I can't speak Japanese" },
+    { "front": "英語を話せますか", "reading": "eigo o hanasemasu ka", "back": "Do you speak English?" },
+    { "front": "…はどこですか", "reading": "... wa doko desu ka", "back": "Where is ...?", "note": "The single most useful sentence pattern for a traveller" },
+    { "front": "トイレはどこですか", "reading": "toire wa doko desu ka", "back": "Where is the toilet?" },
+    { "front": "道に迷いました", "reading": "michi ni mayoimashita", "back": "I am lost" },
+    { "front": "いくらですか", "reading": "ikura desu ka", "back": "How much is it?" },
+    { "front": "私の名前は…です", "reading": "watashi no namae wa ... desu", "back": "My name is ..." },
+    { "front": "もう一度お願いします", "reading": "mou ichido onegaishimasu", "back": "Once more, please" },
+    { "front": "ゆっくり話してください", "reading": "yukkuri hanashite kudasai", "back": "Please speak slowly" },
+    { "front": "食べ物はありますか", "reading": "tabemono wa arimasu ka", "back": "Is there any food?" },
+    { "front": "この水は飲めますか", "reading": "kono mizu wa nomemasu ka", "back": "Is this water safe to drink?" }
+  ]
+}

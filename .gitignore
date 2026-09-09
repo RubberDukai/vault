@@ -1,0 +1,11 @@
+# Knowledge packs — far too large for version control
+library/*.zim
+library/*.part
+
+# Runtime state: profiles, review schedules, lesson progress
+data/
+
+# Scratch
+.tmp/
+node_modules/
+*.log

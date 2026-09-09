@@ -1,0 +1,16 @@
+{
+  "name": "ark",
+  "version": "0.1.0",
+  "description": "Ark - an offline knowledge vault. Wikipedia, survival handbook, languages and schooling that work with no internet.",
+  "main": "src/server.js",
+  "bin": { "ark": "bin/ark.js" },
+  "scripts": {
+    "start": "node bin/ark.js serve",
+    "library": "node bin/ark.js library",
+    "check": "node bin/ark.js check"
+  },
+  "engines": { "node": ">=22.15.0" },
+  "license": "MIT",
+  "private": true,
+  "dependencies": {}
+}

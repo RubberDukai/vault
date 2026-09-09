@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1117">
+<title>Ark — Offline Knowledge Vault</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="#/">
+    <span class="brand-mark">▲</span>
+    <span class="brand-name">ARK</span>
+  </a>
+
+  <form class="global-search" id="global-search" autocomplete="off">
+    <input type="search" id="q" placeholder="Search everything…" aria-label="Search everything">
+  </form>
+
+  <label class="profile-picker">
+    <span class="sr-only">Profile</span>
+    <select id="profile"></select>
+  </label>
+</header>
+
+<nav class="tabs" id="tabs">
+  <a href="#/" data-match="^#/$">Home</a>
+  <a href="#/library" data-match="^#/library">Library</a>
+  <a href="#/handbook" data-match="^#/handbook">Handbook</a>
+  <a href="#/languages" data-match="^#/(languages|study)">Languages</a>
+  <a href="#/school" data-match="^#/school">School</a>
+  <a href="#/get" data-match="^#/get">Get packs</a>
+</nav>
+
+<main id="view" class="view">
+  <div class="loading">Opening the vault…</div>
+</main>
+
+<footer class="footer">
+  <span id="footer-status">Ark · everything here works with the internet switched off</span>
+</footer>
+
+<script src="/app.js"></script>
+</body>
+</html>
