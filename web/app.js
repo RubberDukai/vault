@@ -723,8 +723,8 @@ async function renderMaps() {
   const readout = document.getElementById('map-readout');
   const colours = Object.fromEntries(categories.map((c) => [c.id, c.colour]));
 
-  MAP = new ArkMap(canvas, { categories: colours });
-  window.arkMap = MAP; // handy when debugging from the console
+  MAP = new VaultMap(canvas, { categories: colours });
+  window.vaultMap = MAP; // handy when debugging from the console
   MAP.onHover = (position) => {
     if (!position) return;
     readout.textContent = `${position.lat.toFixed(5)}, ${position.lon.toFixed(5)}  ·  zoom ${MAP.zoom.toFixed(1)}`;

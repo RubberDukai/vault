@@ -304,10 +304,10 @@ class ArkServer {
         res.writeHead(204, { 'cache-control': 'public, max-age=3600' });
         return res.end();
       }
+      const imageType = pack.tileFormat === 'jpg' || pack.tileFormat === 'jpeg' ? 'jpeg'
+        : pack.tileFormat === 'webp' ? 'webp' : 'png';
       res.writeHead(200, {
-        'content-type': pack.format === 'mbtiles' && pack.format !== 'png'
-          ? `image/${(pack.format === 'jpg' ? 'jpeg' : 'png')}`
-          : 'image/png',
+        'content-type': `image/${imageType}`,
         'content-length': raw.length,
         'cache-control': 'public, max-age=86400',
       });

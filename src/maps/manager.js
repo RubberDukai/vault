@@ -152,10 +152,12 @@ class MBTiles {
     const bounds = (this.metadata.bounds || '').split(',').map(Number);
     return {
       name: this.metadata.name || null,
-      format: this.metadata.format || 'png',
+      // Deliberately not called `format` — that names the archive container
+      // (mbtiles), and this is the image type of the tiles inside it.
+      tileFormat: (this.metadata.format || 'png').toLowerCase(),
       minZoom: Number(this.metadata.minzoom ?? 0),
       maxZoom: Number(this.metadata.maxzoom ?? 18),
-      bounds: bounds.length === 4 ? bounds : null,
+      bounds: bounds.length === 4 && bounds.every(Number.isFinite) ? bounds : null,
       attribution: this.metadata.attribution || null,
     };
   }
@@ -191,6 +193,7 @@ class MapManager {
         const archive = await PMTiles.openRemote(url);
         const info = archive.describe();
         this.packs.set(id, {
+          ...info,
           id,
           file,
           remote: true,
@@ -200,7 +203,6 @@ class MapManager {
           title: `${info.name || id} (online)`,
           size: 0,
           sizeHuman: 'remote',
-          ...info,
           _archive: archive,
         });
       } catch (err) {
@@ -225,6 +227,7 @@ class MapManager {
           const archive = await PMTiles.open(fullPath);
           const info = archive.describe();
           this.packs.set(id, {
+            ...info,
             id,
             file,
             kind: info.tileType === 'mvt' ? 'vector' : 'raster',
@@ -232,21 +235,20 @@ class MapManager {
             title: info.name || file.replace(/\.pmtiles$/i, ''),
             size: stat.size,
             sizeHuman: humanBytes(stat.size),
-            ...info,
             _archive: archive,
           });
         } else {
           const archive = new MBTiles(fullPath);
           const info = archive.describe();
           this.packs.set(id, {
+            ...info,
             id,
             file,
-            kind: info.format === 'pbf' || info.format === 'mvt' ? 'vector' : 'raster',
+            kind: info.tileFormat === 'pbf' || info.tileFormat === 'mvt' ? 'vector' : 'raster',
             format: 'mbtiles',
             title: info.name || file.replace(/\.mbtiles$/i, ''),
             size: stat.size,
             sizeHuman: humanBytes(stat.size),
-            ...info,
             _archive: archive,
           });
         }

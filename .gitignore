@@ -11,3 +11,4 @@ node_modules/
 *.log
 library/maps/*.pmtiles
 library/maps/*.mbtiles
+library/maps/*.url

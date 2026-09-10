@@ -1,5 +1,5 @@
 'use strict';
-/* Ark map viewer.
+/* Vault map viewer.
    A slippy map drawn straight onto a canvas — pan, zoom, layers and points of
    interest, with no mapping library. Vector tiles arrive pre-decoded from the
    server, so all this has to do is draw them. */
@@ -139,10 +139,21 @@ const STYLES = {
   },
 };
 
+// Geometry type codes, as sent by the server.
+const POINT = 1;
+const LINE = 2;
+const POLYGON = 3;
+
+// How wide each kind of watercourse is drawn, before zoom scaling.
+const WATER_LINE_WIDTHS = {
+  river: 2.2, stream: 1.1, canal: 1.8, drain: 0.8, ditch: 0.7,
+  dam: 1.6, weir: 1.4, other: 1.2,
+};
+
 // The order layers are painted in; anything not listed is skipped.
 const DRAW_ORDER = ['earth', 'landcover', 'landuse', 'natural', 'water', 'buildings', 'roads', 'boundaries'];
 
-class ArkMap {
+class VaultMap {
   constructor(canvas, options = {}) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
@@ -654,10 +665,23 @@ class ArkMap {
       if (!features) continue;
 
       for (const feature of features) {
-        if (feature.t === 1) continue; // points are drawn in the overlay pass
+        if (feature.t === POINT) continue; // points are drawn in the overlay pass
 
         if (layerName === 'roads') {
           this._drawRoad(feature, px, py, size);
+          continue;
+        }
+        if (layerName === 'boundaries') {
+          this._drawBoundary(feature, px, py, size);
+          continue;
+        }
+
+        // Geometry type decides how a feature is drawn, not the layer it is
+        // in. The water layer in particular holds both lakes (polygons) and
+        // rivers (lines); filling a river closes it into a wedge.
+        if (feature.t === LINE) {
+          const spec = this._lineSpec(layerName, feature);
+          if (spec) this._drawLine(feature, px, py, size, spec);
           continue;
         }
 
@@ -669,10 +693,6 @@ class ArkMap {
         } else if (layerName === 'landuse' || layerName === 'landcover') {
           fill = style.layers.landuse[feature.k];
         } else if (layerName === 'buildings') fill = style.layers.buildings;
-        else if (layerName === 'boundaries') {
-          this._drawBoundary(feature, px, py, size);
-          continue;
-        }
 
         if (!fill) continue;
         ctx.fillStyle = fill;
@@ -690,6 +710,45 @@ class ArkMap {
     }
 
     ctx.restore();
+  }
+
+  /** Line widths grow with zoom, so a river looks like a river up close. */
+  _lineScale() {
+    return Math.max(1, Math.min(3, 1 + (this.zoom - 9) * 0.25));
+  }
+
+  /** How should a line feature in this layer be stroked? Null means skip it. */
+  _lineSpec(layerName, feature) {
+    if (layerName === 'water' || layerName === 'natural') {
+      const base = WATER_LINE_WIDTHS[feature.k] ?? WATER_LINE_WIDTHS.other;
+      return { colour: this.style.water, width: base * this._lineScale() };
+    }
+    // Stray lines in the land layers are cliffs, walls, tree rows and the
+    // like — drawn faintly rather than filled as if they enclosed something.
+    if (layerName === 'landuse' || layerName === 'landcover') {
+      return { colour: this.style.layers.boundaries, width: 0.8 };
+    }
+    return null;
+  }
+
+  _drawLine(feature, px, py, size, spec) {
+    const ctx = this.ctx;
+    ctx.strokeStyle = spec.colour;
+    ctx.lineWidth = spec.width;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.setLineDash(spec.dash || []);
+
+    ctx.beginPath();
+    for (const ring of feature.g) {
+      if (ring.length < 2) continue;
+      ctx.moveTo(px + ring[0][0] * size, py + ring[0][1] * size);
+      for (let i = 1; i < ring.length; i++) {
+        ctx.lineTo(px + ring[i][0] * size, py + ring[i][1] * size);
+      }
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
   }
 
   _drawRoad(feature, px, py, size) {
@@ -744,7 +803,7 @@ class ArkMap {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       for (const feature of data.places) {
-        if (!feature.n || feature.t !== 1) continue;
+        if (!feature.n || feature.t !== POINT) continue;
         if (!this._visibleAtZoom(feature)) continue;
         const point = feature.g[0]?.[0];
         if (!point) continue;
@@ -771,7 +830,7 @@ class ArkMap {
       if (!features) continue;
 
       for (const feature of features) {
-        if (feature.t !== 1 || !feature.c) continue;
+        if (feature.t !== POINT || !feature.c) continue;
         if (!this.enabledCategories.has(feature.c)) continue;
         if (!this._visibleAtZoom(feature)) continue;
 
@@ -869,5 +928,6 @@ class ArkMap {
   }
 }
 
-window.ArkMap = ArkMap;
-window.arkMapHelpers = { haversine };
+window.VaultMap = VaultMap;
+window.ArkMap = VaultMap; // old name, kept so nothing breaks mid-session
+window.vaultMapHelpers = { haversine };
