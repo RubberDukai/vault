@@ -64,6 +64,7 @@ const routes = [
   [/^\/handbook\/(.+)$/, renderChapter],
   [/^\/languages$/, renderLanguages],
   [/^\/study(?:\/(.+))?$/, renderStudy],
+  [/^\/maps$/, renderMaps],
   [/^\/school$/, renderSchool],
   [/^\/school\/(.+)$/, renderLesson],
   [/^\/read\/([^/]+)$/, renderPack],
@@ -537,6 +538,168 @@ async function renderStudy(deckId, params) {
   draw();
 }
 
+// ------------------------------------------------------------------- maps
+
+let MAP = null;
+
+async function renderMaps() {
+  setBusy('Loading maps…');
+  const { packs, categories, mapsDir } = await api('maps');
+
+  const vectorPacks = packs.filter((p) => p.ok !== false && p.kind === 'vector');
+  const rasterPacks = packs.filter((p) => p.ok !== false && p.kind === 'raster');
+
+  view.innerHTML = `
+    <div class="row-between" style="margin-bottom:12px">
+      <h1 style="margin:0">Maps</h1>
+      <div class="row" style="gap:6px">
+        <button class="btn btn-sm" id="map-zoom-out">−</button>
+        <button class="btn btn-sm" id="map-zoom-in">+</button>
+        <button class="btn btn-sm" id="map-style">Dark</button>
+      </div>
+    </div>
+
+    <div class="map-shell">
+      <canvas id="map-canvas"></canvas>
+      <div class="map-readout" id="map-readout">—</div>
+    </div>
+
+    <div class="map-controls">
+      <div class="map-panel">
+        <h3>Base map</h3>
+        ${vectorPacks.length ? `<select id="map-base" class="map-select">
+          ${vectorPacks.map((p) => `<option value="${esc(p.id)}">${esc(p.title)} · ${esc(p.sizeHuman)}</option>`).join('')}
+        </select>` : '<p class="faint">None installed.</p>'}
+
+        ${rasterPacks.length ? `<h3 style="margin-top:16px">Overlays</h3>
+          ${rasterPacks.map((p) => `
+            <label class="checkbox-row" style="margin-bottom:6px">
+              <input type="checkbox" class="map-overlay" value="${esc(p.id)}">
+              <span>${esc(p.title)} <span class="faint">${esc(p.sizeHuman)}</span></span>
+            </label>`).join('')}` : ''}
+
+        <h3 style="margin-top:16px">Go to</h3>
+        <form class="row" id="map-goto" style="gap:6px">
+          <input class="map-select" id="map-coords" placeholder="54.05, -2.80" style="flex:1">
+          <button class="btn btn-sm" type="submit">Go</button>
+        </form>
+        <p class="faint" style="margin:6px 0 0">Latitude, longitude in decimal degrees.</p>
+      </div>
+
+      <div class="map-panel">
+        <div class="row-between">
+          <h3 style="margin:0">Points of interest</h3>
+          <button class="btn btn-sm" id="map-poi-all">None</button>
+        </div>
+        <p class="faint" style="margin:6px 0 10px">Categories chosen for usefulness, not for who paid to be listed.</p>
+        <div id="map-categories">
+          ${categories.map((c) => `
+            <label class="checkbox-row poi-row">
+              <input type="checkbox" class="map-cat" value="${esc(c.id)}" checked>
+              <span class="poi-dot" style="background:${esc(c.colour)}"></span>
+              <span>${esc(c.label)}</span>
+            </label>`).join('')}
+        </div>
+        <label class="checkbox-row" style="margin-top:12px">
+          <input type="checkbox" id="map-labels" checked>
+          <span>Place names</span>
+        </label>
+      </div>
+    </div>
+
+    ${packs.length === 0 ? `<div class="card" style="margin-top:16px">
+      <strong>No map packs installed.</strong>
+      <p class="muted" style="margin:8px 0">Put <code>.pmtiles</code> or <code>.mbtiles</code> files in this folder and reload:</p>
+      <p class="mono" style="word-break:break-all">${esc(mapsDir)}</p>
+      <p class="muted" style="margin:12px 0 0">See <a href="#/handbook/comms/offline-maps">the handbook chapter on offline maps</a> for exactly how to build a regional extract.</p>
+    </div>` : `<div class="row" style="margin-top:12px">
+      <button class="btn btn-sm" id="map-rescan">Rescan map folder</button>
+      <span class="faint">${packs.length} pack${packs.length === 1 ? '' : 's'} in ${esc(mapsDir)}</span>
+    </div>`}
+  `;
+
+  const canvas = document.getElementById('map-canvas');
+  const readout = document.getElementById('map-readout');
+  const colours = Object.fromEntries(categories.map((c) => [c.id, c.colour]));
+
+  MAP = new ArkMap(canvas, { categories: colours });
+  window.arkMap = MAP; // handy when debugging from the console
+  MAP.onHover = (position) => {
+    if (!position) return;
+    readout.textContent = `${position.lat.toFixed(5)}, ${position.lon.toFixed(5)}  ·  zoom ${MAP.zoom.toFixed(1)}`;
+  };
+
+  const baseSelect = document.getElementById('map-base');
+  if (baseSelect) {
+    const applyBase = () => {
+      const pack = vectorPacks.find((p) => p.id === baseSelect.value);
+      MAP.setBase(pack.id, pack);
+    };
+    baseSelect.onchange = applyBase;
+    applyBase();
+  } else {
+    MAP.draw();
+  }
+
+  document.getElementById('map-zoom-in').onclick = () => MAP.zoomBy(1);
+  document.getElementById('map-zoom-out').onclick = () => MAP.zoomBy(-1);
+
+  const styleBtn = document.getElementById('map-style');
+  styleBtn.onclick = () => {
+    const next = MAP.styleName === 'paper' ? 'dark' : 'paper';
+    MAP.setStyle(next);
+    styleBtn.textContent = next === 'paper' ? 'Dark' : 'Paper';
+  };
+
+  for (const box of view.querySelectorAll('.map-overlay')) {
+    box.onchange = () => {
+      MAP.setOverlays([...view.querySelectorAll('.map-overlay:checked')].map((b) => b.value));
+    };
+  }
+
+  const catBoxes = [...view.querySelectorAll('.map-cat')];
+  const syncCategories = () => {
+    MAP.enabledCategories = new Set(catBoxes.filter((b) => b.checked).map((b) => b.value));
+    MAP.showPoi = MAP.enabledCategories.size > 0;
+    MAP.draw();
+  };
+  for (const box of catBoxes) box.onchange = syncCategories;
+
+  const allBtn = document.getElementById('map-poi-all');
+  allBtn.onclick = () => {
+    const turningOff = catBoxes.some((b) => b.checked);
+    for (const box of catBoxes) box.checked = !turningOff;
+    allBtn.textContent = turningOff ? 'All' : 'None';
+    syncCategories();
+  };
+
+  document.getElementById('map-labels').onchange = (e) => {
+    MAP.showLabels = e.target.checked;
+    MAP.draw();
+  };
+
+  document.getElementById('map-goto').onsubmit = (e) => {
+    e.preventDefault();
+    const raw = document.getElementById('map-coords').value.trim();
+    const parts = raw.split(/[,\s]+/).map(Number).filter((n) => Number.isFinite(n));
+    if (parts.length < 2) return;
+    MAP.goTo(parts[1], parts[0], Math.max(MAP.zoom, 12));
+    MAP.setMarker(parts[1], parts[0]);
+  };
+
+  const rescan = document.getElementById('map-rescan');
+  if (rescan) {
+    rescan.onclick = async () => {
+      rescan.disabled = true;
+      await api('maps/scan', { method: 'POST' });
+      route();
+    };
+  }
+
+  // The canvas has no size until it is in the document.
+  requestAnimationFrame(() => MAP.resize());
+}
+
 // ----------------------------------------------------------------- school
 
 async function renderSchool() {
@@ -637,13 +800,85 @@ async function renderPack(packId) {
 
 async function renderArticle(packId, articleUrl) {
   const src = `/z/${encodeURIComponent(packId)}/C/${articleUrl.split('/').map(encodeURIComponent).join('/')}`;
+
   view.innerHTML = `
-    <div class="row-between" style="margin-bottom:12px">
-      <p class="faint" style="margin:0"><a href="#/read/${encodeURIComponent(packId)}">← back to search</a></p>
-      <a class="btn btn-sm" href="${src}" target="_blank" rel="noreferrer">Open full page</a>
+    <div class="reader-bar">
+      <button class="btn btn-sm" id="art-back" title="Previous article (Alt+←)" disabled>←</button>
+      <button class="btn btn-sm" id="art-fwd" title="Next article (Alt+→)" disabled>→</button>
+      <span class="reader-title" id="art-title">Loading…</span>
+      <span class="spacer"></span>
+      <a class="btn btn-sm" href="#/read/${encodeURIComponent(packId)}">Search</a>
+      <a class="btn btn-sm" href="${src}" target="_blank" rel="noreferrer">Full page</a>
     </div>
-    <iframe class="reader-frame" src="${src}" title="Article"></iframe>
+    <iframe class="reader-frame" id="art-frame" src="${src}" title="Article"></iframe>
   `;
+
+  const frame = document.getElementById('art-frame');
+  const backBtn = document.getElementById('art-back');
+  const fwdBtn = document.getElementById('art-fwd');
+  const titleEl = document.getElementById('art-title');
+
+  // The iframe keeps its own history as you follow links between articles, so
+  // "back" means stepping through that rather than leaving the reader. We track
+  // depth ourselves because cross-document history length is not readable.
+  let depth = 0;
+  let maxDepth = 0;
+  let firstLoad = true;
+
+  const updateButtons = () => {
+    backBtn.disabled = depth <= 0;
+    fwdBtn.disabled = depth >= maxDepth;
+  };
+
+  frame.addEventListener('load', () => {
+    if (firstLoad) {
+      firstLoad = false;
+    } else {
+      // A navigation we did not initiate is a link click: it truncates any
+      // forward history, exactly as a browser does.
+      if (!frame.dataset.moving) {
+        depth += 1;
+        maxDepth = depth;
+      }
+      delete frame.dataset.moving;
+    }
+
+    try {
+      const doc = frame.contentDocument;
+      titleEl.textContent = (doc && doc.title) || 'Article';
+
+      // Keep the address bar honest without re-rendering the view.
+      const path = frame.contentWindow.location.pathname;
+      const marker = `/z/${encodeURIComponent(packId)}/C/`;
+      if (path.startsWith(marker)) {
+        const current = decodeURIComponent(path.slice(marker.length));
+        history.replaceState(null, '', `#/read/${encodeURIComponent(packId)}/${encodeURIComponent(current)}`);
+      }
+    } catch {
+      titleEl.textContent = 'Article';
+    }
+
+    updateButtons();
+  });
+
+  const go = (delta) => {
+    const next = depth + delta;
+    if (next < 0 || next > maxDepth) return;
+    depth = next;
+    frame.dataset.moving = '1';
+    frame.contentWindow.history.go(delta);
+  };
+
+  backBtn.onclick = () => go(-1);
+  fwdBtn.onclick = () => go(1);
+
+  document.onkeydown = (e) => {
+    if (!location.hash.startsWith('#/read/')) { document.onkeydown = null; return; }
+    if (e.altKey && e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+    if (e.altKey && e.key === 'ArrowRight') { e.preventDefault(); go(1); }
+  };
+
+  updateButtons();
 }
 
 // ----------------------------------------------------------------- search

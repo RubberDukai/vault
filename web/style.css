@@ -247,6 +247,64 @@ a { color: var(--link); }
   background: #fff;
 }
 
+.reader-bar {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 10px; flex-wrap: nowrap;
+}
+.reader-title {
+  font-size: 14px; color: var(--text-dim);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  padding-left: 6px; min-width: 0;
+}
+
+/* ----------------------------------------------------------------- maps */
+
+.map-shell {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg-sunken);
+}
+.map-shell canvas {
+  display: block; width: 100%;
+  height: min(62vh, 620px);
+  cursor: grab; touch-action: none;
+}
+.map-readout {
+  position: absolute; top: 8px; right: 8px;
+  background: rgba(1, 4, 9, 0.78);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 9px;
+  font-family: var(--mono); font-size: 12px;
+  color: var(--text-dim);
+  pointer-events: none;
+}
+
+.map-controls {
+  display: grid; gap: 12px; margin-top: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+.map-panel {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+.map-panel h3 { margin: 0 0 8px; font-size: 14px; }
+.map-select {
+  width: 100%; padding: 6px 10px;
+  background: var(--bg); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  font: inherit; font-size: 14px;
+}
+.poi-row { margin-bottom: 5px; font-size: 14px; }
+.poi-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  display: inline-block; flex-shrink: 0;
+}
+
 .result { padding: 12px 0; border-bottom: 1px solid var(--border); }
 .result:last-child { border-bottom: none; }
 .result a { text-decoration: none; font-weight: 500; }

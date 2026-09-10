@@ -18,6 +18,7 @@ const { LibraryManager, humanBytes } = require('./library/manager');
 const catalog = require('./library/catalog');
 const downloads = require('./library/download');
 const { ContentLibrary } = require('./content/loader');
+const { MapManager } = require('./maps/manager');
 const markdown = require('./content/markdown');
 const { UnifiedSearch } = require('./search/unified');
 const srs = require('./srs/engine');
@@ -50,6 +51,7 @@ class ArkServer {
     this.webDir = path.join(ROOT, 'web');
 
     this.library = new LibraryManager(this.libraryDir);
+    this.maps = new MapManager(options.mapsDir || path.join(this.libraryDir, 'maps'));
     this.content = new ContentLibrary(this.contentDir);
     this.search = new UnifiedSearch();
 
@@ -68,6 +70,7 @@ class ArkServer {
     await this.content.load();
     this.search.build(this.content);
     await this.library.scan();
+    await this.maps.scan();
     return this;
   }
 
@@ -151,6 +154,7 @@ class ArkServer {
 
     if (pathname.startsWith('/api/')) return this.handleApi(req, res, url, pathname);
     if (pathname.startsWith('/z/')) return this.handleZim(req, res, pathname);
+    if (pathname.startsWith('/tile/')) return this.handleTile(req, res, pathname);
     return this.handleStatic(req, res, pathname);
   }
 
@@ -166,10 +170,18 @@ class ArkServer {
       const stat = await fsp.stat(target);
       if (stat.isDirectory()) throw new Error('directory');
       const ext = path.extname(target).toLowerCase();
+      // The app's own code is served from this machine, so caching it buys
+      // nothing and guarantees a stale interface after any update. Only the
+      // icons, which never change, are worth caching.
+      // "no-cache" still lets a browser reuse a copy from its memory cache
+      // within a session, which means an updated app can keep serving the old
+      // one. Over a local network the re-fetch is free, so refuse storage
+      // outright for code and markup.
+      const cacheable = ext === '.ico' || ext === '.png' || ext === '.woff2';
       res.writeHead(200, {
         'content-type': MIME[ext] || 'application/octet-stream',
         'content-length': stat.size,
-        'cache-control': ext === '.html' ? 'no-cache' : 'public, max-age=3600',
+        'cache-control': cacheable ? 'public, max-age=86400' : 'no-store, must-revalidate',
       });
       fs.createReadStream(target).pipe(res);
     } catch {
@@ -242,6 +254,58 @@ class ArkServer {
     }
   }
 
+  /**
+   * Map tiles: /tile/<packId>/<z>/<x>/<y>
+   *
+   * Vector packs come back as decoded JSON so the browser needs no protobuf
+   * handling; raster packs are passed straight through as images.
+   */
+  async handleTile(req, res, pathname) {
+    const parts = pathname.slice('/tile/'.length).split('/');
+    if (parts.length < 4) return this.json(res, 400, { error: 'Bad tile path' });
+
+    const [packId, zStr, xStr, yRaw] = parts;
+    const z = Number(zStr);
+    const x = Number(xStr);
+    const y = Number(String(yRaw).replace(/\.(png|jpg|pbf|json)$/i, ''));
+
+    if (!Number.isInteger(z) || !Number.isInteger(x) || !Number.isInteger(y)) {
+      return this.json(res, 400, { error: 'Tile coordinates must be integers' });
+    }
+
+    const pack = this.maps.get(packId);
+    if (!pack || pack.ok === false) return this.json(res, 404, { error: 'No such map pack' });
+
+    try {
+      if (pack.kind === 'vector') {
+        const tile = await this.maps.vectorTile(packId, z, x, y);
+        const payload = JSON.stringify(tile || {});
+        res.writeHead(200, {
+          'content-type': 'application/json; charset=utf-8',
+          'content-length': Buffer.byteLength(payload),
+          'cache-control': 'public, max-age=86400',
+        });
+        return res.end(payload);
+      }
+
+      const raw = await this.maps.rawTile(packId, z, x, y);
+      if (!raw) {
+        res.writeHead(204, { 'cache-control': 'public, max-age=3600' });
+        return res.end();
+      }
+      res.writeHead(200, {
+        'content-type': pack.format === 'mbtiles' && pack.format !== 'png'
+          ? `image/${(pack.format === 'jpg' ? 'jpeg' : 'png')}`
+          : 'image/png',
+        'content-length': raw.length,
+        'cache-control': 'public, max-age=86400',
+      });
+      return res.end(raw);
+    } catch (err) {
+      return this.json(res, 500, { error: err.message });
+    }
+  }
+
   // -------------------------------------------------------------------- api
 
   async handleApi(req, res, url, pathname) {
@@ -295,6 +359,20 @@ class ArkServer {
       const pack = this.library.get(route.slice('library/'.length));
       if (!pack) return this.json(res, 404, { error: 'No such pack' });
       return this.json(res, 200, { ...pack, ageDays: this.library.ageInDays(pack) });
+    }
+
+    // --- maps -------------------------------------------------------------
+    if (route === 'maps') {
+      return this.json(res, 200, {
+        packs: this.maps.list(),
+        categories: this.maps.categories(),
+        mapsDir: this.maps.mapsDir,
+      });
+    }
+
+    if (route === 'maps/scan' && method === 'POST') {
+      await this.maps.scan();
+      return this.json(res, 200, { packs: this.maps.list() });
     }
 
     // --- catalogue + downloads -------------------------------------------

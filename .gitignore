@@ -9,3 +9,5 @@ data/
 .tmp/
 node_modules/
 *.log
+library/maps/*.pmtiles
+library/maps/*.mbtiles
