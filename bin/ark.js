@@ -74,7 +74,15 @@ async function cmdServe(args) {
     for (const addr of addresses.slice(1)) console.log(`    ${addr}`);
   }
   console.log('');
-  console.log('  Ctrl+C to stop.');
+
+  if (args.open) {
+    const { openBrowser } = require('../src/open-browser');
+    console.log('  Opening the vault…');
+    console.log('');
+    openBrowser(`http://localhost:${server.port}`, { appMode: !args.browser });
+  }
+
+  console.log('  Leave this window open. Closing it stops the vault.');
   console.log('');
 
   const shutdown = async () => {
@@ -222,9 +230,28 @@ const COMMANDS = {
   search: cmdSearch,
 };
 
+/**
+ * Ark needs Node 22.15 or newer, which is where native zstd landed — that is
+ * what lets it read modern ZIM files with no compiled dependency.
+ */
+function checkNodeVersion() {
+  const [major, minor] = process.versions.node.split('.').map(Number);
+  if (major > 22 || (major === 22 && minor >= 15)) return;
+
+  console.error(`
+  Ark needs Node.js 22.15 or newer. This is Node ${process.versions.node}.
+
+  Download the current LTS release from https://nodejs.org, install it
+  with the default options, then start Ark again.
+`);
+  process.exit(1);
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const command = args._[0] || 'serve';
+
+  checkNodeVersion();
 
   if (args.help || command === 'help') {
     console.log(`

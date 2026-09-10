@@ -4,27 +4,35 @@ An offline knowledge vault. Wikipedia, a survival handbook, language learning an
 
 Runs on Windows, Linux and macOS. **No dependencies**: everything is built on Node's standard library, so there is nothing to install, compile or maintain — which is the point, for a tool whose job is to still work in ten years with no network.
 
+## Starting it
+
+**Windows** — double-click **`Ark.bat`**.
+
+To get an icon on the Desktop, run **`Create Desktop Shortcut.bat`** once. After that, Ark starts from the Desktop like any other application.
+
+**Linux / macOS** — `chmod +x ark.sh` once, then `./ark.sh`. See `ark.desktop` for adding it to the applications menu.
+
+A console window opens showing the addresses Ark is reachable on, and the vault opens in a clean browser window with no address bar. **Leave the console window open** — closing it stops the server. The addresses in it are what you type into a phone or tablet on the same wifi.
+
+If port 8080 is busy, Ark quietly moves up until it finds a free one.
+
 ## Requirements
 
-Node.js 22.15 or newer. That is the version where Node gained native zstd support, which is how Ark reads modern ZIM files without a compiled library.
-
-## Quick start
-
-```bash
-node bin/ark.js serve
-```
-
-It prints the addresses it is reachable on. Open the first on this machine, or any of the others from a phone or tablet on the same wifi.
+Node.js 22.15 or newer — that is the version where Node gained native zstd, which is how Ark reads modern ZIM files with no compiled library. Nothing else. If Node is missing, the launcher tells you where to get it.
 
 ## Commands
 
+For anything beyond starting it, run these from inside the Ark folder:
+
 ```bash
-ark serve [--port 8080] [--host 0.0.0.0]   run the vault and serve it on the network
-ark library                                 list packs and when each was cloned
-ark check                                   ask the catalogue what is newer
-ark info <file.zim>                         inspect a pack file directly
-ark search <query>                          search the handbook, school and packs
+node bin/ark.js serve [--port 8080] [--open] [--browser]
+node bin/ark.js library      list packs and when each was cloned
+node bin/ark.js check        ask the catalogue what is newer
+node bin/ark.js info <file>  inspect a .zim pack directly
+node bin/ark.js search <q>   search the handbook, school and packs
 ```
+
+`--open` launches a browser window; `--browser` uses your normal browser instead of a chromeless app window.
 
 ## Knowledge packs
 

@@ -32,6 +32,7 @@ const MIME = {
   '.json': 'application/json; charset=utf-8',
   '.svg': 'image/svg+xml',
   '.png': 'image/png',
+  '.ico': 'image/x-icon',
   '.jpg': 'image/jpeg',
   '.webmanifest': 'application/manifest+json',
   '.woff2': 'font/woff2',
@@ -78,8 +79,25 @@ class ArkServer {
       });
     });
 
-    await new Promise((resolve) => this.server.listen(this.port, this.host, resolve));
-    return this.addresses();
+    // If the chosen port is taken, walk up rather than failing. Someone
+    // double-clicking an icon should not have to think about ports.
+    const firstPort = this.port;
+    for (let attempt = 0; attempt < 12; attempt++) {
+      try {
+        await new Promise((resolve, reject) => {
+          const onError = (err) => { this.server.removeListener('listening', onListening); reject(err); };
+          const onListening = () => { this.server.removeListener('error', onError); resolve(); };
+          this.server.once('error', onError);
+          this.server.once('listening', onListening);
+          this.server.listen(this.port, this.host);
+        });
+        return this.addresses();
+      } catch (err) {
+        if (err.code !== 'EADDRINUSE') throw err;
+        this.port += 1;
+      }
+    }
+    throw new Error(`Could not find a free port between ${firstPort} and ${this.port}.`);
   }
 
   addresses() {

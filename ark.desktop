@@ -1,0 +1,16 @@
+[Desktop Entry]
+Type=Application
+Name=Ark
+GenericName=Offline Knowledge Vault
+Comment=Wikipedia, survival handbook, languages and schooling, with no internet
+Exec=bash -c "cd %k/.. && ./ark.sh"
+Icon=ark
+Terminal=true
+Categories=Education;Utility;
+Keywords=wikipedia;offline;encyclopedia;survival;library;
+
+# To install on Linux:
+#   cp ark.desktop ~/.local/share/applications/ark.desktop
+#   cp web/icon.png ~/.local/share/icons/ark.png
+#   sed -i "s|Exec=.*|Exec=$(pwd)/ark.sh|" ~/.local/share/applications/ark.desktop
+#   chmod +x ark.sh
