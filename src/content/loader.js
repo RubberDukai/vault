@@ -44,13 +44,48 @@ class ContentLibrary {
     this.handbook = [];    // modules -> chapters
     this.languages = [];   // language -> decks -> cards
     this.education = [];   // subject -> lessons
+    this.manual = [];      // flat pages about the app itself
     this.loadedAt = null;
   }
 
   async load() {
-    await Promise.all([this._loadHandbook(), this._loadLanguages(), this._loadEducation()]);
+    await Promise.all([
+      this._loadHandbook(),
+      this._loadLanguages(),
+      this._loadEducation(),
+      this._loadManual(),
+    ]);
     this.loadedAt = new Date().toISOString();
     return this;
+  }
+
+  /** The manual: how this thing works and how it was built. A flat list. */
+  async _loadManual() {
+    const root = path.join(this.contentDir, 'manual');
+    const pages = [];
+
+    for (const file of await readDirSafe(root)) {
+      if (!file.isFile() || !file.name.endsWith('.md')) continue;
+      const raw = await fsp.readFile(path.join(root, file.name), 'utf8');
+      const { meta, body } = parseFrontmatter(raw);
+      const slug = file.name.replace(/\.md$/, '');
+      pages.push({
+        id: slug,
+        slug,
+        title: meta.title || slug,
+        summary: meta.summary || '',
+        order: meta.order ?? 50,
+        body,
+        plain: markdown.toPlainText(body),
+      });
+    }
+
+    pages.sort((a, b) => (a.order - b.order) || a.title.localeCompare(b.title));
+    this.manual = pages;
+  }
+
+  manualPage(slug) {
+    return this.manual.find((p) => p.slug === slug) || null;
   }
 
   async _loadHandbook() {
@@ -141,7 +176,7 @@ class ContentLibrary {
             })),
           });
         } catch (err) {
-          console.error(`[ark] skipping deck ${file.name}: ${err.message}`);
+          console.error(`[vault] skipping deck ${file.name}: ${err.message}`);
         }
       }
 

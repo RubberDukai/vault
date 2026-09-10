@@ -9,9 +9,45 @@ const searchForm = document.getElementById('global-search');
 const searchInput = document.getElementById('q');
 const footerStatus = document.getElementById('footer-status');
 
-let PROFILE = localStorage.getItem('ark.profile') || 'default';
+let PROFILE = localStorage.getItem('vault.profile') || localStorage.getItem('ark.profile') || 'default';
 let STATUS = null;
 let pollTimer = null;
+let MASCOT = null;
+
+// ------------------------------------------------------------- appearance
+
+const themeSelect = document.getElementById('theme');
+const phosphorSelect = document.getElementById('phosphor');
+
+function applyAppearance() {
+  const theme = localStorage.getItem('vault.theme') || 'dark';
+  const phosphor = localStorage.getItem('vault.phosphor') || 'green';
+
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.dataset.phosphor = phosphor;
+  phosphorSelect.hidden = theme !== 'pipboy';
+
+  themeSelect.value = theme;
+  phosphorSelect.value = phosphor;
+
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) {
+    meta.content = getComputedStyle(document.documentElement)
+      .getPropertyValue('--bg').trim() || '#0d1117';
+  }
+}
+
+themeSelect.onchange = () => {
+  localStorage.setItem('vault.theme', themeSelect.value);
+  applyAppearance();
+};
+
+phosphorSelect.onchange = () => {
+  localStorage.setItem('vault.phosphor', phosphorSelect.value);
+  applyAppearance();
+};
+
+applyAppearance();
 
 // ------------------------------------------------------------------ utils
 
@@ -65,6 +101,9 @@ const routes = [
   [/^\/languages$/, renderLanguages],
   [/^\/study(?:\/(.+))?$/, renderStudy],
   [/^\/maps$/, renderMaps],
+  [/^\/comms$/, renderComms],
+  [/^\/manual$/, renderManual],
+  [/^\/manual\/(.+)$/, renderManualPage],
   [/^\/school$/, renderSchool],
   [/^\/school\/(.+)$/, renderLesson],
   [/^\/read\/([^/]+)$/, renderPack],
@@ -99,52 +138,89 @@ async function route() {
 
 // ------------------------------------------------------------------- home
 
+const FEATURES = [
+  ['Library', '#/library', 'Your encyclopedia packs. Every one records the day it was cloned, and tells you when a fresher copy exists.'],
+  ['Handbook', '#/handbook', 'Water, fire, medicine, food, power, shelter, comms. Written to be read before you need it.'],
+  ['Maps', '#/maps', 'Offline maps you can draw on. Mark routes, hazards and what you found where — the world changes, your map should too.'],
+  ['Comms', '#/comms', 'Message anyone else on this network. No internet, no accounts, no company in the middle.'],
+  ['Languages', '#/languages', 'Spaced repetition that shows you a card just before you would have forgotten it.'],
+  ['School', '#/school', 'A curriculum that needs no teacher, server or signal. Progress tracked per person.'],
+  ['Manual', '#/manual', 'How all of this works and how it was built — so you can keep it running, or rebuild it.'],
+  ['Get packs', '#/get', 'Add to the library while you still have a connection. This is the one page that needs one.'],
+];
+
 async function renderHome() {
   setBusy('Opening the vault…');
   const [status, library] = await Promise.all([api('status'), api('library')]);
   STATUS = status;
 
+  if (MASCOT === null) {
+    MASCOT = await fetch('/vaultboy.txt').then((r) => r.text()).catch(() => '');
+  }
+
   const packs = library.packs;
-  const stale = packs.filter((p) => p.ok && p.ageDays !== null && p.ageDays > 365);
+  const ready = packs.filter((p) => p.ok);
+  const stale = ready.filter((p) => p.ageDays !== null && p.ageDays > 365);
 
   view.innerHTML = `
-    <h1>The vault is open</h1>
-    <p class="lede">Everything below works with no internet connection. ${
-      packs.length === 0 ? 'You have no knowledge packs yet — start there.' : ''
-    }</p>
+    <div class="hero">
+      <div class="hero-text">
+        <h1>Welcome home.</h1>
+        <p class="lede">
+          This is a vault: a copy of what people know, kept somewhere it cannot be switched off.
+          Nothing here needs the internet. Nothing here can be taken away, edited from a distance,
+          or quietly retired. Pull the plug on the world and it all still opens.
+        </p>
+        <p class="muted">
+          It is meant to be used, not admired — so poke at everything, and read the
+          <a href="#/handbook">handbook</a> on a quiet evening rather than a bad one.
+        </p>
+      </div>
+      <pre class="mascot" aria-label="Vault mascot giving a thumbs up">${esc(MASCOT)}</pre>
+    </div>
 
     <div class="stat-row">
-      <div class="stat"><div class="stat-value">${packs.filter((p) => p.ok).length}</div><div class="stat-label">Packs</div></div>
-      <div class="stat"><div class="stat-value">${status.librarySize}</div><div class="stat-label">On disk</div></div>
+      <div class="stat"><div class="stat-value">${ready.length}</div><div class="stat-label">Packs</div></div>
+      <div class="stat"><div class="stat-value">${esc(status.librarySize)}</div><div class="stat-label">On disk</div></div>
       <div class="stat"><div class="stat-value">${status.content.chapters}</div><div class="stat-label">Chapters</div></div>
       <div class="stat"><div class="stat-value">${status.content.cards}</div><div class="stat-label">Cards</div></div>
       <div class="stat"><div class="stat-value">${status.content.lessons}</div><div class="stat-label">Lessons</div></div>
     </div>
 
-    ${stale.length ? `<div class="card" style="border-color:#4a3711">
+    ${packs.length === 0 ? `<div class="empty">
+      <p>No knowledge packs yet — the shelves are still empty.</p>
+      <a class="btn btn-primary" href="#/get">Get your first pack</a>
+    </div>` : ''}
+
+    ${stale.length ? `<div class="card">
       <strong>${stale.length} pack${stale.length > 1 ? 's are' : ' is'} over a year old.</strong>
-      <p class="muted" style="margin:6px 0 10px">Worth refreshing while you still can.</p>
+      <p class="muted" style="margin:6px 0 10px">Worth refreshing while refreshing is still possible.</p>
       <a class="btn btn-sm" href="#/library">Check for updates</a>
     </div>` : ''}
 
-    ${packs.length === 0 ? `<div class="empty">
-      <p>No knowledge packs in the library yet.</p>
-      <a class="btn btn-primary" href="#/get">Get your first pack</a>
-    </div>` : `<h2>Your knowledge packs</h2>${packs.map(packCard).join('')}`}
+    <h2>What's in here</h2>
+    <div class="feature-list">
+      ${FEATURES.map(([name, href, desc]) => `
+        <a class="feature" href="${href}">
+          <span class="feature-name">${esc(name)}</span>
+          <span class="feature-desc">${esc(desc)}</span>
+        </a>`).join('')}
+    </div>
 
-    <h2>The handbook</h2>
-    <div class="grid" id="home-modules"></div>
+    <h2>Getting your bearings</h2>
+    <div class="card">
+      <p><strong>Search the lot at once.</strong> The box at the top searches the handbook, the school
+      and every encyclopedia pack together. It is the fastest way in.</p>
+      <p><strong>Everyone gets a profile.</strong> Top right. Flashcard schedules and lesson progress
+      are kept per person, so the children's work stays theirs.</p>
+      <p><strong>Read it on anything.</strong> Whatever device is serving this prints an address on
+      its console — type that into a phone or tablet on the same wifi and you are in. No app to install.</p>
+      <p style="margin:0"><strong>Make it yours.</strong> Three appearances in the top right, including a
+      phosphor terminal with a screen colour of your choosing. Purely for the pleasure of it.</p>
+    </div>
   `;
 
-  const handbook = await api('handbook');
-  document.getElementById('home-modules').innerHTML = handbook.modules.map((mod) => `
-    <a class="card card-link" href="#/handbook">
-      <div class="row" style="gap:8px"><strong>${esc(mod.title)}</strong></div>
-      <p class="faint" style="margin:6px 0 0">${esc(mod.summary || `${mod.chapters.length} chapters`)}</p>
-    </a>
-  `).join('') || '<div class="empty">No handbook content yet.</div>';
-
-  footerStatus.textContent = `Ark · reachable at ${status.addresses.join('  ·  ')}`;
+  footerStatus.textContent = `Vault · reachable at ${status.addresses.join('  ·  ')}`;
 }
 
 function packCard(pack) {
@@ -605,6 +681,31 @@ async function renderMaps() {
           <span>Place names</span>
         </label>
       </div>
+
+      <div class="map-panel">
+        <div class="row-between">
+          <h3 style="margin:0">Your markings</h3>
+          <label class="checkbox-row" style="font-size:13px">
+            <input type="checkbox" id="map-show-ann" checked>
+            <span>Show</span>
+          </label>
+        </div>
+        <p class="faint" style="margin:6px 0 10px">Drawn on the map and saved here, so everyone on
+        the network sees the same routes and notes.</p>
+
+        <div class="row" style="gap:6px;margin-bottom:8px">
+          <button class="btn btn-sm" id="tool-pan">Pan</button>
+          <button class="btn btn-sm" id="tool-pen">Draw</button>
+          <button class="btn btn-sm" id="tool-eraser">Erase</button>
+        </div>
+
+        <div class="swatches" id="swatches"></div>
+        <div class="pen-sizes" id="pen-sizes"></div>
+
+        <h3 style="margin-top:14px">Layers</h3>
+        <div id="ann-layers"></div>
+        <button class="btn btn-sm" id="add-layer" style="margin-top:8px">+ New layer</button>
+      </div>
     </div>
 
     ${packs.length === 0 ? `<div class="card" style="margin-top:16px">
@@ -696,8 +797,259 @@ async function renderMaps() {
     };
   }
 
+  await setUpAnnotations();
+
   // The canvas has no size until it is in the document.
   requestAnimationFrame(() => MAP.resize());
+}
+
+const PEN_COLOURS = ['#f85149', '#e3b341', '#3fb950', '#6cb6ff', '#bc8cff', '#ffffff', '#1a1a1a'];
+const PEN_WIDTHS = [2, 4, 7, 12];
+
+async function setUpAnnotations() {
+  let { layers } = await api('maps/annotations');
+  MAP.setAnnotations(layers);
+
+  const layerList = document.getElementById('ann-layers');
+  const swatches = document.getElementById('swatches');
+  const sizes = document.getElementById('pen-sizes');
+
+  const toolButtons = {
+    pan: document.getElementById('tool-pan'),
+    pen: document.getElementById('tool-pen'),
+    eraser: document.getElementById('tool-eraser'),
+  };
+
+  const selectTool = (name) => {
+    MAP.setTool(name === 'pan' ? null : name);
+    for (const [key, btn] of Object.entries(toolButtons)) {
+      btn.classList.toggle('btn-active', key === name);
+    }
+  };
+  for (const [name, btn] of Object.entries(toolButtons)) btn.onclick = () => selectTool(name);
+  selectTool('pan');
+
+  swatches.innerHTML = PEN_COLOURS.map((colour, i) => `
+    <button class="swatch${i === 0 ? ' selected' : ''}" data-colour="${colour}"
+      style="background:${colour}" title="${colour}"></button>`).join('');
+  for (const swatch of swatches.querySelectorAll('.swatch')) {
+    swatch.onclick = () => {
+      MAP.penColour = swatch.dataset.colour;
+      swatches.querySelectorAll('.swatch').forEach((s) => s.classList.remove('selected'));
+      swatch.classList.add('selected');
+    };
+  }
+
+  sizes.innerHTML = PEN_WIDTHS.map((width, i) => `
+    <button class="pen-size${i === 1 ? ' selected' : ''}" data-width="${width}" title="${width}px">
+      <i style="width:${width + 2}px;height:${width + 2}px"></i>
+    </button>`).join('');
+  MAP.penWidth = PEN_WIDTHS[1];
+  for (const button of sizes.querySelectorAll('.pen-size')) {
+    button.onclick = () => {
+      MAP.penWidth = Number(button.dataset.width);
+      sizes.querySelectorAll('.pen-size').forEach((b) => b.classList.remove('selected'));
+      button.classList.add('selected');
+    };
+  }
+
+  const paintLayers = () => {
+    layerList.innerHTML = layers.map((layer) => `
+      <div class="layer-row">
+        <input type="checkbox" class="layer-visible" data-id="${esc(layer.id)}" ${layer.visible ? 'checked' : ''}>
+        <input type="radio" name="active-layer" class="layer-active" data-id="${esc(layer.id)}"
+          ${layer.id === MAP.activeLayerId ? 'checked' : ''} title="Draw into this layer">
+        <span class="layer-name">${esc(layer.name)}</span>
+        <span class="faint">${layer.strokes.length}</span>
+        ${layers.length > 1 ? `<button class="btn btn-sm layer-delete" data-id="${esc(layer.id)}" title="Delete layer">×</button>` : ''}
+      </div>`).join('');
+
+    for (const box of layerList.querySelectorAll('.layer-visible')) {
+      box.onchange = () => {
+        const layer = layers.find((l) => l.id === box.dataset.id);
+        if (layer) layer.visible = box.checked;
+        MAP.setAnnotations(layers);
+      };
+    }
+    for (const radio of layerList.querySelectorAll('.layer-active')) {
+      radio.onchange = () => { MAP.activeLayerId = radio.dataset.id; };
+    }
+    for (const button of layerList.querySelectorAll('.layer-delete')) {
+      button.onclick = async () => {
+        if (!confirm('Delete this layer and everything drawn on it?')) return;
+        const result = await api(`maps/annotations/layers/${encodeURIComponent(button.dataset.id)}`, { method: 'DELETE' });
+        layers = result.layers;
+        if (!layers.find((l) => l.id === MAP.activeLayerId)) MAP.activeLayerId = layers[0]?.id || null;
+        MAP.setAnnotations(layers);
+        paintLayers();
+      };
+    }
+  };
+  paintLayers();
+
+  document.getElementById('add-layer').onclick = async () => {
+    const name = prompt('Name this layer (routes, hazards, water, whatever you need):');
+    if (!name) return;
+    const result = await api('maps/annotations/layers', { method: 'POST', body: { name } });
+    layers = result.layers;
+    MAP.activeLayerId = result.id;
+    MAP.setAnnotations(layers);
+    paintLayers();
+  };
+
+  document.getElementById('map-show-ann').onchange = (e) => {
+    MAP.showAnnotations = e.target.checked;
+    MAP.draw();
+  };
+
+  MAP.onStroke = async (stroke) => {
+    const target = layers.find((l) => l.id === MAP.activeLayerId) || layers[0];
+    if (!target) return;
+    const saved = await api('maps/annotations/strokes', {
+      method: 'POST',
+      body: { layerId: target.id, ...stroke },
+    });
+    target.strokes.push(saved.stroke);
+    MAP.setAnnotations(layers);
+    paintLayers();
+  };
+
+  MAP.onErase = async (strokeIds) => {
+    await api('maps/annotations/strokes/delete', { method: 'POST', body: { strokeIds } });
+    const gone = new Set(strokeIds);
+    for (const layer of layers) layer.strokes = layer.strokes.filter((s) => !gone.has(s.id));
+    MAP.setAnnotations(layers);
+    paintLayers();
+  };
+}
+
+// ------------------------------------------------------------------ comms
+
+async function renderComms() {
+  setBusy('Opening the channel…');
+  let channel = localStorage.getItem('vault.channel') || 'general';
+  let data = await api(`comms?channel=${encodeURIComponent(channel)}`);
+
+  const paint = () => {
+    view.innerHTML = `
+      <h1>Outpost comms</h1>
+      <p class="lede">Messages stay on this machine and reach everyone on this network. No internet,
+      no accounts, nobody in the middle. Anyone who can open the vault can read and post.</p>
+
+      <div class="channel-row" id="channels">
+        ${data.channels.map((c) => `
+          <button class="btn btn-sm channel-btn${c === channel ? ' btn-active' : ''}" data-channel="${esc(c)}">#${esc(c)}</button>
+        `).join('')}
+        <button class="btn btn-sm" id="new-channel">+ channel</button>
+      </div>
+
+      <div class="chat-shell">
+        <div class="chat-log" id="chat-log"></div>
+        <form class="chat-form" id="chat-form">
+          <input id="chat-text" placeholder="Message #${esc(channel)}…" autocomplete="off" maxlength="2000">
+          <button class="btn btn-primary" type="submit">Send</button>
+        </form>
+      </div>
+
+      <p class="faint" style="margin-top:12px">
+        Posting as <strong>${esc(profileName())}</strong>. Change profile in the top right.
+        Setting up a network to run this over is covered in
+        <a href="#/handbook/comms/mesh-networks">the handbook</a>.
+      </p>
+    `;
+
+    paintLog();
+
+    for (const btn of view.querySelectorAll('.channel-btn')) {
+      btn.onclick = async () => {
+        channel = btn.dataset.channel;
+        localStorage.setItem('vault.channel', channel);
+        data = await api(`comms?channel=${encodeURIComponent(channel)}`);
+        paint();
+      };
+    }
+
+    document.getElementById('new-channel').onclick = async () => {
+      const name = prompt('Channel name (letters, numbers and dashes):');
+      if (!name) return;
+      const result = await api('comms/channels', { method: 'POST', body: { name } });
+      data.channels = result.channels;
+      paint();
+    };
+
+    document.getElementById('chat-form').onsubmit = async (e) => {
+      e.preventDefault();
+      const input = document.getElementById('chat-text');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      const { message } = await api('comms', {
+        method: 'POST',
+        body: { channel, text, author: profileName() },
+      });
+      data.messages.push(message);
+      paintLog();
+    };
+  };
+
+  const paintLog = () => {
+    const log = document.getElementById('chat-log');
+    if (!log) return;
+    const pinned = log.scrollTop + log.clientHeight >= log.scrollHeight - 40;
+
+    log.innerHTML = data.messages.length ? data.messages.map((m) => `
+      <div class="chat-msg">
+        <div class="chat-meta">
+          <span class="chat-author">${esc(m.author)}</span>
+          · ${new Date(m.at).toLocaleString()}
+        </div>
+        <p class="chat-body">${esc(m.text)}</p>
+      </div>
+    `).join('') : '<p class="faint">Nothing here yet. Say something.</p>';
+
+    if (pinned) log.scrollTop = log.scrollHeight;
+  };
+
+  paint();
+
+  // Poll for anyone else's messages. Crude, robust, and fine on a LAN.
+  pollTimer = setInterval(async () => {
+    if (!document.getElementById('chat-log')) return stopPolling();
+    const since = data.messages.length ? data.messages[data.messages.length - 1].at : 0;
+    const update = await api(`comms?channel=${encodeURIComponent(channel)}&since=${since}`);
+    if (update.messages.length) {
+      data.messages.push(...update.messages);
+      paintLog();
+    }
+  }, 3000);
+}
+
+// ----------------------------------------------------------------- manual
+
+async function renderManual() {
+  setBusy();
+  const { pages } = await api('manual');
+
+  view.innerHTML = `
+    <h1>The manual</h1>
+    <p class="lede">How the vault works, how it was built, and how to keep it alive. Written on the
+    assumption that one day the person reading it will not be the person who made it.</p>
+    ${pages.length === 0 ? '<div class="empty">No manual pages installed.</div>' : pages.map((page) => `
+      <a class="card card-link" href="#/manual/${encodeURIComponent(page.slug)}">
+        <strong>${esc(page.title)}</strong>
+        ${page.summary ? `<p class="faint" style="margin:6px 0 0">${esc(page.summary)}</p>` : ''}
+      </a>
+    `).join('')}
+  `;
+}
+
+async function renderManualPage(slug) {
+  setBusy();
+  const page = await api(`manual/${encodeURIComponent(slug)}`);
+  view.innerHTML = `
+    <p class="faint"><a href="#/manual">Manual</a></p>
+    <article class="prose">${page.html}</article>
+  `;
 }
 
 // ----------------------------------------------------------------- school
@@ -936,13 +1288,13 @@ profileSelect.onchange = async () => {
     if (name) {
       await api('profiles', { method: 'POST', body: { name } });
       PROFILE = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      localStorage.setItem('ark.profile', PROFILE);
+      localStorage.setItem('vault.profile', PROFILE);
     }
     await loadProfiles();
     profileSelect.value = PROFILE;
   } else {
     PROFILE = profileSelect.value;
-    localStorage.setItem('ark.profile', PROFILE);
+    localStorage.setItem('vault.profile', PROFILE);
   }
   route();
 };

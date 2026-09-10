@@ -114,7 +114,7 @@ async function run(job) {
   job.received = resumeAt;
   job.resumedFrom = resumeAt;
 
-  const headers = { 'user-agent': 'Ark/0.1 (offline knowledge vault)' };
+  const headers = { 'user-agent': 'Vault/0.1 (offline knowledge vault)' };
   if (resumeAt > 0) headers.range = `bytes=${resumeAt}-`;
 
   const res = await fetch(job.url, { headers, signal: job.controller.signal, redirect: 'follow' });

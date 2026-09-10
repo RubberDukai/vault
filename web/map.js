@@ -161,11 +161,24 @@ class ArkMap {
     this.showPoi = true;
     this.showLabels = true;
 
+    // Hand-drawn annotation layers: routes, hazards, anything the map does
+    // not know about because the world changed after the map was made.
+    this.annotationLayers = [];
+    this.activeLayerId = null;
+    this.drawMode = null;          // null | 'pen' | 'eraser'
+    this.penColour = '#f85149';
+    this.penWidth = 3;
+    this.showAnnotations = true;
+
     this._tiles = new Map();
     this._pending = new Set();
     this._raster = new Map();
     this._frame = null;
+    this._timer = null;
     this._marker = null;
+    this._drawing = false;
+    this._activeStroke = null;
+    this._erasedIds = null;
 
     this._bindEvents();
     this.resize();
@@ -234,10 +247,30 @@ class ArkMap {
     let lastY = 0;
 
     const pointerDown = (e) => {
+      this.canvas.setPointerCapture(e.pointerId);
+
+      // With a tool selected, dragging draws instead of panning.
+      if (this.drawMode) {
+        const rect = this.canvas.getBoundingClientRect();
+        const position = this.pixelToLonLat(e.clientX - rect.left, e.clientY - rect.top);
+        if (this.drawMode === 'pen') {
+          this._activeStroke = {
+            colour: this.penColour,
+            width: this.penWidth,
+            points: [[position.lon, position.lat]],
+          };
+        } else {
+          this._erasedIds = new Set();
+          this._eraseAt(e.clientX - rect.left, e.clientY - rect.top);
+        }
+        this._drawing = true;
+        this.draw();
+        return;
+      }
+
       dragging = true;
       lastX = e.clientX;
       lastY = e.clientY;
-      this.canvas.setPointerCapture(e.pointerId);
       this.canvas.style.cursor = 'grabbing';
     };
 
@@ -245,6 +278,16 @@ class ArkMap {
       const rect = this.canvas.getBoundingClientRect();
       this._hover = this.pixelToLonLat(e.clientX - rect.left, e.clientY - rect.top);
       if (this.onHover) this.onHover(this._hover);
+
+      if (this._drawing) {
+        if (this.drawMode === 'pen' && this._activeStroke) {
+          this._activeStroke.points.push([this._hover.lon, this._hover.lat]);
+        } else if (this.drawMode === 'eraser') {
+          this._eraseAt(e.clientX - rect.left, e.clientY - rect.top);
+        }
+        this.draw();
+        return;
+      }
 
       if (!dragging) return;
       const scale = Math.pow(2, this.zoom);
@@ -261,8 +304,23 @@ class ArkMap {
     };
 
     const pointerUp = (e) => {
-      dragging = false;
       try { this.canvas.releasePointerCapture(e.pointerId); } catch { /* already gone */ }
+
+      if (this._drawing) {
+        this._drawing = false;
+        if (this.drawMode === 'pen' && this._activeStroke && this._activeStroke.points.length > 1) {
+          const stroke = this._activeStroke;
+          if (this.onStroke) this.onStroke(stroke);
+        } else if (this.drawMode === 'eraser' && this._erasedIds && this._erasedIds.size) {
+          if (this.onErase) this.onErase([...this._erasedIds]);
+        }
+        this._activeStroke = null;
+        this._erasedIds = null;
+        this.draw();
+        return;
+      }
+
+      dragging = false;
       this.canvas.style.cursor = 'grab';
     };
 
@@ -470,8 +528,81 @@ class ArkMap {
       }
     }
 
+    if (this.showAnnotations) this._drawAnnotations();
     this._drawMarker();
     this._drawScaleBar();
+  }
+
+  // ------------------------------------------------------------ annotations
+
+  setAnnotations(layers) {
+    this.annotationLayers = layers || [];
+    if (!this.activeLayerId && this.annotationLayers.length) {
+      this.activeLayerId = this.annotationLayers[0].id;
+    }
+    this.draw();
+  }
+
+  setTool(mode) {
+    this.drawMode = mode;
+    this.canvas.classList.toggle('drawing', Boolean(mode));
+    this.canvas.style.cursor = mode ? 'crosshair' : 'grab';
+  }
+
+  _strokePath(points) {
+    const ctx = this.ctx;
+    ctx.beginPath();
+    let started = false;
+    for (const [lon, lat] of points) {
+      const { x, y } = this.lonLatToPixel(lon, lat);
+      if (!started) { ctx.moveTo(x, y); started = true; } else { ctx.lineTo(x, y); }
+    }
+    ctx.stroke();
+  }
+
+  _drawAnnotations() {
+    const ctx = this.ctx;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    for (const layer of this.annotationLayers) {
+      if (!layer.visible) continue;
+      for (const stroke of layer.strokes) {
+        if (this._erasedIds && this._erasedIds.has(stroke.id)) continue;
+        ctx.strokeStyle = stroke.colour;
+        ctx.lineWidth = stroke.width;
+        ctx.globalAlpha = 0.92;
+        this._strokePath(stroke.points);
+      }
+    }
+
+    // The stroke currently under the pen, before it is saved.
+    if (this._activeStroke && this._activeStroke.points.length > 1) {
+      ctx.strokeStyle = this._activeStroke.colour;
+      ctx.lineWidth = this._activeStroke.width;
+      ctx.globalAlpha = 0.92;
+      this._strokePath(this._activeStroke.points);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  /** Mark any visible stroke passing within a few pixels of the cursor. */
+  _eraseAt(px, py, radius = 12) {
+    if (!this._erasedIds) this._erasedIds = new Set();
+
+    for (const layer of this.annotationLayers) {
+      if (!layer.visible) continue;
+      for (const stroke of layer.strokes) {
+        if (this._erasedIds.has(stroke.id)) continue;
+        for (const [lon, lat] of stroke.points) {
+          const { x, y } = this.lonLatToPixel(lon, lat);
+          if (Math.hypot(x - px, y - py) <= radius + stroke.width) {
+            this._erasedIds.add(stroke.id);
+            break;
+          }
+        }
+      }
+    }
   }
 
   /**

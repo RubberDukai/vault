@@ -155,7 +155,7 @@ class UnifiedSearch {
           });
         }
       } catch (err) {
-        console.error(`[ark] search failed in pack ${pack.id}: ${err.message}`);
+        console.error(`[vault] search failed in pack ${pack.id}: ${err.message}`);
       }
     }
     return out;

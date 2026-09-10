@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Name=Ark
+Name=Vault
 GenericName=Offline Knowledge Vault
 Comment=Wikipedia, survival handbook, languages and schooling, with no internet
 Exec=bash -c "cd %k/.. && ./ark.sh"

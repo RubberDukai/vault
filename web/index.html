@@ -1,31 +1,52 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0d1117">
-<title>Ark — Offline Knowledge Vault</title>
-<link rel="icon" href="/ark.ico" sizes="any">
+<title>Vault — Offline Knowledge Vault</title>
+<link rel="icon" href="/vault.ico" sizes="any">
 <link rel="icon" href="/icon.png" type="image/png">
 <link rel="apple-touch-icon" href="/icon.png">
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
+<div class="crt-overlay" aria-hidden="true"></div>
+
 <header class="topbar">
-  <a class="brand" href="#/">
-    <span class="brand-mark">▲</span>
-    <span class="brand-name">ARK</span>
+  <a class="brand" href="#/" title="Vault">
+    <svg class="brand-cog" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+      <path fill="currentColor" d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8Zm0 5.2a1.8 1.8 0 1 1 0-3.6 1.8 1.8 0 0 1 0 3.6Z"/>
+      <path fill="currentColor" d="m20.6 13.6.1-1.6-.1-1.6 1.7-1.3a.6.6 0 0 0 .14-.76l-1.6-2.78a.6.6 0 0 0-.73-.26l-2 .8a7.7 7.7 0 0 0-2.75-1.6l-.3-2.12A.6.6 0 0 0 14.46 1H9.54a.6.6 0 0 0-.6.5l-.3 2.13a7.7 7.7 0 0 0-2.75 1.6l-2-.8a.6.6 0 0 0-.73.25L1.56 7.46a.6.6 0 0 0 .14.77l1.7 1.3-.1 1.6.1 1.6-1.7 1.3a.6.6 0 0 0-.14.77l1.6 2.78a.6.6 0 0 0 .73.25l2-.8a7.7 7.7 0 0 0 2.75 1.6l.3 2.13a.6.6 0 0 0 .6.5h4.92a.6.6 0 0 0 .6-.5l.3-2.13a7.7 7.7 0 0 0 2.75-1.6l2 .8a.6.6 0 0 0 .73-.25l1.6-2.78a.6.6 0 0 0-.14-.77ZM12 17.4A5.4 5.4 0 1 1 12 6.6a5.4 5.4 0 0 1 0 10.8Z"/>
+    </svg>
+    <span class="brand-name">VAULT</span>
   </a>
 
   <form class="global-search" id="global-search" autocomplete="off">
     <input type="search" id="q" placeholder="Search everything…" aria-label="Search everything">
   </form>
 
-  <label class="profile-picker">
-    <span class="sr-only">Profile</span>
-    <select id="profile"></select>
-  </label>
+  <div class="topbar-controls">
+    <label class="sr-only" for="theme">Appearance</label>
+    <select id="theme" class="chip-select" title="Appearance">
+      <option value="dark">Dark</option>
+      <option value="light">Light</option>
+      <option value="pipboy">Pip-Boy</option>
+    </select>
+
+    <label class="sr-only" for="phosphor">Screen colour</label>
+    <select id="phosphor" class="chip-select" title="Screen colour" hidden>
+      <option value="green">Green</option>
+      <option value="amber">Amber</option>
+      <option value="blue">Blue</option>
+      <option value="white">White</option>
+      <option value="red">Red</option>
+    </select>
+
+    <label class="sr-only" for="profile">Profile</label>
+    <select id="profile" class="chip-select"></select>
+  </div>
 </header>
 
 <nav class="tabs" id="tabs">
@@ -33,8 +54,10 @@
   <a href="#/library" data-match="^#/library">Library</a>
   <a href="#/handbook" data-match="^#/handbook">Handbook</a>
   <a href="#/maps" data-match="^#/maps">Maps</a>
+  <a href="#/comms" data-match="^#/comms">Comms</a>
   <a href="#/languages" data-match="^#/(languages|study)">Languages</a>
   <a href="#/school" data-match="^#/school">School</a>
+  <a href="#/manual" data-match="^#/manual">Manual</a>
   <a href="#/get" data-match="^#/get">Get packs</a>
 </nav>
 
@@ -43,7 +66,11 @@
 </main>
 
 <footer class="footer">
-  <span id="footer-status">Ark · everything here works with the internet switched off</span>
+  <p class="footer-line" id="footer-status">Vault · everything here works with the internet switched off</p>
+  <p class="footer-credit">
+    Prepared by <strong>Joseph Watkins</strong>, architect.
+    <span class="footer-why">Built to design a brighter future — even if we have to pass through some darkness to reach it.</span>
+  </p>
 </footer>
 
 <script src="/map.js"></script>

@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 'use strict';
 /**
- * Ark command line. Works the same on Windows, Linux and macOS.
+ * Vault command line. Works the same on Windows, Linux and macOS.
  *
- *   ark serve [--port 8080] [--host 0.0.0.0]
- *   ark library                 list every pack and when it was cloned
- *   ark check                   ask the catalogue what is newer
- *   ark info <file.zim>         inspect a pack without the server
- *   ark search <query>          search everything from the terminal
+ *   vault serve [--port 8080] [--host 0.0.0.0]
+ *   vault library                 list every pack and when it was cloned
+ *   vault check                   ask the catalogue what is newer
+ *   vault info <file.zim>         inspect a pack without the server
+ *   vault search <query>          search everything from the terminal
  */
 
 const path = require('node:path');
@@ -57,7 +57,7 @@ async function cmdServe(args) {
   const stats = server.content.stats();
 
   console.log('');
-  console.log('  ARK — offline knowledge vault');
+  console.log('  VAULT — offline knowledge vault');
   console.log('  ' + '─'.repeat(48));
   console.log(`  Packs      ${packs.length} (${packs.filter((p) => p.ok).length} readable)`);
   for (const pack of packs) {
@@ -162,7 +162,7 @@ async function cmdInfo(args) {
   const { ZimFile } = require('../src/zim/reader');
   const target = args._[1];
   if (!target) {
-    console.error('Usage: ark info <file.zim>');
+    console.error('Usage: vault info <file.zim>');
     process.exit(1);
   }
 
@@ -193,7 +193,7 @@ async function cmdSearch(args) {
   const { ArkServer } = require('../src/server');
   const query = args._.slice(1).join(' ');
   if (!query) {
-    console.error('Usage: ark search <query>');
+    console.error('Usage: vault search <query>');
     process.exit(1);
   }
 
@@ -231,7 +231,7 @@ const COMMANDS = {
 };
 
 /**
- * Ark needs Node 22.15 or newer, which is where native zstd landed — that is
+ * Vault needs Node 22.15 or newer, which is where native zstd landed — that is
  * what lets it read modern ZIM files with no compiled dependency.
  */
 function checkNodeVersion() {
@@ -239,10 +239,10 @@ function checkNodeVersion() {
   if (major > 22 || (major === 22 && minor >= 15)) return;
 
   console.error(`
-  Ark needs Node.js 22.15 or newer. This is Node ${process.versions.node}.
+  Vault needs Node.js 22.15 or newer. This is Node ${process.versions.node}.
 
   Download the current LTS release from https://nodejs.org, install it
-  with the default options, then start Ark again.
+  with the default options, then start Vault again.
 `);
   process.exit(1);
 }
@@ -255,26 +255,26 @@ async function main() {
 
   if (args.help || command === 'help') {
     console.log(`
-  ark — offline knowledge vault
+  vault — offline knowledge vault
 
-  ark serve [--port 8080]   run the vault and serve it on the local network
-  ark library               list packs and when each was cloned
-  ark check                 ask the catalogue whether anything newer exists
-  ark info <file.zim>       inspect a pack file directly
-  ark search <query>        search the handbook, school and packs
+  vault serve [--port 8080]   run the vault and serve it on the local network
+  vault library               list packs and when each was cloned
+  vault check                 ask the catalogue whether anything newer exists
+  vault info <file.zim>       inspect a pack file directly
+  vault search <query>        search the handbook, school and packs
 `);
     return;
   }
 
   const handler = COMMANDS[command];
   if (!handler) {
-    console.error(`Unknown command "${command}". Try: ark help`);
+    console.error(`Unknown command "${command}". Try: vault help`);
     process.exit(1);
   }
   await handler(args);
 }
 
 main().catch((err) => {
-  console.error(`\nark: ${err.message}\n`);
+  console.error(`\nvault: ${err.message}\n`);
   process.exit(1);
 });

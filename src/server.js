@@ -34,6 +34,7 @@ const MIME = {
   '.svg': 'image/svg+xml',
   '.png': 'image/png',
   '.ico': 'image/x-icon',
+  '.txt': 'text/plain; charset=utf-8',
   '.jpg': 'image/jpeg',
   '.webmanifest': 'application/manifest+json',
   '.woff2': 'font/woff2',
@@ -62,6 +63,16 @@ class ArkServer {
       bookmarks: [],
       lastUpdateCheck: null,
     });
+
+    // Map annotations live server-side rather than in a browser, so a route
+    // drawn on the laptop is visible on everyone else's phone.
+    this.annotations = new Store(path.join(this.dataDir, 'map-annotations.json'), {
+      layers: [{ id: 'notes', name: 'Notes', colour: '#f85149', visible: true, strokes: [] }],
+    });
+
+    this.messages = new Store(path.join(this.dataDir, 'messages.json'), {
+      channels: { general: [] },
+    });
   }
 
   async init() {
@@ -77,7 +88,7 @@ class ArkServer {
   async start() {
     this.server = http.createServer((req, res) => {
       this.handle(req, res).catch((err) => {
-        console.error('[ark]', err);
+        console.error('[vault]', err);
         this.json(res, 500, { error: err.message });
       });
     });
@@ -375,6 +386,102 @@ class ArkServer {
       return this.json(res, 200, { packs: this.maps.list() });
     }
 
+    // --- map annotations --------------------------------------------------
+    // Drawings are stored as longitude/latitude, not screen pixels, so they
+    // stay put at every zoom level and on every device.
+    if (route === 'maps/annotations' && method === 'GET') {
+      return this.json(res, 200, this.annotations.get());
+    }
+
+    if (route === 'maps/annotations/layers' && method === 'POST') {
+      const body = await this.readBody(req);
+      const name = (body.name || '').trim() || 'Untitled layer';
+      const id = `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'layer'}-${Date.now().toString(36)}`;
+      this.annotations.update((d) => {
+        d.layers.push({ id, name, colour: body.colour || '#f85149', visible: true, strokes: [] });
+      });
+      return this.json(res, 200, { id, layers: this.annotations.get().layers });
+    }
+
+    if (route.startsWith('maps/annotations/layers/') && method === 'DELETE') {
+      const id = route.slice('maps/annotations/layers/'.length);
+      this.annotations.update((d) => { d.layers = d.layers.filter((l) => l.id !== id); });
+      return this.json(res, 200, { layers: this.annotations.get().layers });
+    }
+
+    if (route === 'maps/annotations/strokes' && method === 'POST') {
+      const body = await this.readBody(req);
+      if (!Array.isArray(body.points) || body.points.length < 1) {
+        return this.json(res, 400, { error: 'A stroke needs points' });
+      }
+      const stroke = {
+        id: `s${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+        colour: body.colour || '#f85149',
+        width: Number(body.width) || 3,
+        points: body.points,
+      };
+      let ok = false;
+      this.annotations.update((d) => {
+        const layer = d.layers.find((l) => l.id === body.layerId) || d.layers[0];
+        if (layer) { layer.strokes.push(stroke); ok = true; }
+      });
+      return this.json(res, ok ? 200 : 404, ok ? { stroke } : { error: 'No such layer' });
+    }
+
+    if (route === 'maps/annotations/strokes/delete' && method === 'POST') {
+      const body = await this.readBody(req);
+      const ids = new Set(body.strokeIds || []);
+      this.annotations.update((d) => {
+        for (const layer of d.layers) layer.strokes = layer.strokes.filter((s) => !ids.has(s.id));
+      });
+      return this.json(res, 200, { removed: ids.size });
+    }
+
+    // --- outpost comms ----------------------------------------------------
+    if (route === 'comms' && method === 'GET') {
+      const channel = q.get('channel') || 'general';
+      const since = Number(q.get('since') || 0);
+      const all = this.messages.get().channels[channel] || [];
+      return this.json(res, 200, {
+        channel,
+        channels: Object.keys(this.messages.get().channels),
+        messages: since ? all.filter((m) => m.at > since) : all.slice(-200),
+        now: Date.now(),
+      });
+    }
+
+    if (route === 'comms' && method === 'POST') {
+      const body = await this.readBody(req);
+      const text = String(body.text || '').trim();
+      if (!text) return this.json(res, 400, { error: 'Empty message' });
+
+      const channel = (body.channel || 'general').toLowerCase().replace(/[^a-z0-9-]/g, '') || 'general';
+      const message = {
+        id: `m${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+        author: String(body.author || 'anonymous').slice(0, 40),
+        text: text.slice(0, 2000),
+        at: Date.now(),
+      };
+
+      this.messages.update((d) => {
+        if (!d.channels[channel]) d.channels[channel] = [];
+        d.channels[channel].push(message);
+        // Bound the log so the file cannot grow without limit on a small disk.
+        if (d.channels[channel].length > 2000) {
+          d.channels[channel] = d.channels[channel].slice(-2000);
+        }
+      });
+      return this.json(res, 200, { message });
+    }
+
+    if (route === 'comms/channels' && method === 'POST') {
+      const body = await this.readBody(req);
+      const name = String(body.name || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
+      if (!name) return this.json(res, 400, { error: 'Bad channel name' });
+      this.messages.update((d) => { if (!d.channels[name]) d.channels[name] = []; });
+      return this.json(res, 200, { channels: Object.keys(this.messages.get().channels) });
+    }
+
     // --- catalogue + downloads -------------------------------------------
     if (route === 'catalog/search') {
       try {
@@ -454,6 +561,20 @@ class ArkServer {
       const chapter = this.content.chapter(route.slice('handbook/'.length));
       if (!chapter) return this.json(res, 404, { error: 'No such chapter' });
       const { body, plain, ...meta } = chapter;
+      return this.json(res, 200, { ...meta, html: markdown.render(body) });
+    }
+
+    // --- manual -----------------------------------------------------------
+    if (route === 'manual') {
+      return this.json(res, 200, {
+        pages: this.content.manual.map(({ body, plain, ...rest }) => rest),
+      });
+    }
+
+    if (route.startsWith('manual/')) {
+      const page = this.content.manualPage(route.slice('manual/'.length));
+      if (!page) return this.json(res, 404, { error: 'No such page' });
+      const { body, plain, ...meta } = page;
       return this.json(res, 200, { ...meta, html: markdown.render(body) });
     }
 

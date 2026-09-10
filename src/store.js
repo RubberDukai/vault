@@ -40,7 +40,7 @@ class Store {
       await fsp.writeFile(tmp, snapshot, 'utf8');
       await fsp.rename(tmp, this.filePath);
     }).catch((err) => {
-      console.error(`[ark] could not save ${path.basename(this.filePath)}:`, err.message);
+      console.error(`[vault] could not save ${path.basename(this.filePath)}:`, err.message);
     });
     return this._writeQueue;
   }

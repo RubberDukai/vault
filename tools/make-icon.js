@@ -1,6 +1,6 @@
 'use strict';
 /**
- * Generates web/ark.ico — the taskbar and shortcut icon.
+ * Generates web/vault.ico — the taskbar and shortcut icon.
  *
  * Written by hand rather than shipping a binary blob, so the icon can be
  * regenerated or restyled with no image editor and no dependencies. PNG and
@@ -87,27 +87,44 @@ function insideRounded(x, y, size, radius) {
   return dx * dx + dy * dy <= radius * radius;
 }
 
-/** Is this point inside the upward triangle, via barycentric sign tests? */
-function insideTriangle(px, py, ax, ay, bx, by, cx, cy) {
-  const d1 = (px - bx) * (ay - by) - (ax - bx) * (py - by);
-  const d2 = (px - cx) * (by - cy) - (bx - cx) * (py - cy);
-  const d3 = (px - ax) * (cy - ay) - (cx - ax) * (py - ay);
-  const hasNeg = d1 < 0 || d2 < 0 || d3 < 0;
-  const hasPos = d1 > 0 || d2 > 0 || d3 > 0;
-  return !(hasNeg && hasPos);
+const TEETH = 8;
+
+/**
+ * Is this point on the cog? A vault door is a cog, which makes it the obvious
+ * mark for this. The rim radius alternates between two values around the
+ * circle to cut the teeth, and a hub is punched out of the middle.
+ */
+function insideCog(px, py, centre, outer, inner, hub, spokeWidth) {
+  const dx = px - centre;
+  const dy = py - centre;
+  const distance = Math.hypot(dx, dy);
+
+  if (distance > outer) return false;
+
+  // Two sectors per tooth: one raised, one cut away.
+  const angle = Math.atan2(dy, dx) + Math.PI;
+  const sector = Math.floor((angle / (Math.PI * 2)) * TEETH * 2);
+  const rim = sector % 2 === 0 ? outer : inner;
+  if (distance > rim) return false;
+
+  // Hollow hub, held by four spokes so it still reads as a cog when tiny.
+  if (distance < hub) {
+    const onSpoke = Math.abs(dx) < spokeWidth || Math.abs(dy) < spokeWidth;
+    return onSpoke && distance > hub * 0.22;
+  }
+  return true;
 }
 
-/** Render one icon size: dark rounded square with the amber Ark triangle. */
+/** Render one icon size: dark rounded square with the amber vault cog. */
 function renderIcon(size) {
   const big = size * SUPERSAMPLE;
   const radius = big * 0.18;
 
-  // Triangle geometry, as a proportion of the canvas.
-  const apexX = big / 2;
-  const apexY = big * 0.24;
-  const leftX = big * 0.20;
-  const rightX = big * 0.80;
-  const baseY = big * 0.755;
+  const centre = big / 2;
+  const outer = big * 0.40;
+  const inner = big * 0.33;
+  const hub = big * 0.17;
+  const spokeWidth = big * 0.045;
 
   const accumulator = new Float64Array(size * size * 4);
 
@@ -124,7 +141,7 @@ function renderIcon(size) {
       if (insideRounded(px, py, big, radius)) {
         [r, g, b] = BACKGROUND;
         a = 255;
-        if (insideTriangle(px, py, apexX, apexY, leftX, baseY, rightX, baseY)) {
+        if (insideCog(px, py, centre, outer, inner, hub, spokeWidth)) {
           [r, g, b] = MARK;
         }
       }
@@ -183,7 +200,7 @@ const images = SIZES.map((size) => ({
 const outputDir = path.join(__dirname, '..', 'web');
 fs.mkdirSync(outputDir, { recursive: true });
 
-const icoPath = path.join(outputDir, 'ark.ico');
+const icoPath = path.join(outputDir, 'vault.ico');
 fs.writeFileSync(icoPath, buildIco(images));
 
 // A PNG copy doubles as the browser tab icon.
