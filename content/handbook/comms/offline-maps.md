@@ -46,9 +46,25 @@ Add `--maxzoom=14` to cut the size substantially at the cost of the closest zoom
 
 **OpenSeaMap** is the free, open nautical chart — depths, buoys, beacons, lights, harbours, anchorages and hazards, contributed the way OpenStreetMap is. It is published as a **seamark overlay in MBTiles format**, designed to sit on top of a land basemap rather than replace it, which is exactly how Ark uses it.
 
-Europe complete is around **1.6 GB**. Downloads and regional chart folios are at `openseamap.org`, under the offline charts section.
+The chart folios are published as `OSM-OpenCPN2-<Region>.mbtiles` files at:
 
-Drop the `.mbtiles` file into `library/maps` and it appears as a tickable overlay on the Maps tab.
+```
+https://ftp.gwdg.de/pub/misc/openstreetmap/openseamap/charts/mbtiles/
+```
+
+For British waters:
+
+| Chart | Size | Covers |
+|---|---|---|
+| `Channel` | 613 MB | The English Channel and the south coast |
+| `NorthSea` | 2.0 GB | The east coast, up to Scotland, across to Scandinavia |
+| `NorthernAtlantic` | 680 MB | The west coast, Ireland, the Western Isles |
+| `GulfOfBiscay` | 439 MB | Cornwall down to Spain |
+| `Europa1` | 4.0 GB | All of Europe in one file |
+
+Drop the `.mbtiles` file into `library/maps` and it appears as a tickable overlay on the Maps tab, drawn on top of the land map.
+
+There is also a 13 MB `test` chart in the same place, which is how the Vault's chart reader was checked.
 
 Two honest limits. OpenSeaMap is crowd-sourced and **is not a legal substitute for official charts** while official charts exist. And chart data ages — sandbanks move, buoys are relocated, lights change character. In a functioning world, use it alongside proper charts. In a broken one, it is far better than nothing and it is the only free worldwide chart there is.
 
