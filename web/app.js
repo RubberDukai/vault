@@ -501,10 +501,11 @@ async function renderHandbook() {
 async function renderChapter(id) {
   setBusy();
   const chapter = await api(`handbook/${id.split('/').map(encodeURIComponent).join('/')}`);
-  view.innerHTML = `
-    <p class="faint"><a href="#/handbook">Handbook</a> · ${esc(chapter.moduleTitle)}</p>
-    <article class="prose">${chapter.html}</article>
-  `;
+  view.innerHTML = printable(
+    `<a href="#/handbook">Handbook</a> · ${esc(chapter.moduleTitle)}`,
+    chapter.html,
+    `Handbook · ${chapter.moduleTitle} · ${chapter.title}`
+  );
 }
 
 // -------------------------------------------------------------- languages
@@ -993,6 +994,21 @@ async function setUpAnnotations() {
   };
 }
 
+
+// ------------------------------------------------------------ print view
+
+/** Wrap rendered prose with a print button and a footer that only prints. */
+function printable(breadcrumbHtml, articleHtml, sourceLabel) {
+  return `
+    <div class="row-between print-bar">
+      <p class="faint" style="margin:0">${breadcrumbHtml}</p>
+      <button class="btn btn-sm" onclick="window.print()" title="Print this page, or save it as a PDF">Print</button>
+    </div>
+    <article class="prose">${articleHtml}</article>
+    <p class="print-footer">From the Vault · ${esc(sourceLabel)} · printed ${new Date().toLocaleDateString()} · verify anything that matters against a second source.</p>
+  `;
+}
+
 // ------------------------------------------------------------------ comms
 
 async function renderComms() {
@@ -1116,10 +1132,7 @@ async function renderManual() {
 async function renderManualPage(slug) {
   setBusy();
   const page = await api(`manual/${encodeURIComponent(slug)}`);
-  view.innerHTML = `
-    <p class="faint"><a href="#/manual">Manual</a></p>
-    <article class="prose">${page.html}</article>
-  `;
+  view.innerHTML = printable(`<a href="#/manual">Manual</a>`, page.html, `Manual · ${page.title}`);
 }
 
 // ----------------------------------------------------------------- school
@@ -1158,9 +1171,11 @@ async function renderLesson(id) {
   const { subjects } = await api(`school?profile=${encodeURIComponent(PROFILE)}`);
   const done = subjects.flatMap((s) => s.lessons).find((l) => l.id === lesson.id)?.done || false;
 
-  view.innerHTML = `
-    <p class="faint"><a href="#/school">School</a> · ${esc(lesson.subjectTitle)}${lesson.ages ? ` · ages ${esc(lesson.ages)}` : ''}</p>
-    <article class="prose">${lesson.html}</article>
+  view.innerHTML = printable(
+    `<a href="#/school">School</a> · ${esc(lesson.subjectTitle)}${lesson.ages ? ` · ages ${esc(lesson.ages)}` : ''}`,
+    lesson.html,
+    `School · ${lesson.subjectTitle} · ${lesson.title}`
+  ) + `
     <div class="card" style="margin-top:32px">
       <label class="checkbox-row">
         <input type="checkbox" id="lesson-done" ${done ? 'checked' : ''}>

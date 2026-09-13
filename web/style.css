@@ -508,6 +508,32 @@ a { color: var(--link); }
 .checkbox-row { display: flex; align-items: center; gap: 10px; cursor: pointer; }
 .checkbox-row input { width: 18px; height: 18px; accent-color: var(--accent); }
 
+/* ---------------------------------------------------------------- print */
+
+.print-bar { display: flex; justify-content: flex-end; margin: 0 0 8px; }
+
+@media print {
+  /* Paper survives what batteries do not. Strip everything but the words. */
+  .topbar, .tabs, .footer, .crt-overlay, .print-bar, .reader-bar, .checkbox-row,
+  .btn, nav, .map-controls, .stat-row, .feature-list { display: none !important; }
+  html, body { background: #fff !important; color: #000 !important; font-family: Georgia, "Times New Roman", serif; font-size: 11.5pt; }
+  body { text-shadow: none !important; }
+  .view { max-width: none; padding: 0; }
+  .prose { max-width: none; }
+  .prose h1 { font-size: 20pt; margin-top: 0; }
+  .prose h2 { font-size: 14pt; border-bottom: 1px solid #000; page-break-after: avoid; }
+  .prose h3 { font-size: 12pt; page-break-after: avoid; }
+  .prose a { color: #000; text-decoration: none; }
+  .prose code, .prose pre.code { background: none; border: 1px solid #999; color: #000; }
+  .prose th, .prose td { border-color: #000; }
+  .prose th { background: #eee; }
+  .callout { border-left: 3px solid #000; background: none; page-break-inside: avoid; }
+  .callout.warn { border-left-width: 6px; }
+  .prose table, .prose li, .callout { page-break-inside: avoid; }
+  .print-footer { display: block !important; margin-top: 24pt; padding-top: 6pt; border-top: 1px solid #000; font-size: 9pt; color: #333; }
+}
+.print-footer { display: none; }
+
 @media (max-width: 620px) {
   .topbar { flex-wrap: wrap; }
   .global-search { order: 3; flex-basis: 100%; }
