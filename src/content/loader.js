@@ -200,6 +200,18 @@ class ContentLibrary {
       }
 
       decks.sort((a, b) => (a.order - b.order) || a.title.localeCompare(b.title));
+
+      // A written guide — grammar, pronunciation, how the language works —
+      // because flashcards can teach words but not how to put them together.
+      let guide = null;
+      try {
+        const raw = await fsp.readFile(path.join(langDir, 'guide.md'), 'utf8');
+        const { meta, body } = parseFrontmatter(raw);
+        guide = { title: meta.title || `${langMeta.name || dirent.name} — how it works`, body, plain: markdown.toPlainText(body) };
+      } catch {
+        guide = null;
+      }
+
       languages.push({
         id: dirent.name,
         name: langMeta.name || dirent.name,
@@ -208,6 +220,7 @@ class ContentLibrary {
         order: langMeta.order ?? 50,
         notes: langMeta.notes || '',
         decks,
+        guide,
         cardCount: decks.reduce((n, d) => n + d.cards.length, 0),
       });
     }

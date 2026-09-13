@@ -1,0 +1,18 @@
+{
+  "title": "Katakana — the 46 basic characters",
+  "description": "The same sounds as hiragana, in angular shapes, for foreign words, names and emphasis. This is the script on menus and packaging.",
+  "order": 4,
+  "cards": [
+    { "front": "ア", "back": "a" }, { "front": "イ", "back": "i" }, { "front": "ウ", "back": "u" }, { "front": "エ", "back": "e" }, { "front": "オ", "back": "o" },
+    { "front": "カ", "back": "ka" }, { "front": "キ", "back": "ki" }, { "front": "ク", "back": "ku" }, { "front": "ケ", "back": "ke" }, { "front": "コ", "back": "ko" },
+    { "front": "サ", "back": "sa" }, { "front": "シ", "back": "shi", "note": "strokes flick upward — compare ツ" }, { "front": "ス", "back": "su" }, { "front": "セ", "back": "se" }, { "front": "ソ", "back": "so", "note": "one stroke, not two — compare ン" },
+    { "front": "タ", "back": "ta" }, { "front": "チ", "back": "chi" }, { "front": "ツ", "back": "tsu", "note": "strokes flick downward — compare シ" }, { "front": "テ", "back": "te" }, { "front": "ト", "back": "to" },
+    { "front": "ナ", "back": "na" }, { "front": "ニ", "back": "ni" }, { "front": "ヌ", "back": "nu" }, { "front": "ネ", "back": "ne" }, { "front": "ノ", "back": "no" },
+    { "front": "ハ", "back": "ha" }, { "front": "ヒ", "back": "hi" }, { "front": "フ", "back": "fu" }, { "front": "ヘ", "back": "he", "note": "almost identical to hiragana へ" }, { "front": "ホ", "back": "ho" },
+    { "front": "マ", "back": "ma" }, { "front": "ミ", "back": "mi" }, { "front": "ム", "back": "mu" }, { "front": "メ", "back": "me" }, { "front": "モ", "back": "mo" },
+    { "front": "ヤ", "back": "ya" }, { "front": "ユ", "back": "yu" }, { "front": "ヨ", "back": "yo" },
+    { "front": "ラ", "back": "ra" }, { "front": "リ", "back": "ri" }, { "front": "ル", "back": "ru" }, { "front": "レ", "back": "re" }, { "front": "ロ", "back": "ro" },
+    { "front": "ワ", "back": "wa" }, { "front": "ヲ", "back": "wo", "note": "rare; the object particle is written in hiragana" }, { "front": "ン", "back": "n", "note": "two strokes — compare ソ" },
+    { "front": "ー", "back": "long vowel mark", "note": "stretches the vowel before it: コーヒー kōhī, coffee" }
+  ]
+}

@@ -733,6 +733,17 @@ class ArkServer {
     }
 
     // --- languages + spaced repetition ------------------------------------
+    if (route.startsWith('languages/') && route.endsWith('/guide')) {
+      const langId = route.slice('languages/'.length, -'/guide'.length);
+      const lang = this.content.languages.find((l) => l.id === langId);
+      if (!lang || !lang.guide) return this.json(res, 404, { error: 'No guide for that language' });
+      return this.json(res, 200, {
+        language: lang.name,
+        title: lang.guide.title,
+        html: markdown.render(lang.guide.body),
+      });
+    }
+
     if (route === 'languages') {
       const profileId = q.get('profile') || 'default';
       const states = this.state.get().srs[profileId] || {};
@@ -740,6 +751,7 @@ class ArkServer {
         profileId,
         languages: this.content.languages.map((lang) => ({
           ...lang,
+          guide: lang.guide ? { title: lang.guide.title } : null,
           decks: lang.decks.map((deck) => ({
             id: deck.id,
             slug: deck.slug,

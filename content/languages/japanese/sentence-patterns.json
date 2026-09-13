@@ -1,0 +1,27 @@
+{
+  "title": "Sentence patterns",
+  "description": "Fifteen frames that carry most everyday Japanese. Learn the frame, then slot any word into it.",
+  "order": 6,
+  "cards": [
+    { "front": "X は Y です。", "reading": "X wa Y desu", "back": "X is Y.", "note": "これは水です。 Kore wa mizu desu. This is water." },
+    { "front": "X は Y ですか。", "reading": "X wa Y desu ka", "back": "Is X Y?", "note": "Rising tone not needed — か is the question." },
+    { "front": "X じゃありません。", "reading": "X ja arimasen", "back": "is not X", "note": "Also ではありません dewa arimasen, more formal." },
+    { "front": "X でした。", "reading": "X deshita", "back": "was X" },
+    { "front": "X があります。", "reading": "X ga arimasu", "back": "There is X. / I have X. (things)", "note": "水があります。 There is water." },
+    { "front": "X がいます。", "reading": "X ga imasu", "back": "There is X. / I have X. (people, animals)", "note": "子供がいます。 I have children." },
+    { "front": "X をください。", "reading": "X o kudasai", "back": "X, please. (give me X)", "note": "水をください。 Water, please." },
+    { "front": "X はどこですか。", "reading": "X wa doko desu ka", "back": "Where is X?", "note": "The most useful pattern for a traveller." },
+    { "front": "X に行きます。", "reading": "X ni ikimasu", "back": "I go to X.", "note": "病院に行きます。 I'm going to the hospital." },
+    { "front": "X で Y をします。", "reading": "X de Y o shimasu", "back": "I do Y at X.", "note": "家で仕事をします。 I work at home." },
+    { "front": "X が好きです。", "reading": "X ga suki desu", "back": "I like X.", "note": "Note が, not を — liking is a state, not an action." },
+    { "front": "X がほしいです。", "reading": "X ga hoshii desu", "back": "I want X. (a thing)" },
+    { "front": "〜たいです。", "reading": "-tai desu", "back": "I want to (verb).", "note": "食べたいです。 I want to eat. Replace ます with たい." },
+    { "front": "〜てください。", "reading": "-te kudasai", "back": "Please (do verb).", "note": "待ってください。 Matte kudasai. Please wait." },
+    { "front": "〜ないでください。", "reading": "-naide kudasai", "back": "Please don't (verb).", "note": "行かないでください。 Please don't go." },
+    { "front": "〜ことができます。", "reading": "koto ga dekimasu", "back": "I can (verb).", "note": "泳ぐことができます。 I can swim." },
+    { "front": "X から Y まで", "reading": "X kara Y made", "back": "from X to/until Y", "note": "Works for places and times." },
+    { "front": "〜てもいいですか。", "reading": "-te mo ii desu ka", "back": "May I (verb)?", "note": "入ってもいいですか。 May I come in?" },
+    { "front": "〜なければなりません。", "reading": "-nakereba narimasen", "back": "must (verb)", "note": "行かなければなりません。 I must go." },
+    { "front": "X と Y", "reading": "X to Y", "back": "X and Y (nouns only)", "note": "パンと水。 Bread and water." }
+  ]
+}

@@ -99,6 +99,7 @@ const routes = [
   [/^\/handbook$/, renderHandbook],
   [/^\/handbook\/(.+)$/, renderChapter],
   [/^\/languages$/, renderLanguages],
+  [/^\/languages\/([^/]+)\/guide$/, renderLanguageGuide],
   [/^\/study(?:\/(.+))?$/, renderStudy],
   [/^\/maps$/, renderMaps],
   [/^\/comms$/, renderComms],
@@ -524,6 +525,7 @@ async function renderLanguages() {
         <span class="tag">${lang.stats.new} new</span>
         <span class="tag">${lang.stats.mature} known</span>
         <a class="btn btn-primary btn-sm" href="#/study?language=${encodeURIComponent(lang.id)}">Study ${esc(lang.name)}</a>
+        ${lang.guide ? `<a class="btn btn-sm" href="#/languages/${encodeURIComponent(lang.id)}/guide">How it works</a>` : ''}
       </div>
       ${lang.notes ? `<p class="faint" style="margin:0 0 12px">${esc(lang.notes)}</p>` : ''}
       ${lang.decks.map((deck) => `
@@ -540,6 +542,16 @@ async function renderLanguages() {
       `).join('')}
     `).join('')}
   `;
+}
+
+async function renderLanguageGuide(langId) {
+  setBusy();
+  const guide = await api(`languages/${encodeURIComponent(langId)}/guide`);
+  view.innerHTML = printable(
+    `<a href="#/languages">Languages</a> · ${esc(guide.language)}`,
+    guide.html,
+    `Languages · ${guide.language} · ${guide.title}`
+  );
 }
 
 async function renderStudy(deckId, params) {

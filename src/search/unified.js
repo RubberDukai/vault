@@ -62,6 +62,17 @@ class UnifiedSearch {
     }
 
     for (const lang of content.languages) {
+      if (lang.guide) {
+        this._add({
+          kind: 'language',
+          id: `${lang.id}/guide`,
+          title: lang.guide.title,
+          context: lang.name,
+          summary: 'How the language works',
+          href: `#/languages/${lang.id}/guide`,
+          text: `${lang.name} grammar guide ${lang.guide.plain}`,
+        });
+      }
       for (const deck of lang.decks) {
         this._add({
           kind: 'language',
