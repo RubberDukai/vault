@@ -34,6 +34,21 @@ function haversine(lat1, lon1, lat2, lon2) {
   return 2 * EARTH_RADIUS * Math.asin(Math.sqrt(a));
 }
 
+/** Length of a path of [lon, lat] points, in metres. */
+function pathLength(points) {
+  let total = 0;
+  for (let i = 1; i < points.length; i++) {
+    total += haversine(points[i - 1][1], points[i - 1][0], points[i][1], points[i][0]);
+  }
+  return total;
+}
+
+function formatDistance(metres) {
+  if (metres < 1000) return `${Math.round(metres)} m`;
+  if (metres < 10000) return `${(metres / 1000).toFixed(2)} km`;
+  return `${(metres / 1000).toFixed(1)} km`;
+}
+
 // ------------------------------------------------------------------ style
 
 /** Two palettes: a paper map for navigating, a dark one to match the app. */
@@ -176,10 +191,12 @@ class VaultMap {
     // not know about because the world changed after the map was made.
     this.annotationLayers = [];
     this.activeLayerId = null;
-    this.drawMode = null;          // null | 'pen' | 'eraser'
+    this.drawMode = null;          // null | 'pen' | 'eraser' | 'pin' | 'measure'
     this.penColour = '#f85149';
     this.penWidth = 3;
     this.showAnnotations = true;
+    this.showLengths = true;
+    this._measure = [];            // points of the measuring tape, not saved
 
     this._tiles = new Map();
     this._pending = new Set();
@@ -257,11 +274,17 @@ class VaultMap {
     let lastX = 0;
     let lastY = 0;
 
+    let downX = 0;
+    let downY = 0;
+
     const pointerDown = (e) => {
       this.canvas.setPointerCapture(e.pointerId);
+      downX = e.clientX;
+      downY = e.clientY;
 
-      // With a tool selected, dragging draws instead of panning.
-      if (this.drawMode) {
+      // With a tool selected, dragging draws instead of panning. Pin and
+      // measure are click tools, handled on pointer-up so a drag still pans.
+      if (this.drawMode === 'pen' || this.drawMode === 'eraser') {
         const rect = this.canvas.getBoundingClientRect();
         const position = this.pixelToLonLat(e.clientX - rect.left, e.clientY - rect.top);
         if (this.drawMode === 'pen') {
@@ -293,6 +316,7 @@ class VaultMap {
       if (this._drawing) {
         if (this.drawMode === 'pen' && this._activeStroke) {
           this._activeStroke.points.push([this._hover.lon, this._hover.lat]);
+          if (this.onMeasure) this.onMeasure(pathLength(this._activeStroke.points), this._activeStroke.points.length, 'drawing');
         } else if (this.drawMode === 'eraser') {
           this._eraseAt(e.clientX - rect.left, e.clientY - rect.top);
         }
@@ -321,6 +345,7 @@ class VaultMap {
         this._drawing = false;
         if (this.drawMode === 'pen' && this._activeStroke && this._activeStroke.points.length > 1) {
           const stroke = this._activeStroke;
+          stroke.length = pathLength(stroke.points);
           if (this.onStroke) this.onStroke(stroke);
         } else if (this.drawMode === 'eraser' && this._erasedIds && this._erasedIds.size) {
           if (this.onErase) this.onErase([...this._erasedIds]);
@@ -332,7 +357,21 @@ class VaultMap {
       }
 
       dragging = false;
-      this.canvas.style.cursor = 'grab';
+      this.canvas.style.cursor = this.drawMode ? 'crosshair' : 'grab';
+
+      // A click — not a drag — with a click tool active.
+      const moved = Math.hypot(e.clientX - downX, e.clientY - downY);
+      if (moved < 5 && (this.drawMode === 'pin' || this.drawMode === 'measure')) {
+        const rect = this.canvas.getBoundingClientRect();
+        const position = this.pixelToLonLat(e.clientX - rect.left, e.clientY - rect.top);
+        if (this.drawMode === 'pin') {
+          if (this.onPin) this.onPin(position);
+        } else {
+          this._measure.push([position.lon, position.lat]);
+          if (this.onMeasure) this.onMeasure(pathLength(this._measure), this._measure.length);
+          this.draw();
+        }
+      }
     };
 
     this.canvas.addEventListener('pointerdown', pointerDown);
@@ -558,6 +597,18 @@ class VaultMap {
     this.drawMode = mode;
     this.canvas.classList.toggle('drawing', Boolean(mode));
     this.canvas.style.cursor = mode ? 'crosshair' : 'grab';
+    if (mode !== 'measure') this.clearMeasure();
+  }
+
+  clearMeasure() {
+    this._measure = [];
+    if (this.onMeasure) this.onMeasure(0, 0);
+    this.draw();
+  }
+
+  /** Total length of the measuring tape so far. */
+  measuredLength() {
+    return pathLength(this._measure);
   }
 
   _strokePath(points) {
@@ -576,14 +627,25 @@ class VaultMap {
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
+    const pins = [];
+
     for (const layer of this.annotationLayers) {
       if (!layer.visible) continue;
-      for (const stroke of layer.strokes) {
-        if (this._erasedIds && this._erasedIds.has(stroke.id)) continue;
-        ctx.strokeStyle = stroke.colour;
-        ctx.lineWidth = stroke.width;
+      for (const mark of layer.strokes) {
+        if (this._erasedIds && this._erasedIds.has(mark.id)) continue;
+        if (mark.type === 'pin') { pins.push(mark); continue; }
+
+        ctx.strokeStyle = mark.colour;
+        ctx.lineWidth = mark.width;
         ctx.globalAlpha = 0.92;
-        this._strokePath(stroke.points);
+        this._strokePath(mark.points);
+
+        // A route is more useful with its length on it.
+        if (this.showLengths && mark.length > 40 && mark.points.length > 1) {
+          const end = mark.points[mark.points.length - 1];
+          const { x, y } = this.lonLatToPixel(end[0], end[1]);
+          this._drawTag(formatDistance(mark.length), x + 8, y - 8, mark.colour);
+        }
       }
     }
 
@@ -595,20 +657,95 @@ class VaultMap {
       this._strokePath(this._activeStroke.points);
     }
     ctx.globalAlpha = 1;
+
+    // Pins go over strokes, labels over pins.
+    for (const pin of pins) this._drawPin(pin);
+
+    // The measuring tape: dashed, with the running total at the last point.
+    if (this._measure.length) {
+      ctx.strokeStyle = this.style.layers.label;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 5]);
+      ctx.globalAlpha = 0.9;
+      this._strokePath(this._measure);
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+      for (const [lon, lat] of this._measure) {
+        const { x, y } = this.lonLatToPixel(lon, lat);
+        ctx.fillStyle = this.style.layers.label;
+        ctx.beginPath();
+        ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      const last = this._measure[this._measure.length - 1];
+      const { x, y } = this.lonLatToPixel(last[0], last[1]);
+      this._drawTag(formatDistance(this.measuredLength()), x + 10, y - 10, this.style.layers.label);
+    }
   }
 
-  /** Mark any visible stroke passing within a few pixels of the cursor. */
+  /** A small rounded label with a coloured edge, used for lengths and pins. */
+  _drawTag(text, x, y, colour) {
+    const ctx = this.ctx;
+    ctx.font = '600 11px system-ui, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    const width = ctx.measureText(text).width + 10;
+    ctx.fillStyle = this.style.layers.labelHalo;
+    ctx.strokeStyle = colour;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(x, y - 9, width, 18, 5);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = this.style.layers.label;
+    ctx.fillText(text, x + 5, y);
+  }
+
+  _drawPin(pin) {
+    const ctx = this.ctx;
+    const { x, y } = this.lonLatToPixel(pin.lon, pin.lat);
+    if (x < -40 || x > this.width + 40 || y < -40 || y > this.height + 40) return;
+
+    // A map pin: circle head on a point, so it reads as a place not a dot.
+    ctx.fillStyle = pin.colour || '#f85149';
+    ctx.strokeStyle = this.style.layers.labelHalo;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y - 12, 7, Math.PI * 0.8, Math.PI * 0.2, false);
+    ctx.lineTo(x, y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = this.style.layers.labelHalo;
+    ctx.beginPath();
+    ctx.arc(x, y - 12, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (pin.label) this._drawTag(pin.label, x + 10, y - 14, pin.colour || '#f85149');
+  }
+
+  /** Mark any visible stroke or pin within a few pixels of the cursor. */
   _eraseAt(px, py, radius = 12) {
     if (!this._erasedIds) this._erasedIds = new Set();
 
     for (const layer of this.annotationLayers) {
       if (!layer.visible) continue;
-      for (const stroke of layer.strokes) {
-        if (this._erasedIds.has(stroke.id)) continue;
-        for (const [lon, lat] of stroke.points) {
+      for (const mark of layer.strokes) {
+        if (this._erasedIds.has(mark.id)) continue;
+
+        if (mark.type === 'pin') {
+          // Hit either the point or the head of the pin.
+          const { x, y } = this.lonLatToPixel(mark.lon, mark.lat);
+          const nearPoint = Math.hypot(x - px, y - py) <= radius + 6;
+          const nearHead = Math.hypot(x - px, (y - 12) - py) <= radius + 8;
+          if (nearPoint || nearHead) this._erasedIds.add(mark.id);
+          continue;
+        }
+
+        for (const [lon, lat] of mark.points) {
           const { x, y } = this.lonLatToPixel(lon, lat);
-          if (Math.hypot(x - px, y - py) <= radius + stroke.width) {
-            this._erasedIds.add(stroke.id);
+          if (Math.hypot(x - px, y - py) <= radius + mark.width) {
+            this._erasedIds.add(mark.id);
             break;
           }
         }

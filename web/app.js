@@ -722,8 +722,11 @@ async function renderMaps() {
         <div class="row" style="gap:6px;margin-bottom:8px">
           <button class="btn btn-sm" id="tool-pan">Pan</button>
           <button class="btn btn-sm" id="tool-pen">Draw</button>
+          <button class="btn btn-sm" id="tool-pin">Pin</button>
           <button class="btn btn-sm" id="tool-eraser">Erase</button>
+          <button class="btn btn-sm" id="tool-measure">Measure</button>
         </div>
+        <p class="faint" id="tool-hint" style="margin:0 0 8px"></p>
 
         <div class="swatches" id="swatches"></div>
         <div class="pen-sizes" id="pen-sizes"></div>
@@ -753,7 +756,10 @@ async function renderMaps() {
   window.vaultMap = MAP; // handy when debugging from the console
   MAP.onHover = (position) => {
     if (!position) return;
-    readout.textContent = `${position.lat.toFixed(5)}, ${position.lon.toFixed(5)}  ·  zoom ${MAP.zoom.toFixed(1)}`;
+    readout.dataset.position = `${position.lat.toFixed(5)}, ${position.lon.toFixed(5)}  ·  zoom ${MAP.zoom.toFixed(1)}`;
+    readout.textContent = readout.dataset.measure
+      ? `${readout.dataset.measure}  ·  ${readout.dataset.position}`
+      : readout.dataset.position;
   };
 
   const baseSelect = document.getElementById('map-base');
@@ -843,7 +849,17 @@ async function setUpAnnotations() {
   const toolButtons = {
     pan: document.getElementById('tool-pan'),
     pen: document.getElementById('tool-pen'),
+    pin: document.getElementById('tool-pin'),
     eraser: document.getElementById('tool-eraser'),
+    measure: document.getElementById('tool-measure'),
+  };
+  const hint = document.getElementById('tool-hint');
+  const HINTS = {
+    pan: 'Drag to move, scroll to zoom.',
+    pen: 'Drag to draw. The length of each line is shown at its end.',
+    pin: 'Click to drop a labelled marker.',
+    eraser: 'Drag over lines or pins to remove them.',
+    measure: 'Click points to measure a route. Press Escape or choose another tool to clear.',
   };
 
   const selectTool = (name) => {
@@ -851,9 +867,37 @@ async function setUpAnnotations() {
     for (const [key, btn] of Object.entries(toolButtons)) {
       btn.classList.toggle('btn-active', key === name);
     }
+    hint.textContent = HINTS[name] || '';
   };
   for (const [name, btn] of Object.entries(toolButtons)) btn.onclick = () => selectTool(name);
   selectTool('pan');
+
+  const readout = document.getElementById('map-readout');
+  MAP.onMeasure = (metres, points, mode) => {
+    if (!readout) return;
+    if (points < 1) { readout.dataset.measure = ''; return; }
+    const label = metres < 1000 ? `${Math.round(metres)} m` : `${(metres / 1000).toFixed(2)} km`;
+    readout.dataset.measure = `${mode === 'drawing' ? 'line' : 'route'} ${label}`;
+    readout.textContent = `${readout.dataset.measure}  ·  ${readout.dataset.position || ''}`;
+  };
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && MAP.drawMode === 'measure') MAP.clearMeasure();
+  });
+
+  MAP.onPin = async (position) => {
+    const label = prompt('Label for this pin (what is here?):');
+    if (label === null) return;
+    const target = layers.find((l) => l.id === MAP.activeLayerId) || layers[0];
+    if (!target) return;
+    const saved = await api('maps/annotations/strokes', {
+      method: 'POST',
+      body: { layerId: target.id, type: 'pin', lon: position.lon, lat: position.lat, label: label.trim(), colour: MAP.penColour },
+    });
+    target.strokes.push(saved.stroke);
+    MAP.setAnnotations(layers);
+    paintLayers();
+  };
 
   swatches.innerHTML = PEN_COLOURS.map((colour, i) => `
     <button class="swatch${i === 0 ? ' selected' : ''}" data-colour="${colour}"

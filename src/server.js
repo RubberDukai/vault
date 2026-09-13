@@ -490,15 +490,31 @@ class ArkServer {
 
     if (route === 'maps/annotations/strokes' && method === 'POST') {
       const body = await this.readBody(req);
-      if (!Array.isArray(body.points) || body.points.length < 1) {
-        return this.json(res, 400, { error: 'A stroke needs points' });
+      const id = `s${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+      let stroke;
+
+      if (body.type === 'pin') {
+        if (!Number.isFinite(body.lon) || !Number.isFinite(body.lat)) {
+          return this.json(res, 400, { error: 'A pin needs a position' });
+        }
+        stroke = {
+          id, type: 'pin',
+          lon: body.lon, lat: body.lat,
+          label: String(body.label || '').slice(0, 80),
+          colour: body.colour || '#f85149',
+        };
+      } else {
+        if (!Array.isArray(body.points) || body.points.length < 1) {
+          return this.json(res, 400, { error: 'A stroke needs points' });
+        }
+        stroke = {
+          id,
+          colour: body.colour || '#f85149',
+          width: Number(body.width) || 3,
+          points: body.points,
+          length: Number.isFinite(body.length) ? Math.round(body.length) : undefined,
+        };
       }
-      const stroke = {
-        id: `s${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
-        colour: body.colour || '#f85149',
-        width: Number(body.width) || 3,
-        points: body.points,
-      };
       let ok = false;
       this.annotations.update((d) => {
         const layer = d.layers.find((l) => l.id === body.layerId) || d.layers[0];
