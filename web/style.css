@@ -448,6 +448,12 @@ a { color: var(--link); }
 .poi-row { margin-bottom: 5px; font-size: 14px; }
 .poi-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
 
+.almanac-row {
+  display: flex; justify-content: space-between; gap: 12px;
+  padding: 4px 0; border-bottom: 1px solid var(--border); font-size: 14px;
+}
+.almanac-row:last-of-type { border-bottom: none; }
+
 .swatches { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
 .swatch {
   width: 26px; height: 26px; border-radius: 50%;

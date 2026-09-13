@@ -748,6 +748,15 @@ async function renderMaps() {
         <div id="ann-layers"></div>
         <button class="btn btn-sm" id="add-layer" style="margin-top:8px">+ New layer</button>
       </div>
+
+      <div class="map-panel">
+        <div class="row-between">
+          <h3 style="margin:0">Almanac</h3>
+          <input type="date" id="almanac-date" class="map-select" style="width:auto;padding:4px 8px;font-size:13px">
+        </div>
+        <p class="faint" style="margin:6px 0 10px">For the centre of the map. Computed, not looked up — it works with no data at all.</p>
+        <div id="almanac-body" class="almanac"></div>
+      </div>
     </div>
 
     ${packs.length === 0 ? `<div class="card" style="margin-top:16px">
@@ -843,9 +852,62 @@ async function renderMaps() {
   }
 
   await setUpAnnotations();
+  setUpAlmanac();
 
   // The canvas has no size until it is in the document.
   requestAnimationFrame(() => MAP.resize());
+}
+
+function setUpAlmanac() {
+  const A = window.vaultAlmanac;
+  const body = document.getElementById('almanac-body');
+  const dateInput = document.getElementById('almanac-date');
+  if (!A || !body || !dateInput) return;
+
+  const today = new Date();
+  dateInput.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+  const paint = () => {
+    const [y, m, d] = dateInput.value.split('-').map(Number);
+    if (!y) return;
+    const date = new Date(y, m - 1, d);
+    const { lat, lon } = MAP.centre;
+    const sun = A.sunTimes(date, lat, lon);
+    const moon = A.moonPhase(date);
+
+    const isToday = date.toDateString() === new Date().toDateString();
+    const now = new Date();
+    const pos = isToday ? A.sunPosition(now, lat, lon) : null;
+
+    const row = (label, value) => `<div class="almanac-row"><span class="faint">${label}</span><span class="mono">${value}</span></div>`;
+
+    body.innerHTML = `
+      ${sun.polar ? `<p class="muted">Polar ${sun.polar}: the sun does not ${sun.polar === 'day' ? 'set' : 'rise'} here on this date.</p>` : ''}
+      ${row('First light', A.formatTime(sun.dawn))}
+      ${row('Sunrise', A.formatTime(sun.sunrise))}
+      ${row('Solar noon', A.formatTime(sun.solarNoon) + ' · due south')}
+      ${row('Sunset', A.formatTime(sun.sunset))}
+      ${row('Last light', A.formatTime(sun.dusk))}
+      ${row('Day length', A.formatDuration(sun.dayLengthMinutes))}
+      ${pos ? row('Sun now', pos.altitude > 0
+        ? `${pos.azimuth.toFixed(0)}° ${A.compassPoint(pos.azimuth)} · ${pos.altitude.toFixed(0)}° up`
+        : 'below the horizon') : ''}
+      ${row('Moon', `${moon.glyph} ${moon.name} · ${Math.round(moon.illumination * 100)}% lit`)}
+      ${row('Next full moon', moon.nextFull.toLocaleDateString())}
+      <p class="faint" style="margin:10px 0 0">${lat.toFixed(3)}, ${lon.toFixed(3)} · local time. First and last light are civil twilight — enough to work by without a lamp.</p>
+    `;
+  };
+
+  dateInput.onchange = paint;
+  const previous = MAP.onHover;
+  // Recompute when the map is moved: cheap, and the panel follows the view.
+  let lastCentre = '';
+  const watch = () => {
+    const key = `${MAP.centre.lat.toFixed(2)},${MAP.centre.lon.toFixed(2)}`;
+    if (key !== lastCentre) { lastCentre = key; paint(); }
+  };
+  MAP.onHover = (p) => { if (previous) previous(p); watch(); };
+  paint();
 }
 
 const PEN_COLOURS = ['#f85149', '#e3b341', '#3fb950', '#6cb6ff', '#bc8cff', '#ffffff', '#1a1a1a'];
