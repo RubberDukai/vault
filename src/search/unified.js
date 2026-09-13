@@ -26,10 +26,12 @@ class UnifiedSearch {
     this.index = new Map(); // term -> Map(docIndex -> count)
   }
 
-  /** Rebuild the index from the authored content library. */
-  build(content) {
+  /** Rebuild the index from the authored content library, plus any documents. */
+  build(content, documents = []) {
     this.docs = [];
     this.index = new Map();
+
+    for (const doc of documents) this._add(doc);
 
     for (const mod of content.handbook) {
       for (const ch of mod.chapters) {
@@ -133,32 +135,30 @@ class UnifiedSearch {
     return `${start > 0 ? '…' : ''}${text.slice(start, end).trim()}${end < text.length ? '…' : ''}`;
   }
 
-  /** Search the ZIM packs by title, merging results from every open pack. */
+  /** Search the ZIM packs by title, all packs at once, merging the results. */
   async searchPacks(library, query, limitPerPack = 8) {
-    const out = [];
-    for (const pack of library.list()) {
-      if (!pack.ok) continue;
-      const zim = library.zim(pack.id);
-      if (!zim) continue;
+    const packs = library.list().filter((p) => p.ok && library.zim(p.id));
+
+    const perPack = await Promise.all(packs.map(async (pack) => {
       try {
-        const hits = await zim.findTitles(query, limitPerPack);
-        for (const hit of hits) {
-          out.push({
-            kind: 'pack',
-            id: `${pack.id}:${hit.url}`,
-            title: hit.title,
-            context: pack.title,
-            summary: '',
-            href: `#/read/${pack.id}/${encodeURIComponent(hit.url)}`,
-            packId: pack.id,
-            url: hit.url,
-          });
-        }
+        const hits = await library.zim(pack.id).findTitles(query, limitPerPack);
+        return hits.map((hit) => ({
+          kind: 'pack',
+          id: `${pack.id}:${hit.url}`,
+          title: hit.title,
+          context: pack.title,
+          summary: '',
+          href: `#/read/${pack.id}/${encodeURIComponent(hit.url)}`,
+          packId: pack.id,
+          url: hit.url,
+        }));
       } catch (err) {
         console.error(`[vault] search failed in pack ${pack.id}: ${err.message}`);
+        return [];
       }
-    }
-    return out;
+    }));
+
+    return perPack.flat();
   }
 
   async searchAll(library, query, { contentLimit = 15, packLimit = 8 } = {}) {

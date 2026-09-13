@@ -19,6 +19,7 @@ const catalog = require('./library/catalog');
 const downloads = require('./library/download');
 const { ContentLibrary } = require('./content/loader');
 const { MapManager } = require('./maps/manager');
+const { DocumentManager } = require('./docs/manager');
 const markdown = require('./content/markdown');
 const { UnifiedSearch } = require('./search/unified');
 const srs = require('./srs/engine');
@@ -51,8 +52,12 @@ class ArkServer {
     this.dataDir = options.dataDir || path.join(ROOT, 'data');
     this.webDir = path.join(ROOT, 'web');
 
-    this.library = new LibraryManager(this.libraryDir);
+    this.library = new LibraryManager(this.libraryDir, path.join(this.dataDir, 'title-index'));
     this.maps = new MapManager(options.mapsDir || path.join(this.libraryDir, 'maps'));
+    this.documents = new DocumentManager(
+      options.docsDir || path.join(this.libraryDir, 'docs'),
+      path.join(this.dataDir, 'docs-cache')
+    );
     this.content = new ContentLibrary(this.contentDir);
     this.search = new UnifiedSearch();
 
@@ -79,9 +84,13 @@ class ArkServer {
     await fsp.mkdir(this.dataDir, { recursive: true });
     this.state.load();
     await this.content.load();
-    this.search.build(this.content);
     await this.library.scan();
     await this.maps.scan();
+    await this.documents.scan();
+    this.search.build(this.content, this.documents.searchable());
+
+    // Title indexes take seconds per pack; do not make the user wait for them.
+    this.library.buildTitleIndexes().catch(() => {});
     return this;
   }
 
@@ -166,6 +175,7 @@ class ArkServer {
     if (pathname.startsWith('/api/')) return this.handleApi(req, res, url, pathname);
     if (pathname.startsWith('/z/')) return this.handleZim(req, res, pathname);
     if (pathname.startsWith('/tile/')) return this.handleTile(req, res, pathname);
+    if (pathname.startsWith('/doc/')) return this.handleDoc(req, res, pathname);
     return this.handleStatic(req, res, pathname);
   }
 
@@ -312,6 +322,75 @@ class ArkServer {
         'cache-control': 'public, max-age=86400',
       });
       return res.end(raw);
+    } catch (err) {
+      return this.json(res, 500, { error: err.message });
+    }
+  }
+
+  /**
+   * Documents: /doc/<id>/file          the PDF itself, for the browser's viewer
+   *            /doc/<id>/chapter/<n>   an EPUB chapter as a standalone page
+   *            /doc/<id>/asset/<path>  an image or stylesheet inside an EPUB
+   */
+  async handleDoc(req, res, pathname) {
+    const parts = pathname.slice('/doc/'.length).split('/');
+    const [docId, action, ...rest] = parts;
+    const doc = this.documents.get(docId);
+    if (!doc || doc.ok === false) return this.json(res, 404, { error: 'No such document' });
+
+    try {
+      if (action === 'file') {
+        const filePath = this.documents.filePath(docId);
+        const stat = await fsp.stat(filePath);
+        const type = doc.type === 'pdf' ? 'application/pdf' : 'application/epub+zip';
+
+        // Range support lets the browser's PDF viewer jump around a big file.
+        const range = req.headers.range && req.headers.range.match(/bytes=(\d*)-(\d*)/);
+        if (range) {
+          const start = range[1] ? Number(range[1]) : 0;
+          const end = range[2] ? Math.min(Number(range[2]), stat.size - 1) : stat.size - 1;
+          res.writeHead(206, {
+            'content-type': type,
+            'content-range': `bytes ${start}-${end}/${stat.size}`,
+            'content-length': end - start + 1,
+            'accept-ranges': 'bytes',
+          });
+          return fs.createReadStream(filePath, { start, end }).pipe(res);
+        }
+
+        res.writeHead(200, {
+          'content-type': type,
+          'content-length': stat.size,
+          'accept-ranges': 'bytes',
+          'content-disposition': `inline; filename="${encodeURIComponent(doc.file)}"`,
+        });
+        return fs.createReadStream(filePath).pipe(res);
+      }
+
+      if (action === 'chapter') {
+        const chapter = await this.documents.chapterHtml(docId, Number(rest[0]));
+        if (!chapter) return this.json(res, 404, { error: 'No such chapter' });
+        const base = `/doc/${encodeURIComponent(docId)}/asset/${chapter.dir === '.' ? '' : chapter.dir + '/'}`;
+        const page = `<!doctype html><html><head><meta charset="utf-8"><base href="${base}">` +
+          `<meta name="viewport" content="width=device-width, initial-scale=1">` +
+          `<style>body{max-width:44rem;margin:0 auto;padding:1.5rem 1.25rem 4rem;font:17px/1.7 Georgia,serif;color:#1a1a1a;background:#fbf8f2}` +
+          `img{max-width:100%;height:auto}h1,h2,h3{line-height:1.25}</style>` +
+          `<title>${markdown.escapeHtml(chapter.title || doc.title)}</title></head><body>${chapter.html}</body></html>`;
+        res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' });
+        return res.end(page);
+      }
+
+      if (action === 'asset') {
+        const asset = await this.documents.asset(docId, rest.map(decodeURIComponent).join('/'));
+        if (!asset) {
+          res.writeHead(404, { 'content-type': 'text/plain' });
+          return res.end('Not in this book');
+        }
+        res.writeHead(200, { 'content-type': asset.type, 'content-length': asset.data.length, 'cache-control': 'public, max-age=86400' });
+        return res.end(asset.data);
+      }
+
+      return this.json(res, 404, { error: 'Unknown document action' });
     } catch (err) {
       return this.json(res, 500, { error: err.message });
     }
@@ -480,6 +559,29 @@ class ArkServer {
       if (!name) return this.json(res, 400, { error: 'Bad channel name' });
       this.messages.update((d) => { if (!d.channels[name]) d.channels[name] = []; });
       return this.json(res, 200, { channels: Object.keys(this.messages.get().channels) });
+    }
+
+    // --- documents --------------------------------------------------------
+    if (route === 'docs' && method === 'GET') {
+      return this.json(res, 200, { docs: this.documents.list(), docsDir: this.documents.docsDir });
+    }
+
+    if (route === 'docs/scan' && method === 'POST') {
+      await this.documents.scan();
+      this.search.build(this.content, this.documents.searchable());
+      return this.json(res, 200, { docs: this.documents.list() });
+    }
+
+    if (route.startsWith('docs/')) {
+      const [docId, sub, unitStr] = route.slice('docs/'.length).split('/');
+      if (sub === 'unit') {
+        const unit = this.documents.unitText(docId, Number(unitStr));
+        if (!unit) return this.json(res, 404, { error: 'No such section' });
+        return this.json(res, 200, unit);
+      }
+      const outline = this.documents.outline(docId);
+      if (!outline) return this.json(res, 404, { error: 'No such document' });
+      return this.json(res, 200, outline);
     }
 
     // --- catalogue + downloads -------------------------------------------

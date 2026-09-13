@@ -12,3 +12,5 @@ node_modules/
 library/maps/*.pmtiles
 library/maps/*.mbtiles
 library/maps/*.url
+library/docs/*.pdf
+library/docs/*.epub

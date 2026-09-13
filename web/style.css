@@ -393,6 +393,24 @@ a { color: var(--link); }
   padding-left: 6px; min-width: 0;
 }
 
+/* ------------------------------------------------------------- documents */
+
+.doc-layout { position: relative; }
+.doc-frame { height: calc(100vh - 200px); }
+.doc-outline {
+  position: absolute; top: 0; left: 0; bottom: 0; z-index: 5;
+  width: min(360px, 90%); overflow-y: auto;
+  background: var(--bg-raised); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 10px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+}
+.doc-outline-item {
+  display: block; padding: 6px 8px; border-radius: 6px;
+  color: var(--text); text-decoration: none; font-size: 14px; line-height: 1.4;
+}
+.doc-outline-item:hover { background: var(--bg); }
+.doc-outline-item.active { color: var(--accent); background: var(--bg); }
+
 .result { padding: 12px 0; border-bottom: 1px solid var(--border); }
 .result:last-child { border-bottom: none; }
 .result a { text-decoration: none; font-weight: 500; }

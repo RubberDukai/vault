@@ -22,10 +22,33 @@ function humanBytes(bytes) {
 }
 
 class LibraryManager {
-  constructor(libraryDir) {
+  constructor(libraryDir, cacheDir = null) {
     this.libraryDir = libraryDir;
+    this.cacheDir = cacheDir;
     this.packs = new Map();   // id -> descriptor
     this._open = new Map();   // id -> ZimFile
+  }
+
+  /**
+   * Build title indexes for every pack, one at a time, off the startup path.
+   * Search works before this finishes — it just gets much better afterwards.
+   */
+  async buildTitleIndexes() {
+    for (const [id, zim] of this._open) {
+      const pack = this.packs.get(id);
+      try {
+        const t0 = Date.now();
+        const cachePath = this.cacheDir ? path.join(this.cacheDir, `${id}.titles`) : null;
+        const built = await zim.buildTitleIndex({ cachePath });
+        if (pack) pack.titleIndex = built ? 'ready' : 'too-large';
+        if (built && Date.now() - t0 > 1500) {
+          console.log(`[vault] title index for ${pack ? pack.title : id}: ${zim._titleIndex.titles.length.toLocaleString()} articles in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+        }
+      } catch (err) {
+        if (pack) pack.titleIndex = 'failed';
+        console.error(`[vault] title index failed for ${id}: ${err.message}`);
+      }
+    }
   }
 
   async scan() {

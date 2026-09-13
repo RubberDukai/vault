@@ -106,6 +106,7 @@ const routes = [
   [/^\/manual\/(.+)$/, renderManualPage],
   [/^\/school$/, renderSchool],
   [/^\/school\/(.+)$/, renderLesson],
+  [/^\/doc\/([^/]+)(?:\/(\d+))?$/, renderDocument],
   [/^\/read\/([^/]+)$/, renderPack],
   [/^\/read\/([^/]+)\/(.+)$/, renderArticle],
   [/^\/search$/, renderSearch],
@@ -259,9 +260,34 @@ async function renderLibrary() {
 
     <div id="pack-list">${packs.length ? packs.map(libraryRow).join('') : '<div class="empty">No .zim packs found.<br><a class="btn btn-primary" href="#/get" style="margin-top:12px">Get packs</a></div>'}</div>
 
+    <h2>Books &amp; documents</h2>
+    <p class="muted" style="margin:-6px 0 12px">PDFs and EPUBs from <span class="mono">library/docs</span>. Full text goes into search; the reader opens the book itself.</p>
+    <div id="doc-list"><div class="loading">Reading the shelf…</div></div>
+
     <h2>Downloads</h2>
     <div id="download-list"><p class="faint">Nothing downloading.</p></div>
   `;
+
+  api('docs').then(({ docs, docsDir }) => {
+    const target = document.getElementById('doc-list');
+    if (!target) return;
+    target.innerHTML = docs.length ? docs.map((doc) => `
+      <a class="card card-link" href="#/doc/${encodeURIComponent(doc.id)}">
+        <div class="row-between">
+          <strong>${esc(doc.title)}</strong>
+          <span class="tag">${esc(doc.type.toUpperCase())}${doc.garbled ? ' · text not indexable' : ''}</span>
+        </div>
+        <p class="faint" style="margin:6px 0 0">
+          ${doc.author ? esc(doc.author) + ' · ' : ''}${doc.unitCount} ${esc(doc.unitLabel || 'section')}s ·
+          ${(doc.words || 0).toLocaleString()} words · ${esc(doc.sizeHuman)}
+          ${doc.ok === false ? ` · <span style="color:var(--bad)">${esc(doc.error)}</span>` : ''}
+        </p>
+      </a>`).join('') + `<div class="row" style="margin-top:6px"><button class="btn btn-sm" id="rescan-docs">Rescan documents</button></div>`
+      : `<div class="empty">Nothing on the shelf yet. Drop <code>.pdf</code> or <code>.epub</code> files into<br><span class="mono">${esc(docsDir)}</span><br><button class="btn btn-sm" id="rescan-docs" style="margin-top:12px">Rescan documents</button></div>`;
+
+    const rescan = document.getElementById('rescan-docs');
+    if (rescan) rescan.onclick = async () => { rescan.disabled = true; await api('docs/scan', { method: 'POST' }); route(); };
+  }).catch(() => {});
 
   document.getElementById('rescan').onclick = async (e) => {
     e.target.disabled = true;
@@ -1103,6 +1129,77 @@ async function renderLesson(id) {
     method: 'POST',
     body: { profile: PROFILE, lessonId: lesson.id, completed: e.target.checked },
   });
+}
+
+// --------------------------------------------------------- document reader
+
+async function renderDocument(docId, unitStr) {
+  setBusy('Opening the book…');
+  const doc = await api(`docs/${encodeURIComponent(docId)}`);
+  let current = unitStr !== undefined ? Number(unitStr) : 0;
+  if (!Number.isInteger(current) || current < 0) current = 0;
+
+  const frameSrc = (index) => (doc.type === 'pdf'
+    ? `/doc/${encodeURIComponent(docId)}/file#page=${index + 1}`
+    : `/doc/${encodeURIComponent(docId)}/chapter/${index}`);
+
+  view.innerHTML = `
+    <div class="reader-bar">
+      <button class="btn btn-sm" id="doc-prev" title="Previous ${esc(doc.unitLabel)}">←</button>
+      <button class="btn btn-sm" id="doc-next" title="Next ${esc(doc.unitLabel)}">→</button>
+      <span class="reader-title" id="doc-title"></span>
+      <span class="spacer"></span>
+      <button class="btn btn-sm" id="doc-toc">Contents</button>
+      <a class="btn btn-sm" href="#/library">Library</a>
+      <a class="btn btn-sm" href="/doc/${encodeURIComponent(docId)}/file" target="_blank" rel="noreferrer">Open file</a>
+    </div>
+
+    <div class="doc-layout">
+      <nav class="doc-outline" id="doc-outline" hidden>
+        <p class="faint" style="margin:0 0 8px">${esc(doc.title)}${doc.author ? ` · ${esc(doc.author)}` : ''}</p>
+        ${doc.units.map((u) => `
+          <a class="doc-outline-item" data-index="${u.index}" href="#/doc/${encodeURIComponent(docId)}/${u.index}">
+            <span class="faint mono">${String(u.index + 1).padStart(3)}</span> ${esc(u.title)}
+          </a>`).join('')}
+      </nav>
+      <iframe class="reader-frame doc-frame" id="doc-frame" title="${esc(doc.title)}"></iframe>
+    </div>
+  `;
+
+  const frame = document.getElementById('doc-frame');
+  const outline = document.getElementById('doc-outline');
+  const titleEl = document.getElementById('doc-title');
+
+  const show = (index) => {
+    current = Math.max(0, Math.min(doc.units.length - 1, index));
+    const unit = doc.units[current];
+    titleEl.textContent = doc.units.length > 1 ? `${unit.title}  ·  ${current + 1} / ${doc.units.length}` : doc.title;
+    frame.src = frameSrc(current);
+    history.replaceState(null, '', `#/doc/${encodeURIComponent(docId)}/${current}`);
+    for (const item of outline.querySelectorAll('.doc-outline-item')) {
+      item.classList.toggle('active', Number(item.dataset.index) === current);
+    }
+    document.getElementById('doc-prev').disabled = current === 0;
+    document.getElementById('doc-next').disabled = current >= doc.units.length - 1;
+  };
+
+  document.getElementById('doc-prev').onclick = () => show(current - 1);
+  document.getElementById('doc-next').onclick = () => show(current + 1);
+  document.getElementById('doc-toc').onclick = () => { outline.hidden = !outline.hidden; };
+  for (const item of outline.querySelectorAll('.doc-outline-item')) {
+    item.onclick = (e) => { e.preventDefault(); show(Number(item.dataset.index)); outline.hidden = true; };
+  }
+
+  document.onkeydown = (e) => {
+    if (!location.hash.startsWith('#/doc/')) { document.onkeydown = null; return; }
+    if (e.target.tagName === 'INPUT') return;
+    if (e.altKey && e.key === 'ArrowLeft') { e.preventDefault(); show(current - 1); }
+    if (e.altKey && e.key === 'ArrowRight') { e.preventDefault(); show(current + 1); }
+  };
+
+  // Show the contents first for a book with real chapters; a PDF opens straight in.
+  if (doc.type !== 'pdf' && unitStr === undefined && doc.units.length > 3) outline.hidden = false;
+  show(current);
 }
 
 // ------------------------------------------------------------ pack reader

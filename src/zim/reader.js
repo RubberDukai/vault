@@ -11,6 +11,7 @@
  */
 
 const fsp = require('node:fs/promises');
+const path = require('node:path');
 const zlib = require('node:zlib');
 
 const ZIM_MAGIC = 0x44d495a;
@@ -442,12 +443,26 @@ class ZimFile {
   }
 
   /**
-   * Substring fallback for when prefix search comes up short — a bounded scan
-   * of the title index, capped so it stays responsive on huge packs.
+   * Substring fallback for when prefix search comes up short.
+   *
+   * With the in-memory index this is a string scan and takes milliseconds.
+   * Without it — a pack too large to index, or one still being indexed — it
+   * samples a small number of entries from disk so it stays responsive, at
+   * the cost of missing most matches.
    */
-  async scanTitles(query, limit = 25, maxScan = 60000) {
+  async scanTitles(query, limit = 25, maxScan = 4000) {
     const q = query.trim().toLowerCase();
     if (!q) return [];
+
+    if (this._titleIndex) {
+      const { lower, titles, urls } = this._titleIndex;
+      const results = [];
+      for (let i = 0; i < lower.length && results.length < limit; i++) {
+        if (lower[i].includes(q)) results.push({ title: titles[i], url: urls[i], namespace: 'C' });
+      }
+      return results;
+    }
+
     const count = await this.titleCount();
     const step = Math.max(1, Math.floor(count / maxScan));
     const results = [];
@@ -460,6 +475,116 @@ class ZimFile {
       }
     }
     return results;
+  }
+
+  /**
+   * Build an in-memory list of every article title, so substring search is a
+   * string scan rather than a disk seek per entry.
+   *
+   * Directory entries are stored contiguously, so this reads the whole
+   * directory region in large sequential chunks rather than one entry at a
+   * time — a few seconds for a million entries. Packs above `maxEntries` are
+   * left to prefix search alone; the memory would not be worth it.
+   *
+   * The result is cached at `cachePath` as tab-separated lines, so the next
+   * start loads it in a fraction of a second.
+   */
+  async buildTitleIndex({ cachePath = null, maxEntries = 2500000 } = {}) {
+    if (this._titleIndex) return true;
+    if (this.entryCount > maxEntries) return false;
+
+    if (cachePath) {
+      try {
+        const text = await fsp.readFile(cachePath, 'utf8');
+        const [header, ...lines] = text.split('\n');
+        if (header === `zim-title-index v1 ${this.header.uuid}`) {
+          const titles = [];
+          const urls = [];
+          for (const line of lines) {
+            if (!line) continue;
+            const tab = line.indexOf('\t');
+            titles.push(line.slice(0, tab));
+            urls.push(line.slice(tab + 1));
+          }
+          this._titleIndex = { titles, urls, lower: titles.map((t) => t.toLowerCase()) };
+          return true;
+        }
+      } catch {
+        // no cache, or a stale one — rebuild
+      }
+    }
+
+    // Find the span the directory occupies: the first entry's offset to the
+    // end of the last. Entries are laid out in URL order.
+    let start = Infinity;
+    let end = 0;
+    for (let i = 0; i < this.entryCount; i++) {
+      const off = this._urlPtr(i);
+      if (off < start) start = off;
+      if (off > end) end = off;
+    }
+    end += 8192; // room for the last entry's url and title
+
+    const titles = [];
+    const urls = [];
+    const CHUNK = 8 * 1024 * 1024;
+    let position = start;
+    let carry = Buffer.alloc(0);
+
+    while (position < end) {
+      const chunk = await this._read(position, Math.min(CHUNK, end - position));
+      if (chunk.length === 0) break;
+      const buf = carry.length ? Buffer.concat([carry, chunk]) : chunk;
+      let p = 0;
+
+      // Walk entries back to back. An entry we cannot finish parsing is
+      // carried into the next chunk.
+      while (p < buf.length) {
+        if (buf.length - p < 16) break;
+        const mimeIdx = buf.readUInt16LE(p);
+        const namespace = buf.readUInt8(p + 3);
+        const isRedirect = mimeIdx === REDIRECT_MIME;
+        const fixed = isRedirect ? 12 : 16;
+        const urlEnd = buf.indexOf(0, p + fixed);
+        if (urlEnd === -1) break;
+        const titleEnd = buf.indexOf(0, urlEnd + 1);
+        if (titleEnd === -1) break;
+        const parameterLen = buf.readUInt8(p + 2);
+        const next = titleEnd + 1 + parameterLen;
+        if (next > buf.length) break;
+
+        // Only real articles, not redirects, images or metadata.
+        if (!isRedirect && (namespace === 0x43 || namespace === 0x41) && mimeIdx < this.mimeTypes.length) {
+          const mime = this.mimeTypes[mimeIdx];
+          if (mime && mime.startsWith('text/html')) {
+            const url = buf.toString('utf8', p + fixed, urlEnd);
+            const title = titleEnd > urlEnd + 1 ? buf.toString('utf8', urlEnd + 1, titleEnd) : url;
+            titles.push(title);
+            urls.push(url);
+          }
+        }
+        p = next;
+      }
+
+      carry = buf.subarray(p);
+      position += chunk.length;
+      // Guard against a pathological entry that never parses: skip a byte.
+      if (p === 0 && carry.length >= CHUNK) { carry = carry.subarray(1); }
+    }
+
+    this._titleIndex = { titles, urls, lower: titles.map((t) => t.toLowerCase()) };
+
+    if (cachePath) {
+      const lines = [`zim-title-index v1 ${this.header.uuid}`];
+      for (let i = 0; i < titles.length; i++) lines.push(`${titles[i]}\t${urls[i]}`);
+      await fsp.mkdir(path.dirname(cachePath), { recursive: true }).catch(() => {});
+      await fsp.writeFile(cachePath, lines.join('\n'), 'utf8').catch(() => {});
+    }
+    return true;
+  }
+
+  get titleIndexReady() {
+    return Boolean(this._titleIndex);
   }
 
   /**
