@@ -142,7 +142,7 @@ async function route() {
 
 const FEATURES = [
   ['Library', '#/library', 'Your encyclopedia packs. Every one records the day it was cloned, and tells you when a fresher copy exists.'],
-  ['Handbook', '#/handbook', 'Water, fire, medicine, food, power, shelter, comms. Written to be read before you need it.'],
+  ['Handbook', '#/handbook', 'Water, fire, medicine, food, power, shelter, comms, community, repair. Written to be read before you need it.'],
   ['Maps', '#/maps', 'Offline maps you can draw on. Mark routes, hazards and what you found where — the world changes, your map should too.'],
   ['Comms', '#/comms', 'Message anyone else on this network. No internet, no accounts, no company in the middle.'],
   ['Languages', '#/languages', 'Spaced repetition that shows you a card just before you would have forgotten it.'],

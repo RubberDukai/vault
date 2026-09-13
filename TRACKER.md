@@ -43,8 +43,8 @@ These cannot move until you say which way. Everything else that could be done wi
 | 1.6 | Runs as a LAN server, any device with a browser | **DONE** | Prints the addresses on start |
 | 1.7 | Runs as a desktop app | **PARTIAL** | Double-click launcher opens a chromeless app window. Not a packaged installer — no Electron. Good enough unless you want an .exe |
 | 1.8 | Windows and Linux | **DONE** | `Vault.bat` / `vault.sh` / `vault.desktop`; no platform-specific code |
-| 1.9 | Survivalist handbook framework + first chapters | **DONE** | 8 modules, 31 chapters, ~34,000 words. Every module now has at least two |
-| 1.10 | Language learning: English + Japanese first, then Spanish, Mandarin, Hindi | **PARTIAL** | 455 cards with spaced repetition; written grammar guides for Japanese and Spanish. Missing: audio, Mandarin and Hindi guides — see 6.4 |
+| 1.9 | Survivalist handbook framework + first chapters | **DONE** | 10 modules, 39 chapters, ~43,000 words. Every module has at least two |
+| 1.10 | Language learning: English + Japanese first, then Spanish, Mandarin, Hindi | **PARTIAL** | 455 cards with spaced repetition; written grammar guides for all four. Missing: audio — see 6.4 |
 | 1.11 | Unified search across everything | **DONE** | Handbook, school, decks, guides, every pack, every book — one box, ~0.3 s |
 | 1.12 | Education with per-child progress tracking | **PARTIAL** | Profiles + 13 lessons across 4 subjects. A real curriculum comes from imported textbooks — see D7 |
 | 1.13 | Suggest other areas to build out | **ANSWERED** | Twelve proposed; see section 7 for which are built |
@@ -73,7 +73,7 @@ These cannot move until you say which way. Everything else that could be done wi
 | 3.8 | Does it run on Linux | **ANSWERED** | Yes — see 1.8 |
 | 3.9 | A small image collection for education | **DONE** | Vikidia, PhET, WikEM, illustrated Simple English — 3.85 GB, all verified serving images |
 | 3.10 | Bulk out languages and education with established curricula | **PARTIAL** | The importer exists (5.4). Two Gutenberg books are on the shelf. The textbooks themselves are D7 |
-| 3.11 | Bulk out the handbook, especially shelter building | **DONE** | 31 chapters. Shelter has three. Will keep growing, but no module is thin now |
+| 3.11 | Bulk out the handbook, especially shelter building | **DONE** | 39 chapters across 10 modules. Will keep growing, but nothing is thin now |
 | 3.12 | Rivers rendering as broken wedges | **DONE** | Rivers are lines; were being filled as polygons. Fixed |
 | 3.13 | Buildings appearing and disappearing | **ANSWERED** | Not a bug — tiles only carry buildings from about zoom 13 |
 
@@ -120,12 +120,12 @@ Not separate requests — the places where a "done" is doing less than it should
 | 6.1 | Fire module | Resolved — 4 chapters |
 | 6.2 | Computing module | Resolved — 3 chapters |
 | 6.3 | Comms module | Resolved — 6 chapters, incl. Meshtastic step by step and a plan template |
-| 6.4 | Languages | Guides for Japanese and Spanish; none yet for Mandarin or Hindi. No audio. Kanji stops at 40 |
+| 6.4 | Languages | Guides for all four. No audio. Kanji stops at 40 |
 | 6.5 | School | 13 lessons. Real depth comes from imported textbooks (D7) |
-| 6.6 | Medical | Childbirth and mental health now covered. Still nothing on chronic conditions — diabetes, asthma, epilepsy, heart disease without a pharmacy |
+| 6.6 | Medical | Resolved — 7 chapters, incl. childbirth, mental health and long-term conditions |
 | 6.7 | Maps | Pins and lengths done. Still no offline place-name search, no elevation, no OS style |
-| 6.8 | Food | Nothing yet on livestock in depth, or on hunting, trapping and fishing |
-| 6.9 | Water | Nothing yet on wells in depth, or on drought |
+| 6.8 | Food | Hunting, trapping and fishing now covered. Livestock still a paragraph |
+| 6.9 | Water | Resolved — wells and drought covered |
 
 ## 7. Proposed, not yet requested
 
@@ -134,10 +134,10 @@ Modules suggested on day one. Listed so they are not forgotten, not because they
 | Module | State |
 |---|---|
 | Navigation without GPS | Covered in the offline maps chapter, the map-reading lesson, and the almanac |
-| Repair & making | Nothing written; iFixit pack would be the depth layer (D2) |
+| Repair & making | **Started** — a module with tools/sharpening and cloth/rope/leather. iFixit (D2) would be its depth layer |
 | Livestock & bees | A paragraph in the food chapter |
 | Weather & seasons | Covered in the Earth and weather lesson |
 | Almanac | **Done** (5.7) |
-| Community, records & the family vault | Nothing |
+| Community, records & the family vault | **Done** — a module with three chapters |
 | Print / PDF export | **Done** (5.6) |
 | Packaged desktop installer (.exe / .deb) | Nothing — see 1.7 |
