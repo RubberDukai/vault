@@ -172,12 +172,31 @@ class UnifiedSearch {
     return perPack.flat();
   }
 
-  async searchAll(library, query, { contentLimit = 15, packLimit = 8 } = {}) {
-    const [content, packs] = await Promise.all([
-      Promise.resolve(this.searchContent(query, contentLimit)),
+  async searchAll(library, query, { contentLimit = 15, packLimit = 8, documentLimit = 10 } = {}) {
+    const [ranked, packs] = await Promise.all([
+      Promise.resolve(this.searchContent(query, contentLimit + documentLimit * 4)),
       this.searchPacks(library, query, packLimit),
     ]);
-    return { query, content, packs, total: content.length + packs.length };
+
+    // Books have hundreds of sections each, so left in one list they crowd
+    // out a single handbook chapter that answers the question better. Split
+    // them off, and cap how many sections any one book can contribute.
+    const content = [];
+    const documents = [];
+    const perBook = new Map();
+    for (const hit of ranked) {
+      if (hit.kind !== 'document') {
+        if (content.length < contentLimit) content.push(hit);
+        continue;
+      }
+      const book = hit.id.split('/')[0];
+      const seen = perBook.get(book) || 0;
+      if (seen >= 3 || documents.length >= documentLimit) continue;
+      perBook.set(book, seen + 1);
+      documents.push(hit);
+    }
+
+    return { query, content, documents, packs, total: content.length + documents.length + packs.length };
   }
 }
 

@@ -1483,7 +1483,13 @@ async function renderSearch(params) {
   view.innerHTML = `
     <h1>“${esc(query)}”</h1>
     <p class="lede">${data.total} result${data.total === 1 ? '' : 's'} across the handbook, school and your packs.</p>
-    ${section('Handbook and school', data.content, (hit) => `
+    ${section('Handbook, school and languages', data.content, (hit) => `
+      <div class="result">
+        <a href="${esc(hit.href)}">${esc(hit.title)}</a>
+        <span class="faint"> · ${esc(hit.context)}</span>
+        ${hit.snippet ? `<p class="snippet">${esc(hit.snippet)}</p>` : ''}
+      </div>`)}
+    ${section('Books and documents', data.documents || [], (hit) => `
       <div class="result">
         <a href="${esc(hit.href)}">${esc(hit.title)}</a>
         <span class="faint"> · ${esc(hit.context)}</span>
