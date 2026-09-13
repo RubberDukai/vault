@@ -42,17 +42,27 @@ Every pack records the date its source was cloned. Vault shows that date everywh
 
 ### Sizes worth knowing
 
+Real figures from the Kiwix catalogue, September 2026:
+
 | Pack | Size |
 |---|---|
-| Simple English Wikipedia, no images | ~0.9 GB |
-| English Wikipedia, lead sections only | ~13 GB |
-| English Wikipedia, full text, no images | ~55 GB |
-| English Wikipedia, full text with images | ~110 GB |
-| Wiktionary (English) | ~3 GB |
-| iFixit repair guides | ~3 GB |
-| Medical (WikiProject Medicine) | ~3 GB |
+| Vikidia — children's encyclopedia, illustrated | 0.1 GB |
+| PhET — 120 interactive science simulations | 0.1 GB |
+| WikEM — emergency medicine, illustrated | 0.35 GB |
+| Simple English Wikipedia, illustrated | 3.3 GB |
+| iFixit repair guides | 3.3 GB |
+| Wikibooks, illustrated | 5.75 GB |
+| Wiktionary — the dictionary, 9 M entries | 8.5 GB |
+| English Wikipedia, lead sections only | 11.7 GB |
+| English Wikipedia, top million articles, text only | 16 GB |
+| English Wikipedia, full text, no images | 49 GB |
+| English Wikipedia, full text with images | 119 GB |
 
 Updating is a full re-download — the ZIM format has no patch mechanism. Your existing copy keeps working until the new one finishes and verifies.
+
+## What is built and what is not
+
+See [TRACKER.md](TRACKER.md) — every feature requested, its status, and the decisions still open. Also under the Manual tab in the app.
 
 ## Layout
 

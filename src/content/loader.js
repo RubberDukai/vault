@@ -80,6 +80,25 @@ class ContentLibrary {
       });
     }
 
+    // The build tracker lives at the repository root so it is the first
+    // thing seen on GitHub, but it belongs in the Manual tab too.
+    const trackerPath = path.join(this.contentDir, '..', 'TRACKER.md');
+    try {
+      const raw = await fsp.readFile(trackerPath, 'utf8');
+      const { meta, body } = parseFrontmatter(raw);
+      pages.push({
+        id: 'build-tracker',
+        slug: 'build-tracker',
+        title: meta.title || 'Build tracker',
+        summary: meta.summary || '',
+        order: meta.order ?? 0,
+        body,
+        plain: markdown.toPlainText(body),
+      });
+    } catch {
+      // No tracker file is fine; a copy handed to someone else may not carry one.
+    }
+
     pages.sort((a, b) => (a.order - b.order) || a.title.localeCompare(b.title));
     this.manual = pages;
   }
