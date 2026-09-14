@@ -1,6 +1,5 @@
-# Knowledge packs — far too large for version control
-library/*.zim
-library/*.part
+# Nothing under library/ is ever tracked: packs, charts, books and any partial download
+library/
 
 # Runtime state: profiles, review schedules, lesson progress
 data/
@@ -9,8 +8,3 @@ data/
 .tmp/
 node_modules/
 *.log
-library/maps/*.pmtiles
-library/maps/*.mbtiles
-library/maps/*.url
-library/docs/*.pdf
-library/docs/*.epub
