@@ -40,7 +40,7 @@ Everything else that was open has been decided and is done or in progress — se
 | 1.7 | Runs as a desktop app | **PARTIAL** | Double-click launcher opens a chromeless app window. Not a packaged installer — no Electron. Good enough unless you want an .exe |
 | 1.8 | Windows and Linux | **DONE** | `Vault.bat` / `vault.sh` / `vault.desktop`; no platform-specific code |
 | 1.9 | Survivalist handbook framework + first chapters | **DONE** | 10 modules, 39 chapters, ~43,000 words. Every module has at least two |
-| 1.10 | Language learning: English + Japanese first, then Spanish, Mandarin, Hindi | **PARTIAL** | 455 cards with spaced repetition; written grammar guides for all four. Missing: audio — see 6.4 |
+| 1.10 | Language learning: English + Japanese first, then Spanish, Mandarin, Hindi | **PARTIAL** | 1,079 cards with spaced repetition; written grammar guides for all four. Missing: audio — see 6.4 |
 | 1.11 | Unified search across everything | **DONE** | Handbook, school, decks, guides, every pack, every book — one box, ~0.3 s |
 | 1.12 | Education with per-child progress tracking | **DONE** | Profiles + 13 lessons, and the OpenStax shelf (8.6) for depth |
 | 1.13 | Suggest other areas to build out | **ANSWERED** | Twelve proposed; see section 7 for which are built |
@@ -83,7 +83,7 @@ Everything else that was open has been decided and is done or in progress — se
 | 4.4 | Light mode | **DONE** | |
 | 4.5 | Pip-Boy mode: old screen effect, the font, changeable text colour | **DONE** | Scanlines, glow, flicker, monospace; five screen colours |
 | 4.6 | Make the UI cool and fun to use | **DONE** | Themes, the cog, the mascot |
-| 4.7 | Manual explaining how the app works and is built | **DONE** | Four pages plus this tracker, under the Manual tab |
+| 4.7 | Manual explaining how the app works and is built | **DONE** | Five pages plus this tracker, under the Manual tab |
 | 4.8 | Chat over the local network, with a setup guide | **DONE** | Comms tab with channels; guide is Manual → Setting up outpost comms |
 | 4.9 | Footer credit: prepared by Joseph Watkins, and why | **DONE** | |
 | 4.10 | Draw on the map: paint, erase, toggle the layer | **DONE** | |
@@ -92,7 +92,7 @@ Everything else that was open has been decided and is done or in progress — se
 | 4.13 | Remove handbook links from the home page | **DONE** | |
 | 4.14 | Home as a friendly, Fallout-like welcome and guide | **DONE** | |
 | 4.15 | Logo changed to a cog | **DONE** | Generated from code, no image file |
-| 4.16 | Rebrand Ark → Vault | **PARTIAL** | Everything renamed except the folder — D5, next session |
+| 4.16 | Rebrand Ark → Vault | **PARTIAL** | Everything renamed except the folder — D5, needs your hands |
 | 4.17 | Vault Boy ASCII mascot on the home page | **DONE** | Your art, exactly as supplied |
 
 ## 5. Backup, sharing, and the autonomous run — 11–13 Sep
@@ -139,7 +139,7 @@ Everything else that was open has been decided and is done or in progress — se
 | 9.12 | Rename Pip-Boy view to "retro" | **DONE** | "Retro terminal" |
 | 9.13 | Header on the appearance dropdown | **DONE** | "Customise view" |
 | 9.14 | Other features people would miss (music, piano?) | **PARTIAL** | Tools tab: a two-octave piano playable from the keyboard, a metronome with tap tempo and tuning pitches, a countdown timer with alarm and a stopwatch, and a unit converter. Not yet built, in rough order of usefulness: a music/audio player for your own files (and a local photo/video viewer), a notebook/journal per person, a chess/draughts board, a periodic table and star chart, a Morse trainer, a calculator, a recipe book. Say which |
-| 9.15 | Are 10-card modules adequate? Matched to real syllabuses? | **ANSWERED / PARTIAL** | The 10 was the per-session limit on *new* cards, now a setting (5–100) — the decks are 20–47 cards each, 455 in all. Honest answer to adequacy: no. Each language page now says where its decks sit against the real levels (JLPT N5, HSK 1, CEFR A1) — Japanese covers both kana in full, 40 of 100 N5 kanji and under a tenth of N5 vocabulary; Spanish about a fifth of A1. Expanding to full N5 / A1 decks is the next content job |
+| 9.15 | Are 10-card modules adequate? Matched to real syllabuses? | **PARTIAL** | The 10 was the per-session limit on *new* cards, now a setting (5–100). Honest answer to adequacy: it was not — 455 cards was a survival core. Now 1,079: Japanese has 652 (both kana, all 110 JLPT N5 kanji, about 450 words — just over half of N5 vocabulary), Spanish 289 (about half of CEFR A1). Each language page says where its decks sit against the real level. Still to do: the rest of N5 and A1, Mandarin to HSK 1, a Devanagari deck for Hindi, and audio |
 | 9.16 | Japanese cards show only symbols | **DONE** | Pronunciation (rōmaji, pinyin, or a plain English rendering) now shows on the front of the card by default; a toggle hides it once you can read the script. Every Japanese, Mandarin and Hindi card carries a reading; the kana decks are the exception on purpose — the reading *is* the answer |
 
 ## 6. Known thin spots
@@ -151,7 +151,7 @@ Not separate requests — the places where a "done" is doing less than it should
 | 6.1 | Fire module | Resolved — 4 chapters |
 | 6.2 | Computing module | Resolved — 3 chapters |
 | 6.3 | Comms module | Resolved — 6 chapters, incl. Meshtastic step by step and a plan template |
-| 6.4 | Languages | Guides for all four. No audio. Kanji stops at 40. Decks are a survival core, well short of N5 / A1 — see 9.15 |
+| 6.4 | Languages | Guides for all four. No audio. Japanese and Spanish now cover roughly half of N5 / A1 vocabulary; Mandarin and Hindi are still a survival core — see 9.15 |
 | 6.5 | School | 13 lessons. Real depth comes from imported textbooks (D7) |
 | 6.6 | Medical | Resolved — 7 chapters, incl. childbirth, mental health and long-term conditions |
 | 6.7 | Maps | Pins, lengths, perimeter/area and a route planner done. Still no offline place-name search, no elevation, no satellite, no OS style |
