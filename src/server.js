@@ -20,6 +20,7 @@ const downloads = require('./library/download');
 const { ContentLibrary } = require('./content/loader');
 const { MapManager } = require('./maps/manager');
 const { DocumentManager } = require('./docs/manager');
+const { PackCatalog } = require('./library/packs');
 const markdown = require('./content/markdown');
 const { UnifiedSearch } = require('./search/unified');
 const srs = require('./srs/engine');
@@ -61,6 +62,12 @@ class ArkServer {
     this.content = new ContentLibrary(this.contentDir);
     this.search = new UnifiedSearch();
 
+    this.packs = new PackCatalog({
+      manifestPath: path.join(this.contentDir, 'packs.json'),
+      rootDir: ROOT,
+      dataDir: this.dataDir,
+    });
+
     this.state = new Store(path.join(this.dataDir, 'state.json'), {
       profiles: [{ id: 'default', name: 'Everyone', created: new Date().toISOString() }],
       srs: {},
@@ -86,11 +93,47 @@ class ArkServer {
     await this.content.load();
     await this.library.scan();
     await this.maps.scan();
-    await this.documents.scan();
-    this.search.build(this.content, this.documents.searchable());
 
-    // Title indexes take seconds per pack; do not make the user wait for them.
-    this.library.buildTitleIndexes().catch(() => {});
+    // Everything authored is searchable at once. Books and title indexes take
+    // longer — a shelf of textbooks can be minutes to extract the first time —
+    // so they are folded in behind the running server rather than before it.
+    this.search.build(this.content, []);
+    this.ready = { documents: false, titles: false };
+    this._background = (async () => {
+      try {
+        await this.documents.scan();
+        this.search.build(this.content, this.documents.searchable());
+      } catch (err) {
+        console.error('[vault] document scan failed:', err.message);
+      }
+      this.ready.documents = true;
+      await this.library.buildTitleIndexes().catch(() => {});
+      this.ready.titles = true;
+    })();
+
+    // The content catalogue. When a pack lands, fold it into the library at
+    // once so the person does not have to restart to see it.
+    try {
+      this.packs.load();
+      this.packs.onInstalled = async (item) => {
+        if (item.dest === 'library') {
+          await this.library.scan();
+          this.library.buildTitleIndexes().catch(() => {});
+        } else if (item.dest === 'library/maps') {
+          await this.maps.scan();
+        } else if (item.dest === 'library/docs') {
+          await this.documents.scan();
+        }
+        this.search.build(this.content, this.documents.searchable());
+      };
+      // Anything queued before the last shutdown carries on where it left off.
+      if (this.packs.state.get().queue.length) {
+        console.log(`[vault] resuming ${this.packs.state.get().queue.length} queued download(s)`);
+        this.packs.run().catch((err) => console.error('[vault] download queue stopped:', err.message));
+      }
+    } catch (err) {
+      console.error('[vault] content catalogue unavailable:', err.message);
+    }
     return this;
   }
 
@@ -579,7 +622,11 @@ class ArkServer {
 
     // --- documents --------------------------------------------------------
     if (route === 'docs' && method === 'GET') {
-      return this.json(res, 200, { docs: this.documents.list(), docsDir: this.documents.docsDir });
+      return this.json(res, 200, {
+        docs: this.documents.list(),
+        docsDir: this.documents.docsDir,
+        indexing: this.ready ? !this.ready.documents : false,
+      });
     }
 
     if (route === 'docs/scan' && method === 'POST') {
@@ -598,6 +645,29 @@ class ArkServer {
       const outline = this.documents.outline(docId);
       if (!outline) return this.json(res, 404, { error: 'No such document' });
       return this.json(res, 200, outline);
+    }
+
+    // --- setup: the content catalogue and its queue -----------------------
+    if (route === 'setup' && method === 'GET') {
+      const status = this.packs.status();
+      status.diskFree = await this.packs.diskFree();
+      status.diskFreeHuman = status.diskFree === null ? null : humanBytes(status.diskFree);
+      return this.json(res, 200, status);
+    }
+
+    if (route === 'setup/install' && method === 'POST') {
+      const body = await this.readBody(req);
+      const added = body.bundle
+        ? this.packs.enqueueBundle(body.bundle)
+        : this.packs.enqueue(Array.isArray(body.ids) ? body.ids : []);
+      return this.json(res, 200, { added, queue: this.packs.state.get().queue });
+    }
+
+    if (route === 'setup/cancel' && method === 'POST') {
+      const body = await this.readBody(req);
+      if (body.id) this.packs.dequeue(body.id);
+      else this.packs.clear();
+      return this.json(res, 200, { queue: this.packs.state.get().queue });
     }
 
     // --- catalogue + downloads -------------------------------------------

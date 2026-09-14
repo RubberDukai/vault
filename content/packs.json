@@ -1,0 +1,1829 @@
+{
+  "version": 1,
+  "updated": "2026-09-14",
+  "note": "Every address here belongs to someone else — Kiwix, OpenStax, Hesperian, OpenSeaMap, Project Gutenberg. They give this away. If the Vault is ever shared widely, mirror these files rather than sending thousands of people to nonprofit servers.",
+  "categories": [
+    {
+      "id": "medical",
+      "title": "Medical"
+    },
+    {
+      "id": "encyclopedia",
+      "title": "Encyclopedias"
+    },
+    {
+      "id": "reference",
+      "title": "Reference"
+    },
+    {
+      "id": "education",
+      "title": "Education"
+    },
+    {
+      "id": "textbooks",
+      "title": "Textbooks (OpenStax)"
+    },
+    {
+      "id": "books",
+      "title": "Books"
+    },
+    {
+      "id": "charts",
+      "title": "Sea charts"
+    }
+  ],
+  "items": [
+    {
+      "id": "where-there-is-no-doctor",
+      "category": "medical",
+      "title": "Where There Is No Doctor (2025 edition)",
+      "description": "Hesperian's village health guide — the most widely used medical manual in the world for exactly this situation. 25 chapter files, 11 MB.",
+      "size": 11746304,
+      "dest": "library/docs",
+      "priority": 1,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_fm.pdf",
+          "filename": "Where There Is No Doctor 2025 - 00 Front matter.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_01.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 01.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_02.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 02.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_03.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 03.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_04.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 04.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_05.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 05.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_06.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 06.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_07.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 07.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_08.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 08.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_09.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 09.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_10.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 10.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_11.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 11.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_12.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 12.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_13.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 13.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_14.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 14.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_15.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 15.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_16.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 16.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_17.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 17.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_18.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 18.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_19.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 19.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_20.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 20.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_21.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 21.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_22.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 22.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_23.pdf",
+          "filename": "Where There Is No Doctor 2025 - Chapter 23.pdf"
+        },
+        {
+          "url": "https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_bm.pdf",
+          "filename": "Where There Is No Doctor 2025 - 99 Back matter.pdf"
+        }
+      ]
+    },
+    {
+      "id": "vikidia",
+      "category": "education",
+      "title": "Vikidia — children's encyclopedia, illustrated",
+      "description": "9,000 articles written for 8-to-13-year-olds, with pictures. 100 MB.",
+      "size": 107858893,
+      "dest": "library",
+      "priority": 10,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://lb.download.kiwix.org/zim/vikidia/vikidia_en_all_maxi_2026-06.zim",
+          "filename": "vikidia_en_all_maxi_2026-06.zim"
+        }
+      ]
+    },
+    {
+      "id": "phet",
+      "category": "education",
+      "title": "PhET — interactive science simulations",
+      "description": "120 physics, chemistry and maths simulations that run in the browser. A science lab in 100 MB.",
+      "size": 108981169,
+      "dest": "library",
+      "priority": 11,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://lb.download.kiwix.org/zim/phet/phet_en_all_2026-08.zim",
+          "filename": "phet_en_all_2026-08.zim"
+        }
+      ]
+    },
+    {
+      "id": "wikem",
+      "category": "medical",
+      "title": "WikEM — emergency medicine, illustrated",
+      "description": "The emergency physician's reference: presentations, treatments, doses, with diagrams.",
+      "size": 374632362,
+      "dest": "library",
+      "priority": 12,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://lb.download.kiwix.org/zim/other/wikem_en_all_maxi_2026-07.zim",
+          "filename": "wikem_en_all_maxi_2026-07.zim"
+        }
+      ]
+    },
+    {
+      "id": "wikipedia-simple",
+      "category": "encyclopedia",
+      "title": "Simple English Wikipedia, illustrated",
+      "description": "Plain-language articles with pictures. The right first encyclopedia for children.",
+      "size": 3503725568,
+      "dest": "library",
+      "priority": 20,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://lb.download.kiwix.org/zim/wikipedia/wikipedia_en-simple_all_maxi_2026-06.zim",
+          "filename": "wikipedia_en-simple_all_maxi_2026-06.zim"
+        }
+      ]
+    },
+    {
+      "id": "openstax-additive-manufacturing-essentials",
+      "category": "textbooks",
+      "title": "Additive Manufacturing Essentials",
+      "description": "OpenStax · Science, Business. Peer-reviewed, openly licensed.",
+      "size": 20640015,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Additive_Manufacturing_Essentials_-_WEB.pdf",
+          "filename": "OpenStax - Additive Manufacturing Essentials.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-algebra-1",
+      "category": "textbooks",
+      "title": "Algebra 1",
+      "description": "OpenStax · Math. Peer-reviewed, openly licensed.",
+      "size": 82715252,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/algebra-1_-_WEB.pdf",
+          "filename": "OpenStax - Algebra 1.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-algebra-and-trigonometry-2e",
+      "category": "textbooks",
+      "title": "Algebra and Trigonometry 2e",
+      "description": "OpenStax · Math. Peer-reviewed, openly licensed.",
+      "size": 116281063,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/algebra-and-trigonometry-2e_-_WEB.pdf",
+          "filename": "OpenStax - Algebra and Trigonometry 2e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-american-government-4e",
+      "category": "textbooks",
+      "title": "American Government 4e",
+      "description": "OpenStax · Social Sciences. Peer-reviewed, openly licensed.",
+      "size": 155034953,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/American_Government_4e_-_WEB_eM2Tuqh.pdf",
+          "filename": "OpenStax - American Government 4e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-anatomy-and-physiology-2e",
+      "category": "textbooks",
+      "title": "Anatomy and Physiology 2e",
+      "description": "OpenStax · Science. Peer-reviewed, openly licensed.",
+      "size": 476335014,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/anatomy-and-physiology-2e_-_WEB.pdf",
+          "filename": "OpenStax - Anatomy and Physiology 2e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-astronomy-2e",
+      "category": "textbooks",
+      "title": "Astronomy 2e",
+      "description": "OpenStax · Science. Peer-reviewed, openly licensed.",
+      "size": 162975061,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/astronomy-2e_-_WEB.pdf",
+          "filename": "OpenStax - Astronomy 2e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-biology-2e",
+      "category": "textbooks",
+      "title": "Biology 2e",
+      "description": "OpenStax · Science. Peer-reviewed, openly licensed.",
+      "size": 401298122,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Biology-2e_-_WEB.pdf",
+          "filename": "OpenStax - Biology 2e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-biology-for-ap-courses",
+      "category": "textbooks",
+      "title": "Biology for AP® Courses",
+      "description": "OpenStax · Science. Peer-reviewed, openly licensed.",
+      "size": 265033179,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Biology-AP-Courses_-_WEB.pdf",
+          "filename": "OpenStax - Biology for AP® Courses.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-business-ethics",
+      "category": "textbooks",
+      "title": "Business Ethics",
+      "description": "OpenStax · Business. Peer-reviewed, openly licensed.",
+      "size": 51368382,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/business-ethics_-_WEB.pdf",
+          "filename": "OpenStax - Business Ethics.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-business-law-i-essentials-2e",
+      "category": "textbooks",
+      "title": "Business Law I Essentials 2e",
+      "description": "OpenStax · Business. Peer-reviewed, openly licensed.",
+      "size": 13076311,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Business_Law_I_Essentials_2e_-_WEB.pdf",
+          "filename": "OpenStax - Business Law I Essentials 2e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-c-lculo-volumen-1",
+      "category": "textbooks",
+      "title": "Cálculo volumen 1",
+      "description": "OpenStax · Matemáticas. Peer-reviewed, openly licensed.",
+      "size": 43346007,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Calculo_volumen_1_-_WEB_vGHB4xK.pdf",
+          "filename": "OpenStax - Cálculo volumen 1.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-c-lculo-volumen-2",
+      "category": "textbooks",
+      "title": "Cálculo volumen 2",
+      "description": "OpenStax · Matemáticas. Peer-reviewed, openly licensed.",
+      "size": 40585825,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Calculo_volumen_2_-_WEB_8JoonWk.pdf",
+          "filename": "OpenStax - Cálculo volumen 2.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-calculus-volume-1",
+      "category": "textbooks",
+      "title": "Calculus Volume 1",
+      "description": "OpenStax · Math. Peer-reviewed, openly licensed.",
+      "size": 52104540,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/calculus-volume-1_-_WEB.pdf",
+          "filename": "OpenStax - Calculus Volume 1.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-calculus-volume-2",
+      "category": "textbooks",
+      "title": "Calculus Volume 2",
+      "description": "OpenStax · Math. Peer-reviewed, openly licensed.",
+      "size": 47350759,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/calculus-volume-2_-_WEB.pdf",
+          "filename": "OpenStax - Calculus Volume 2.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-calculus-volume-3",
+      "category": "textbooks",
+      "title": "Calculus Volume 3",
+      "description": "OpenStax · Math. Peer-reviewed, openly licensed.",
+      "size": 79186757,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/calculus-volume-3_-_WEB.pdf",
+          "filename": "OpenStax - Calculus Volume 3.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-chemistry-2e",
+      "category": "textbooks",
+      "title": "Chemistry 2e",
+      "description": "OpenStax · Science. Peer-reviewed, openly licensed.",
+      "size": 217794376,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/chemistry-2e_-_WEB.pdf",
+          "filename": "OpenStax - Chemistry 2e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-chemistry-atoms-first-2e",
+      "category": "textbooks",
+      "title": "Chemistry: Atoms First 2e",
+      "description": "OpenStax · Science. Peer-reviewed, openly licensed.",
+      "size": 218252485,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/chemistry-atoms-first-2e_-_WEB.pdf",
+          "filename": "OpenStax - Chemistry- Atoms First 2e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-clinical-nursing-skills",
+      "category": "textbooks",
+      "title": "Clinical Nursing Skills",
+      "description": "OpenStax · Nursing. Peer-reviewed, openly licensed.",
+      "size": 95717314,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Clinical-Nursing-Skills-WEB.pdf",
+          "filename": "OpenStax - Clinical Nursing Skills.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-college-algebra-2e",
+      "category": "textbooks",
+      "title": "College Algebra 2e",
+      "description": "OpenStax · Math. Peer-reviewed, openly licensed.",
+      "size": 84220165,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/college-algebra-2e_-_WEB.pdf",
+          "filename": "OpenStax - College Algebra 2e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-college-algebra-2e-with-corequisite-support",
+      "category": "textbooks",
+      "title": "College Algebra 2e with Corequisite Support",
+      "description": "OpenStax · Math. Peer-reviewed, openly licensed.",
+      "size": 91254385,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/college-algebra-corequisite-support-2e_-_WEB.pdf",
+          "filename": "OpenStax - College Algebra 2e with Corequisite Support.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-college-physics-2e",
+      "category": "textbooks",
+      "title": "College Physics 2e",
+      "description": "OpenStax · Science. Peer-reviewed, openly licensed.",
+      "size": 263463256,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/college-physics-2e_-_WEB.pdf",
+          "filename": "OpenStax - College Physics 2e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-college-physics-for-ap-courses-2e",
+      "category": "textbooks",
+      "title": "College Physics For AP® Courses 2e",
+      "description": "OpenStax · Science. Peer-reviewed, openly licensed.",
+      "size": 266882977,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/college-physics-ap-courses-2e_-_WEB.pdf",
+          "filename": "OpenStax - College Physics For AP® Courses 2e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-college-success",
+      "category": "textbooks",
+      "title": "College Success",
+      "description": "OpenStax · College Success. Peer-reviewed, openly licensed.",
+      "size": 87510264,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/college-success_-_WEB.pdf",
+          "filename": "OpenStax - College Success.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-college-success-concise",
+      "category": "textbooks",
+      "title": "College Success Concise",
+      "description": "OpenStax · College Success. Peer-reviewed, openly licensed.",
+      "size": 21239128,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/college-success-concise_-_WEB.pdf",
+          "filename": "OpenStax - College Success Concise.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-concepts-of-biology",
+      "category": "textbooks",
+      "title": "Concepts of Biology",
+      "description": "OpenStax · Science. Peer-reviewed, openly licensed.",
+      "size": 185858638,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Concepts-Biology_-_WEB.pdf",
+          "filename": "OpenStax - Concepts of Biology.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-contemporary-mathematics",
+      "category": "textbooks",
+      "title": "Contemporary Mathematics",
+      "description": "OpenStax · Math. Peer-reviewed, openly licensed.",
+      "size": 106819604,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/contemporary-mathematics_-_WEB.pdf",
+          "filename": "OpenStax - Contemporary Mathematics.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-elementary-algebra-2e",
+      "category": "textbooks",
+      "title": "Elementary Algebra 2e",
+      "description": "OpenStax · Math. Peer-reviewed, openly licensed.",
+      "size": 56728705,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/elementary-algebra-2e_-_WEB.pdf",
+          "filename": "OpenStax - Elementary Algebra 2e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-entrepreneurship",
+      "category": "textbooks",
+      "title": "Entrepreneurship",
+      "description": "OpenStax · Business. Peer-reviewed, openly licensed.",
+      "size": 129375799,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Entrepreneurship-WEB.pdf",
+          "filename": "OpenStax - Entrepreneurship.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-foundations-of-information-systems",
+      "category": "textbooks",
+      "title": "Foundations of Information Systems",
+      "description": "OpenStax · Computer Science. Peer-reviewed, openly licensed.",
+      "size": 25619781,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Foundations_of_Information_Systems_-_WEB_oNlbGYl.pdf",
+          "filename": "OpenStax - Foundations of Information Systems.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-fundamentals-of-nursing",
+      "category": "textbooks",
+      "title": "Fundamentals of Nursing",
+      "description": "OpenStax · Nursing. Peer-reviewed, openly licensed.",
+      "size": 96583335,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Fundamentals_of_Nursing_-_WEB.pdf",
+          "filename": "OpenStax - Fundamentals of Nursing.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-intermediate-algebra-2e",
+      "category": "textbooks",
+      "title": "Intermediate Algebra 2e",
+      "description": "OpenStax · Math. Peer-reviewed, openly licensed.",
+      "size": 80988726,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/intermediate-algebra-2e_-_WEB.pdf",
+          "filename": "OpenStax - Intermediate Algebra 2e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-introduction-to-anthropology",
+      "category": "textbooks",
+      "title": "Introduction to Anthropology",
+      "description": "OpenStax · Social Sciences. Peer-reviewed, openly licensed.",
+      "size": 101187994,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/IntroductiontoAnthropology-WEB.pdf",
+          "filename": "OpenStax - Introduction to Anthropology.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-introduction-to-behavioral-neuroscience",
+      "category": "textbooks",
+      "title": "Introduction to Behavioral Neuroscience",
+      "description": "OpenStax · Social Sciences, Science. Peer-reviewed, openly licensed.",
+      "size": 262376027,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Introduction-Behavioral-Neuroscience_-_WEB.pdf",
+          "filename": "OpenStax - Introduction to Behavioral Neuroscience.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-introduction-to-business-2e",
+      "category": "textbooks",
+      "title": "Introduction to Business 2e",
+      "description": "OpenStax · Business. Peer-reviewed, openly licensed.",
+      "size": 148842597,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Introduction_to_Business_2e_-_WEB.pdf",
+          "filename": "OpenStax - Introduction to Business 2e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-introduction-to-computer-science",
+      "category": "textbooks",
+      "title": "Introduction to Computer Science",
+      "description": "OpenStax · Computer Science. Peer-reviewed, openly licensed.",
+      "size": 56261511,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Introduction_To_Computer_Science_-_WEB.pdf",
+          "filename": "OpenStax - Introduction to Computer Science.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-introduction-to-intellectual-property",
+      "category": "textbooks",
+      "title": "Introduction to Intellectual Property",
+      "description": "OpenStax · Business. Peer-reviewed, openly licensed.",
+      "size": 24582768,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/introduction-intellectual-property_-_WEB.pdf",
+          "filename": "OpenStax - Introduction to Intellectual Property.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-introduction-to-philosophy",
+      "category": "textbooks",
+      "title": "Introduction to Philosophy",
+      "description": "OpenStax · Humanities. Peer-reviewed, openly licensed.",
+      "size": 48068887,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Introduction_to_Philosophy-WEB.pdf",
+          "filename": "OpenStax - Introduction to Philosophy.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-introduction-to-political-science",
+      "category": "textbooks",
+      "title": "Introduction to Political Science",
+      "description": "OpenStax · Social Sciences. Peer-reviewed, openly licensed.",
+      "size": 78449891,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Introduction_to_Political_Science_-_WEB.pdf",
+          "filename": "OpenStax - Introduction to Political Science.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-introduction-to-sociology-3e",
+      "category": "textbooks",
+      "title": "Introduction to Sociology 3e",
+      "description": "OpenStax · Social Sciences. Peer-reviewed, openly licensed.",
+      "size": 48299547,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/introduction-sociology-3e_-_WEB.pdf",
+          "filename": "OpenStax - Introduction to Sociology 3e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-introductory-business-statistics-2e",
+      "category": "textbooks",
+      "title": "Introductory Business Statistics 2e",
+      "description": "OpenStax · Business, Math. Peer-reviewed, openly licensed.",
+      "size": 22795257,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/introductory-business-statistics-2e_-_WEB.pdf",
+          "filename": "OpenStax - Introductory Business Statistics 2e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-introductory-statistics-2e",
+      "category": "textbooks",
+      "title": "Introductory Statistics 2e",
+      "description": "OpenStax · Math. Peer-reviewed, openly licensed.",
+      "size": 23503369,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/introductory-statistics-2e_-_WEB.pdf",
+          "filename": "OpenStax - Introductory Statistics 2e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-lifespan-development",
+      "category": "textbooks",
+      "title": "Lifespan Development",
+      "description": "OpenStax · Social Sciences. Peer-reviewed, openly licensed.",
+      "size": 75075373,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Lifespan_Development_-_WEB.pdf",
+          "filename": "OpenStax - Lifespan Development.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-maternal-newborn-nursing",
+      "category": "textbooks",
+      "title": "Maternal-Newborn Nursing",
+      "description": "OpenStax · Nursing. Peer-reviewed, openly licensed.",
+      "size": 60793393,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Maternal-Newborn_Nursing-WEB.pdf",
+          "filename": "OpenStax - Maternal-Newborn Nursing.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-medical-surgical-nursing",
+      "category": "textbooks",
+      "title": "Medical-Surgical Nursing",
+      "description": "OpenStax · Nursing. Peer-reviewed, openly licensed.",
+      "size": 72785345,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Medical-Surgical_Nursing-WEB.pdf",
+          "filename": "OpenStax - Medical-Surgical Nursing.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-microbiology",
+      "category": "textbooks",
+      "title": "Microbiology",
+      "description": "OpenStax · Science. Peer-reviewed, openly licensed.",
+      "size": 332873038,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/microbiology_-_WEB.pdf",
+          "filename": "OpenStax - Microbiology.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-nutrition-for-nurses",
+      "category": "textbooks",
+      "title": "Nutrition for Nurses",
+      "description": "OpenStax · Nursing. Peer-reviewed, openly licensed.",
+      "size": 31569933,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Nutrition_for_Nurses-WEB.pdf",
+          "filename": "OpenStax - Nutrition for Nurses.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-organic-chemistry-a-tenth-edition",
+      "category": "textbooks",
+      "title": "Organic Chemistry: A Tenth Edition",
+      "description": "OpenStax · Science. Peer-reviewed, openly licensed.",
+      "size": 207713388,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/organic-chemistry_-_WEB.pdf",
+          "filename": "OpenStax - Organic Chemistry- A Tenth Edition.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-organizational-behavior",
+      "category": "textbooks",
+      "title": "Organizational Behavior",
+      "description": "OpenStax · Business. Peer-reviewed, openly licensed.",
+      "size": 46231554,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/organizational-behavior_-_WEB.pdf",
+          "filename": "OpenStax - Organizational Behavior.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-pharmacology-for-nurses",
+      "category": "textbooks",
+      "title": "Pharmacology for Nurses",
+      "description": "OpenStax · Nursing. Peer-reviewed, openly licensed.",
+      "size": 47218206,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Pharmacology-WEB.pdf",
+          "filename": "OpenStax - Pharmacology for Nurses.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-physics",
+      "category": "textbooks",
+      "title": "Physics",
+      "description": "OpenStax · Science. Peer-reviewed, openly licensed.",
+      "size": 57463331,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Physics_-_WEB.pdf",
+          "filename": "OpenStax - Physics.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-population-health-for-nurses",
+      "category": "textbooks",
+      "title": "Population Health for Nurses",
+      "description": "OpenStax · Nursing. Peer-reviewed, openly licensed.",
+      "size": 60769717,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Population_Health_for_Nurses_-_WEB.pdf",
+          "filename": "OpenStax - Population Health for Nurses.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-prealgebra-2e",
+      "category": "textbooks",
+      "title": "Prealgebra 2e",
+      "description": "OpenStax · Math. Peer-reviewed, openly licensed.",
+      "size": 63194495,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/prealgebra-2e_-_WEB.pdf",
+          "filename": "OpenStax - Prealgebra 2e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-precalculus-2e",
+      "category": "textbooks",
+      "title": "Precalculus 2e",
+      "description": "OpenStax · Math. Peer-reviewed, openly licensed.",
+      "size": 114386806,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/precalculus-2e_-_WEB.pdf",
+          "filename": "OpenStax - Precalculus 2e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-preparing-for-college-success",
+      "category": "textbooks",
+      "title": "Preparing for College Success",
+      "description": "OpenStax · College Success. Peer-reviewed, openly licensed.",
+      "size": 22002698,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/preparing-for-college-success_-_WEB.pdf",
+          "filename": "OpenStax - Preparing for College Success.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-principles-of-accounting-volume-1-financial-accounting",
+      "category": "textbooks",
+      "title": "Principles of Accounting, Volume 1: Financial Accounting",
+      "description": "OpenStax · Business. Peer-reviewed, openly licensed.",
+      "size": 167017826,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/principles-financial-accounting_-_WEB.pdf",
+          "filename": "OpenStax - Principles of Accounting, Volume 1- Financial Accounting.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-principles-of-accounting-volume-2-managerial-accounting",
+      "category": "textbooks",
+      "title": "Principles of Accounting, Volume 2: Managerial Accounting",
+      "description": "OpenStax · Business. Peer-reviewed, openly licensed.",
+      "size": 89822467,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/principles-managerial-accounting_-_WEB.pdf",
+          "filename": "OpenStax - Principles of Accounting, Volume 2- Managerial Accounting.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-principles-of-data-science",
+      "category": "textbooks",
+      "title": "Principles of Data Science",
+      "description": "OpenStax · Computer Science, Business, Math. Peer-reviewed, openly licensed.",
+      "size": 37337845,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Principles-of-Data-Science-WEB.pdf",
+          "filename": "OpenStax - Principles of Data Science.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-principles-of-economics-3e",
+      "category": "textbooks",
+      "title": "Principles of Economics 3e",
+      "description": "OpenStax · Social Sciences, Business. Peer-reviewed, openly licensed.",
+      "size": 49444584,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/principles-economics-3e_-_WEB.pdf",
+          "filename": "OpenStax - Principles of Economics 3e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-principles-of-finance-2e",
+      "category": "textbooks",
+      "title": "Principles of Finance 2e",
+      "description": "OpenStax · Business. Peer-reviewed, openly licensed.",
+      "size": 30902513,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Principles_of_Finance_2e_-_WEB_.pdf",
+          "filename": "OpenStax - Principles of Finance 2e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-principles-of-macroeconomics-3e",
+      "category": "textbooks",
+      "title": "Principles of Macroeconomics 3e",
+      "description": "OpenStax · Social Sciences, Business. Peer-reviewed, openly licensed.",
+      "size": 33585123,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/principles-macroeconomics-3e_-_WEB.pdf",
+          "filename": "OpenStax - Principles of Macroeconomics 3e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-principles-of-management",
+      "category": "textbooks",
+      "title": "Principles of Management",
+      "description": "OpenStax · Business. Peer-reviewed, openly licensed.",
+      "size": 65629502,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/principles-management_-_WEB.pdf",
+          "filename": "OpenStax - Principles of Management.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-principles-of-marketing",
+      "category": "textbooks",
+      "title": "Principles of Marketing",
+      "description": "OpenStax · Business. Peer-reviewed, openly licensed.",
+      "size": 62477161,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/principles-marketing_-_WEB.pdf",
+          "filename": "OpenStax - Principles of Marketing.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-principles-of-microeconomics-3e",
+      "category": "textbooks",
+      "title": "Principles of Microeconomics 3e",
+      "description": "OpenStax · Social Sciences, Business. Peer-reviewed, openly licensed.",
+      "size": 29247593,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/principles-microeconomics-3e_-_WEB.pdf",
+          "filename": "OpenStax - Principles of Microeconomics 3e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-psychiatric-mental-health-nursing",
+      "category": "textbooks",
+      "title": "Psychiatric-Mental Health Nursing",
+      "description": "OpenStax · Nursing. Peer-reviewed, openly licensed.",
+      "size": 28707981,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Psychiatric-Mental_Health_Nursing-WEB.pdf",
+          "filename": "OpenStax - Psychiatric-Mental Health Nursing.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-psychology-2e",
+      "category": "textbooks",
+      "title": "Psychology 2e",
+      "description": "OpenStax · Social Sciences. Peer-reviewed, openly licensed.",
+      "size": 57739919,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Psychology2e_WEB.pdf",
+          "filename": "OpenStax - Psychology 2e.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-statistics",
+      "category": "textbooks",
+      "title": "Statistics",
+      "description": "OpenStax · Math. Peer-reviewed, openly licensed.",
+      "size": 31451137,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/high-school-statistics_-_WEB.pdf",
+          "filename": "OpenStax - Statistics.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-u-s-history",
+      "category": "textbooks",
+      "title": "U.S. History",
+      "description": "OpenStax · Humanities. Peer-reviewed, openly licensed.",
+      "size": 136400038,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/US_History_-_WEB.pdf",
+          "filename": "OpenStax - U.S. History.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-university-physics-volume-1",
+      "category": "textbooks",
+      "title": "University Physics Volume 1",
+      "description": "OpenStax · Science, Science. Peer-reviewed, openly licensed.",
+      "size": 81497906,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/university-physics-volume-1_-_WEB.pdf",
+          "filename": "OpenStax - University Physics Volume 1.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-university-physics-volume-2",
+      "category": "textbooks",
+      "title": "University Physics Volume 2",
+      "description": "OpenStax · Science. Peer-reviewed, openly licensed.",
+      "size": 63815745,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/university-physics-volume-2_-_WEB.pdf",
+          "filename": "OpenStax - University Physics Volume 2.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-university-physics-volume-3",
+      "category": "textbooks",
+      "title": "University Physics Volume 3",
+      "description": "OpenStax · Science. Peer-reviewed, openly licensed.",
+      "size": 53457236,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/university-physics-volume-3_-_WEB.pdf",
+          "filename": "OpenStax - University Physics Volume 3.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-workplace-software-and-skills",
+      "category": "textbooks",
+      "title": "Workplace Software and Skills",
+      "description": "OpenStax · Business, Computer Science. Peer-reviewed, openly licensed.",
+      "size": 290264175,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/Workplace_Software_and_Skills_-_WEB_IlfJtcP.pdf",
+          "filename": "OpenStax - Workplace Software and Skills.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-world-history-volume-1-to-1500",
+      "category": "textbooks",
+      "title": "World History, Volume 1: to 1500",
+      "description": "OpenStax · Humanities. Peer-reviewed, openly licensed.",
+      "size": 201039307,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/World_History_Volume_1-WEB.pdf",
+          "filename": "OpenStax - World History, Volume 1- to 1500.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-world-history-volume-2-from-1400",
+      "category": "textbooks",
+      "title": "World History, Volume 2: from 1400",
+      "description": "OpenStax · Humanities. Peer-reviewed, openly licensed.",
+      "size": 132663448,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/World_History_Volume_2-WEB.pdf",
+          "filename": "OpenStax - World History, Volume 2- from 1400.pdf"
+        }
+      ]
+    },
+    {
+      "id": "openstax-writing-guide-with-handbook",
+      "category": "textbooks",
+      "title": "Writing Guide with Handbook",
+      "description": "OpenStax · Humanities. Peer-reviewed, openly licensed.",
+      "size": 63546834,
+      "dest": "library/docs",
+      "priority": 30,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://assets.openstax.org/oscms-prodcms/media/documents/WritingGuide-WEB.pdf",
+          "filename": "OpenStax - Writing Guide with Handbook.pdf"
+        }
+      ]
+    },
+    {
+      "id": "book-boy-scouts-handbook",
+      "category": "books",
+      "title": "Boy Scouts Handbook (1911)",
+      "description": "The original: knots, camping, tracking, first aid, signalling, hundreds of illustrations.",
+      "size": 8378001,
+      "dest": "library/docs",
+      "priority": 35,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://www.gutenberg.org/cache/epub/29558/pg29558-images.epub",
+          "filename": "Boy Scouts Handbook (1911).epub"
+        }
+      ]
+    },
+    {
+      "id": "book-woodcraft-camping",
+      "category": "books",
+      "title": "Woodcraft and Camping - Nessmuk (1920)",
+      "description": "The classic of American woodcraft.",
+      "size": 663828,
+      "dest": "library/docs",
+      "priority": 35,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://www.gutenberg.org/cache/epub/34607/pg34607-images.epub",
+          "filename": "Woodcraft and Camping - Nessmuk (1920).epub"
+        }
+      ]
+    },
+    {
+      "id": "wiktionary-en",
+      "category": "reference",
+      "title": "Wiktionary — the dictionary",
+      "description": "9 million entries: definitions, pronunciation, etymology, and translations into hundreds of languages. The backbone of the language section.",
+      "size": 9156425728,
+      "dest": "library",
+      "priority": 40,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://lb.download.kiwix.org/zim/wiktionary/wiktionary_en_all_nopic_2026-08.zim",
+          "filename": "wiktionary_en_all_nopic_2026-08.zim"
+        }
+      ]
+    },
+    {
+      "id": "wikibooks-en",
+      "category": "reference",
+      "title": "Wikibooks — open textbooks, illustrated",
+      "description": "Free textbooks with pictures: cookery, first aid, carpentry, electronics, mathematics, languages.",
+      "size": 6177865728,
+      "dest": "library",
+      "priority": 41,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://lb.download.kiwix.org/zim/wikibooks/wikibooks_en_all_maxi_2026-04.zim",
+          "filename": "wikibooks_en_all_maxi_2026-04.zim"
+        }
+      ]
+    },
+    {
+      "id": "ifixit-en",
+      "category": "reference",
+      "title": "iFixit — repair guides",
+      "description": "100,000 step-by-step repair guides with photographs: phones, laptops, appliances, vehicles, tools.",
+      "size": 3570696192,
+      "dest": "library",
+      "priority": 42,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://lb.download.kiwix.org/zim/ifixit/ifixit_en_all_2025-12.zim",
+          "filename": "ifixit_en_all_2025-12.zim"
+        }
+      ]
+    },
+    {
+      "id": "wikivoyage-en",
+      "category": "reference",
+      "title": "Wikivoyage — travel guide, illustrated",
+      "description": "Every country and major city: how to get there, what is where, what to know. For any long journey.",
+      "size": 1139962880,
+      "dest": "library",
+      "priority": 43,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://lb.download.kiwix.org/zim/wikivoyage/wikivoyage_en_all_maxi_2026-06.zim",
+          "filename": "wikivoyage_en_all_maxi_2026-06.zim"
+        }
+      ]
+    },
+    {
+      "id": "wikiversity-en",
+      "category": "education",
+      "title": "Wikiversity — courses and learning materials",
+      "description": "Free courses and study guides across every subject.",
+      "size": 1629888512,
+      "dest": "library",
+      "priority": 44,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://lb.download.kiwix.org/zim/wikiversity/wikiversity_en_all_nopic_2026-08.zim",
+          "filename": "wikiversity_en_all_nopic_2026-08.zim"
+        }
+      ]
+    },
+    {
+      "id": "archwiki",
+      "category": "reference",
+      "title": "ArchWiki — the Linux reference",
+      "description": "The best Linux documentation there is, in 36 MB. For keeping the machines alive.",
+      "size": 35601408,
+      "dest": "library",
+      "priority": 45,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://lb.download.kiwix.org/zim/other/archlinux_en_all_maxi_2026-07.zim",
+          "filename": "archlinux_en_all_maxi_2026-07.zim"
+        }
+      ]
+    },
+    {
+      "id": "chart-channel",
+      "category": "charts",
+      "title": "Sea chart — English Channel",
+      "description": "The south coast of England and the French side.",
+      "size": 613490688,
+      "dest": "library/maps",
+      "priority": 50,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://ftp.gwdg.de/pub/misc/openstreetmap/openseamap/charts/mbtiles/OSM-OpenCPN2-Channel.mbtiles",
+          "filename": "OpenSeaMap - Channel.mbtiles"
+        }
+      ]
+    },
+    {
+      "id": "chart-north-sea",
+      "category": "charts",
+      "title": "Sea chart — North Sea",
+      "description": "The east coast up to Scotland, across to Norway and Denmark.",
+      "size": 2011799552,
+      "dest": "library/maps",
+      "priority": 51,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://ftp.gwdg.de/pub/misc/openstreetmap/openseamap/charts/mbtiles/OSM-OpenCPN2-NorthSea.mbtiles",
+          "filename": "OpenSeaMap - NorthSea.mbtiles"
+        }
+      ]
+    },
+    {
+      "id": "chart-northern-atlantic",
+      "category": "charts",
+      "title": "Sea chart — Northern Atlantic",
+      "description": "The west coast, Ireland, the Western Isles, out to Iceland.",
+      "size": 680382464,
+      "dest": "library/maps",
+      "priority": 52,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://ftp.gwdg.de/pub/misc/openstreetmap/openseamap/charts/mbtiles/OSM-OpenCPN2-NorthernAtlantic.mbtiles",
+          "filename": "OpenSeaMap - NorthernAtlantic.mbtiles"
+        }
+      ]
+    },
+    {
+      "id": "chart-biscay",
+      "category": "charts",
+      "title": "Sea chart — Bay of Biscay",
+      "description": "Cornwall down the French coast to Spain.",
+      "size": 439427072,
+      "dest": "library/maps",
+      "priority": 53,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://ftp.gwdg.de/pub/misc/openstreetmap/openseamap/charts/mbtiles/OSM-OpenCPN2-GulfOfBiscay.mbtiles",
+          "filename": "OpenSeaMap - GulfOfBiscay.mbtiles"
+        }
+      ]
+    },
+    {
+      "id": "chart-europe",
+      "category": "charts",
+      "title": "Sea chart — Europe",
+      "description": "All European waters in one file.",
+      "size": 4036505600,
+      "dest": "library/maps",
+      "priority": 54,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://ftp.gwdg.de/pub/misc/openstreetmap/openseamap/charts/mbtiles/OSM-OpenCPN2-Europa1.mbtiles",
+          "filename": "OpenSeaMap - Europa1.mbtiles"
+        }
+      ]
+    },
+    {
+      "id": "chart-med-west",
+      "category": "charts",
+      "title": "Sea chart — Western Mediterranean",
+      "description": "Gibraltar to Italy.",
+      "size": 1333149696,
+      "dest": "library/maps",
+      "priority": 55,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://ftp.gwdg.de/pub/misc/openstreetmap/openseamap/charts/mbtiles/OSM-OpenCPN2-MediWest.mbtiles",
+          "filename": "OpenSeaMap - MediWest.mbtiles"
+        }
+      ]
+    },
+    {
+      "id": "chart-med-east",
+      "category": "charts",
+      "title": "Sea chart — Eastern Mediterranean",
+      "description": "Italy to Suez and the Levant.",
+      "size": 1701724160,
+      "dest": "library/maps",
+      "priority": 56,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://ftp.gwdg.de/pub/misc/openstreetmap/openseamap/charts/mbtiles/OSM-OpenCPN2-MediEast.mbtiles",
+          "filename": "OpenSeaMap - MediEast.mbtiles"
+        }
+      ]
+    },
+    {
+      "id": "chart-baltic",
+      "category": "charts",
+      "title": "Sea chart — Baltic",
+      "description": "Denmark, Sweden, Finland, the Baltic states.",
+      "size": 1832124416,
+      "dest": "library/maps",
+      "priority": 57,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://ftp.gwdg.de/pub/misc/openstreetmap/openseamap/charts/mbtiles/OSM-OpenCPN2-Baltic.mbtiles",
+          "filename": "OpenSeaMap - Baltic.mbtiles"
+        }
+      ]
+    },
+    {
+      "id": "chart-adriatic",
+      "category": "charts",
+      "title": "Sea chart — Adriatic",
+      "description": "Italy to Croatia and Greece.",
+      "size": 698314752,
+      "dest": "library/maps",
+      "priority": 58,
+      "recommended": false,
+      "files": [
+        {
+          "url": "https://ftp.gwdg.de/pub/misc/openstreetmap/openseamap/charts/mbtiles/OSM-OpenCPN2-Adria.mbtiles",
+          "filename": "OpenSeaMap - Adria.mbtiles"
+        }
+      ]
+    },
+    {
+      "id": "chart-arabian-sea",
+      "category": "charts",
+      "title": "Sea chart — Arabian Sea",
+      "description": "Red Sea approaches, the Gulf, and the west coast of India. The westbound route from Asia.",
+      "size": 759566336,
+      "dest": "library/maps",
+      "priority": 60,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://ftp.gwdg.de/pub/misc/openstreetmap/openseamap/charts/mbtiles/OSM-OpenCPN2-ArabianSea.mbtiles",
+          "filename": "OpenSeaMap - ArabianSea.mbtiles"
+        }
+      ]
+    },
+    {
+      "id": "chart-bengal",
+      "category": "charts",
+      "title": "Sea chart — Bay of Bengal",
+      "description": "India's east coast to Burma.",
+      "size": 170508288,
+      "dest": "library/maps",
+      "priority": 61,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://ftp.gwdg.de/pub/misc/openstreetmap/openseamap/charts/mbtiles/OSM-OpenCPN2-GulfOfBengal.mbtiles",
+          "filename": "OpenSeaMap - GulfOfBengal.mbtiles"
+        }
+      ]
+    },
+    {
+      "id": "chart-south-china-sea",
+      "category": "charts",
+      "title": "Sea chart — South China Sea",
+      "description": "Singapore, Malaysia, Vietnam, the Philippines.",
+      "size": 1225560064,
+      "dest": "library/maps",
+      "priority": 62,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://ftp.gwdg.de/pub/misc/openstreetmap/openseamap/charts/mbtiles/OSM-OpenCPN2-SouthChineseSea.mbtiles",
+          "filename": "OpenSeaMap - SouthChineseSea.mbtiles"
+        }
+      ]
+    },
+    {
+      "id": "chart-east-china-sea",
+      "category": "charts",
+      "title": "Sea chart — East China Sea and Japan",
+      "description": "Japan, Korea, Taiwan and the Chinese coast. Where the voyage starts.",
+      "size": 613122048,
+      "dest": "library/maps",
+      "priority": 63,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://ftp.gwdg.de/pub/misc/openstreetmap/openseamap/charts/mbtiles/OSM-OpenCPN2-EastChineseSea.mbtiles",
+          "filename": "OpenSeaMap - EastChineseSea.mbtiles"
+        }
+      ]
+    },
+    {
+      "id": "chart-south-pacific",
+      "category": "charts",
+      "title": "Sea chart — South Pacific islands",
+      "description": "The island route east across the Pacific.",
+      "size": 711946240,
+      "dest": "library/maps",
+      "priority": 64,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://ftp.gwdg.de/pub/misc/openstreetmap/openseamap/charts/mbtiles/OSM-OpenCPN2-SouthPacificIslands.mbtiles",
+          "filename": "OpenSeaMap - SouthPacificIslands.mbtiles"
+        }
+      ]
+    },
+    {
+      "id": "chart-us-west-coast",
+      "category": "charts",
+      "title": "Sea chart — US West Coast",
+      "description": "Alaska to Mexico. The eastbound landfall.",
+      "size": 748351488,
+      "dest": "library/maps",
+      "priority": 65,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://ftp.gwdg.de/pub/misc/openstreetmap/openseamap/charts/mbtiles/OSM-OpenCPN2-USWestCoast.mbtiles",
+          "filename": "OpenSeaMap - USWestCoast.mbtiles"
+        }
+      ]
+    },
+    {
+      "id": "chart-caribbean",
+      "category": "charts",
+      "title": "Sea chart — Caribbean",
+      "description": "Panama, the islands, the Gulf of Mexico.",
+      "size": 1029226496,
+      "dest": "library/maps",
+      "priority": 66,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://ftp.gwdg.de/pub/misc/openstreetmap/openseamap/charts/mbtiles/OSM-OpenCPN2-Caribbean.mbtiles",
+          "filename": "OpenSeaMap - Caribbean.mbtiles"
+        }
+      ]
+    },
+    {
+      "id": "chart-magellan",
+      "category": "charts",
+      "title": "Sea chart — Strait of Magellan",
+      "description": "Round Cape Horn. 77 MB.",
+      "size": 77148160,
+      "dest": "library/maps",
+      "priority": 67,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://ftp.gwdg.de/pub/misc/openstreetmap/openseamap/charts/mbtiles/OSM-OpenCPN2-MagellanStrait.mbtiles",
+          "filename": "OpenSeaMap - MagellanStrait.mbtiles"
+        }
+      ]
+    },
+    {
+      "id": "chart-northwest-passage",
+      "category": "charts",
+      "title": "Sea chart — Northwest Passage",
+      "description": "The Arctic route over Canada, for a warmer world.",
+      "size": 423706624,
+      "dest": "library/maps",
+      "priority": 68,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://ftp.gwdg.de/pub/misc/openstreetmap/openseamap/charts/mbtiles/OSM-OpenCPN2-NorthWestPassage.mbtiles",
+          "filename": "OpenSeaMap - NorthWestPassage.mbtiles"
+        }
+      ]
+    },
+    {
+      "id": "wikipedia-en",
+      "category": "encyclopedia",
+      "title": "English Wikipedia — full, text only",
+      "description": "Every article, 19 million of them, no images. The big one.",
+      "size": 52690707456,
+      "dest": "library",
+      "priority": 90,
+      "recommended": true,
+      "files": [
+        {
+          "url": "https://lb.download.kiwix.org/zim/wikipedia/wikipedia_en_all_nopic_2026-06.zim",
+          "filename": "wikipedia_en_all_nopic_2026-06.zim"
+        }
+      ]
+    }
+  ]
+}

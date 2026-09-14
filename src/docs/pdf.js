@@ -207,10 +207,16 @@ const nameOf = (v) => (v && typeof v === 'object' && 'name' in v ? v.name : null
 
 // ---------------------------------------------------------------- CMaps
 
-/** Parse a ToUnicode CMap into a code -> string map, plus code byte width. */
+/**
+ * Parse a ToUnicode CMap into a code -> string map, plus code byte width.
+ *
+ * The width comes from the mapping entries themselves, not from the
+ * codespace declaration: InDesign writes `<0000> <FFFF>` above one-byte
+ * fonts, and trusting it turns every page into replacement characters.
+ */
 function parseCMap(text) {
   const map = new Map();
-  let bytes = 1;
+  let bytes = 0;
   const lexer = new Lexer(text);
   const hexToCode = (s) => { let n = 0; for (let i = 0; i < s.length; i++) n = (n << 8) | s.charCodeAt(i); return n; };
   const hexToUtf16 = (s) => {
@@ -230,7 +236,6 @@ function parseCMap(text) {
           const lo = lexer.next();
           if (lo.t !== 'str') break;
           const hi = lexer.next();
-          bytes = Math.max(bytes, lo.v.length);
           if (hi.t !== 'str') break;
         }
       } else if (t.v === 'beginbfchar') {
@@ -273,7 +278,7 @@ function parseCMap(text) {
       stack.push(t);
     }
   }
-  return { map, bytes: Math.min(bytes, 4) };
+  return { map, bytes: Math.min(bytes || 1, 4) };
 }
 
 // ------------------------------------------------------------ document
@@ -559,7 +564,9 @@ class PdfDocument {
         const text = this.decodeStream(toUnicode);
         if (text) {
           const parsed = parseCMap(text);
-          entry = { map: parsed.map, bytes: subtype === 'Type0' ? Math.max(2, parsed.bytes) : parsed.bytes };
+          // Simple fonts (TrueType, Type1, Type3) address glyphs with one byte
+          // whatever their CMap claims; composite fonts use two or more.
+          entry = { map: parsed.map, bytes: subtype === 'Type0' ? Math.max(2, parsed.bytes) : 1 };
         }
       }
       out.set(name, entry);

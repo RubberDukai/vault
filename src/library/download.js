@@ -11,10 +11,34 @@
 const fs = require('node:fs');
 const fsp = require('node:fs/promises');
 const path = require('node:path');
-const { Readable } = require('node:stream');
+const http = require('node:http');
+const https = require('node:https');
 const { pipeline } = require('node:stream/promises');
 
 const jobs = new Map();
+
+const USER_AGENT = 'Vault/0.1 (offline knowledge vault)';
+
+/**
+ * Open a streaming GET, following redirects. Plain node:https rather than
+ * fetch: fetch's web-stream body pays per-chunk overhead that throttled a
+ * 50 GB download to a tenth of the line speed. This gets what curl gets.
+ */
+function openStream(url, headers, signal, hops = 0) {
+  return new Promise((resolve, reject) => {
+    if (hops > 8) return reject(new Error('Too many redirects'));
+    const client = url.startsWith('https:') ? https : http;
+    const req = client.get(url, { headers: { 'user-agent': USER_AGENT, ...headers }, signal }, (res) => {
+      const status = res.statusCode || 0;
+      if ([301, 302, 303, 307, 308].includes(status) && res.headers.location) {
+        res.resume();
+        return resolve(openStream(new URL(res.headers.location, url).href, headers, signal, hops + 1));
+      }
+      resolve(res);
+    });
+    req.on('error', reject);
+  });
+}
 
 function humanBytes(bytes) {
   if (!bytes || bytes < 0) return '0 B';
@@ -92,14 +116,31 @@ function start({ url, destDir, filename, id }) {
   };
   jobs.set(jobId, job);
 
-  run(job).catch((err) => {
+  // A promise the queue can wait on. Failure and cancellation both resolve
+  // (with the final state) rather than reject, so a caller never has to
+  // guard against an unhandled rejection from a job nobody is watching.
+  job.done = run(job).then(() => jobState(job)).catch((err) => {
     if (job.status !== 'cancelled') {
       job.status = 'failed';
       job.error = err.message;
     }
+    return jobState(job);
   });
 
   return jobState(job);
+}
+
+/** Wait for a job to finish, however it finishes. */
+function wait(id) {
+  const job = jobs.get(id);
+  return job ? job.done : Promise.resolve(null);
+}
+
+/** Forget finished jobs so the list does not grow forever. */
+function prune() {
+  for (const [id, job] of jobs) {
+    if (job.status !== 'downloading') jobs.delete(id);
+  }
 }
 
 async function run(job) {
@@ -114,28 +155,41 @@ async function run(job) {
   job.received = resumeAt;
   job.resumedFrom = resumeAt;
 
-  const headers = { 'user-agent': 'Vault/0.1 (offline knowledge vault)' };
+  const headers = {};
   if (resumeAt > 0) headers.range = `bytes=${resumeAt}-`;
 
-  const res = await fetch(job.url, { headers, signal: job.controller.signal, redirect: 'follow' });
+  const res = await openStream(job.url, headers, job.controller.signal);
+  const status = res.statusCode || 0;
 
-  if (resumeAt > 0 && res.status === 200) {
+  if (resumeAt > 0 && status === 200) {
     // Server ignored our range request; start over rather than corrupt the file.
     job.received = 0;
     job.resumedFrom = 0;
     resumeAt = 0;
-  } else if (!res.ok && res.status !== 206) {
-    throw new Error(`Download failed: HTTP ${res.status}`);
+  } else if (status === 416 && resumeAt > 0) {
+    // "Range not satisfiable": the partial file is already the whole file.
+    // Confirm against the server's idea of the size, then just finish.
+    res.resume();
+    const total = Number((res.headers['content-range'] || '').split('/')[1] || 0);
+    if (total && resumeAt >= total) {
+      job.total = total;
+      await fsp.rename(job.partPath, job.destPath);
+      job.status = 'complete';
+      return;
+    }
+    throw new Error('Download failed: HTTP 416 (partial file larger than the server\'s copy — delete the .part and retry)');
+  } else if (status !== 200 && status !== 206) {
+    res.resume();
+    throw new Error(`Download failed: HTTP ${status}`);
   }
 
-  const contentLength = Number(res.headers.get('content-length') || 0);
-  job.total = resumeAt > 0 && res.status === 206 ? resumeAt + contentLength : contentLength;
+  const contentLength = Number(res.headers['content-length'] || 0);
+  job.total = resumeAt > 0 && status === 206 ? resumeAt + contentLength : contentLength;
 
-  const out = fs.createWriteStream(job.partPath, { flags: resumeAt > 0 ? 'a' : 'w' });
-  const body = Readable.fromWeb(res.body);
-  body.on('data', (chunk) => { job.received += chunk.length; });
+  const out = fs.createWriteStream(job.partPath, { flags: resumeAt > 0 ? 'a' : 'w', highWaterMark: 1 << 20 });
+  res.on('data', (chunk) => { job.received += chunk.length; });
 
-  await pipeline(body, out);
+  await pipeline(res, out);
 
   if (job.total && job.received !== job.total) {
     throw new Error(`Incomplete download: got ${job.received} of ${job.total} bytes`);
@@ -145,4 +199,4 @@ async function run(job) {
   job.status = 'complete';
 }
 
-module.exports = { start, get, list, cancel, humanBytes };
+module.exports = { start, get, list, cancel, wait, prune, humanBytes };

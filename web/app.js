@@ -20,8 +20,8 @@ const themeSelect = document.getElementById('theme');
 const phosphorSelect = document.getElementById('phosphor');
 
 function applyAppearance() {
-  const theme = localStorage.getItem('vault.theme') || 'dark';
-  const phosphor = localStorage.getItem('vault.phosphor') || 'green';
+  const theme = localStorage.getItem('vault.theme') || 'pipboy';
+  const phosphor = localStorage.getItem('vault.phosphor') || 'amber';
 
   document.documentElement.dataset.theme = theme;
   document.documentElement.dataset.phosphor = phosphor;
@@ -95,7 +95,7 @@ function stopPolling() {
 const routes = [
   [/^\/$/, renderHome],
   [/^\/library$/, renderLibrary],
-  [/^\/get$/, renderGetPacks],
+  [/^\/(?:get|setup)$/, renderSetup],
   [/^\/handbook$/, renderHandbook],
   [/^\/handbook\/(.+)$/, renderChapter],
   [/^\/languages$/, renderLanguages],
@@ -148,7 +148,7 @@ const FEATURES = [
   ['Languages', '#/languages', 'Spaced repetition that shows you a card just before you would have forgotten it.'],
   ['School', '#/school', 'A curriculum that needs no teacher, server or signal. Progress tracked per person.'],
   ['Manual', '#/manual', 'How all of this works and how it was built — so you can keep it running, or rebuild it.'],
-  ['Get packs', '#/get', 'Add to the library while you still have a connection. This is the one page that needs one.'],
+  ['Setup', '#/setup', 'Choose what to download while you still have a connection — everything in one click, or pick and choose. The one page that needs the internet.'],
 ];
 
 async function renderHome() {
@@ -191,7 +191,7 @@ async function renderHome() {
 
     ${packs.length === 0 ? `<div class="empty">
       <p>No knowledge packs yet — the shelves are still empty.</p>
-      <a class="btn btn-primary" href="#/get">Get your first pack</a>
+      <a class="btn btn-primary" href="#/setup">Set up the library</a>
     </div>` : ''}
 
     ${stale.length ? `<div class="card">
@@ -259,7 +259,7 @@ async function renderLibrary() {
       <span class="faint" id="check-note"></span>
     </div>
 
-    <div id="pack-list">${packs.length ? packs.map(libraryRow).join('') : '<div class="empty">No .zim packs found.<br><a class="btn btn-primary" href="#/get" style="margin-top:12px">Get packs</a></div>'}</div>
+    <div id="pack-list">${packs.length ? packs.map(libraryRow).join('') : '<div class="empty">No .zim packs found.<br><a class="btn btn-primary" href="#/setup" style="margin-top:12px">Set up the library</a></div>'}</div>
 
     <h2>Books &amp; documents</h2>
     <p class="muted" style="margin:-6px 0 12px">PDFs and EPUBs from <span class="mono">library/docs</span>. Full text goes into search; the reader opens the book itself.</p>
@@ -269,10 +269,11 @@ async function renderLibrary() {
     <div id="download-list"><p class="faint">Nothing downloading.</p></div>
   `;
 
-  api('docs').then(({ docs, docsDir }) => {
+  api('docs').then(({ docs, docsDir, indexing }) => {
     const target = document.getElementById('doc-list');
     if (!target) return;
-    target.innerHTML = docs.length ? docs.map((doc) => `
+    const indexingNote = indexing ? '<p class="faint">Still indexing new books in the background — the shelf fills in as they finish.</p>' : '';
+    target.innerHTML = indexingNote + (docs.length ? docs.map((doc) => `
       <a class="card card-link" href="#/doc/${encodeURIComponent(doc.id)}">
         <div class="row-between">
           <strong>${esc(doc.title)}</strong>
@@ -284,7 +285,7 @@ async function renderLibrary() {
           ${doc.ok === false ? ` · <span style="color:var(--bad)">${esc(doc.error)}</span>` : ''}
         </p>
       </a>`).join('') + `<div class="row" style="margin-top:6px"><button class="btn btn-sm" id="rescan-docs">Rescan documents</button></div>`
-      : `<div class="empty">Nothing on the shelf yet. Drop <code>.pdf</code> or <code>.epub</code> files into<br><span class="mono">${esc(docsDir)}</span><br><button class="btn btn-sm" id="rescan-docs" style="margin-top:12px">Rescan documents</button></div>`;
+      : `<div class="empty">Nothing on the shelf yet. Drop <code>.pdf</code> or <code>.epub</code> files into<br><span class="mono">${esc(docsDir)}</span><br><button class="btn btn-sm" id="rescan-docs" style="margin-top:12px">Rescan documents</button></div>`);
 
     const rescan = document.getElementById('rescan-docs');
     if (rescan) rescan.onclick = async () => { rescan.disabled = true; await api('docs/scan', { method: 'POST' }); route(); };
@@ -416,65 +417,219 @@ function formatEta(seconds) {
   return `${(seconds / 3600).toFixed(1)} hr`;
 }
 
-// -------------------------------------------------------------- get packs
+// ------------------------------------------------------------------ setup
 
-async function renderGetPacks() {
-  view.innerHTML = `
-    <h1>Get packs</h1>
-    <p class="lede">Searches the Kiwix catalogue. This is the one screen that needs the internet — use it while you have it.</p>
-    <form class="row" id="catalog-form" style="margin-bottom:20px">
-      <input id="catalog-q" class="btn" style="flex:1;min-width:200px;text-align:left" value="wikipedia" placeholder="wikipedia, medicine, ifixit…">
-      <button class="btn btn-primary" type="submit">Search catalogue</button>
-    </form>
-    <div id="catalog-results"></div>
-  `;
+const STATUS_LABEL = {
+  installed: ['Installed', 'tag-good'],
+  downloading: ['Downloading…', 'tag-warn'],
+  queued: ['Queued', ''],
+  partial: ['Partly here', 'tag-warn'],
+  failed: ['Failed', 'tag-bad'],
+  missing: ['', ''],
+};
 
-  const form = document.getElementById('catalog-form');
-  const results = document.getElementById('catalog-results');
+async function renderSetup() {
+  setBusy('Reading the catalogue…');
+  let data = await api('setup');
 
-  const runSearch = async () => {
-    results.innerHTML = '<div class="loading">Searching…</div>';
-    try {
-      const data = await api(`catalog/search?q=${encodeURIComponent(document.getElementById('catalog-q').value)}`);
-      if (!data.online) {
-        results.innerHTML = `<div class="empty">Could not reach the catalogue. You are offline.<p class="faint">${esc(data.error || '')}</p></div>`;
-        return;
-      }
-      results.innerHTML = data.entries.length ? data.entries.map((entry) => `
-        <div class="card">
-          <div class="row-between">
-            <strong>${esc(entry.title)}</strong>
-            <span class="tag">${esc(entry.sizeHuman)}</span>
-          </div>
-          <p class="faint" style="margin:6px 0 0">
-            ${esc(entry.date || '')} · ${esc(entry.language || '')}
-            ${entry.flavour ? ` · ${esc(entry.flavour)}` : ''}
-            ${entry.articleCount ? ` · ${entry.articleCount.toLocaleString()} articles` : ''}
-          </p>
-          ${entry.summary ? `<p class="faint" style="margin:6px 0 0">${esc(entry.summary.slice(0, 240))}</p>` : ''}
-          <div class="row" style="margin-top:12px">
-            <button class="btn btn-primary btn-sm get-btn"
-              data-url="${esc(entry.url)}" data-filename="${esc(entry.filename)}">Download</button>
-            <span class="faint mono">${esc(entry.filename || '')}</span>
+  const paint = () => {
+    const byCategory = data.categories.map((c) => ({ ...c, items: data.items.filter((i) => i.category === c.id) }));
+    const t = data.totals;
+    const busy = data.running && data.active;
+
+    view.innerHTML = `
+      <h1>Set up the library</h1>
+      <p class="lede">The Vault itself is tiny; the knowledge is downloaded afterwards, while there is still an internet to download it from.
+      Tick what you want, or take the lot. Downloads run one at a time, resume if interrupted, and carry on after a restart.</p>
+
+      <div class="stat-row">
+        <div class="stat"><div class="stat-value">${esc(t.installedHuman)}</div><div class="stat-label">Installed</div></div>
+        <div class="stat"><div class="stat-value">${esc(t.remainingRecommendedHuman)}</div><div class="stat-label">Recommended, still to get</div></div>
+        <div class="stat"><div class="stat-value">${esc(t.everythingHuman)}</div><div class="stat-label">Everything</div></div>
+        ${data.diskFreeHuman ? `<div class="stat"><div class="stat-value">${esc(data.diskFreeHuman)}</div><div class="stat-label">Free on this disk</div></div>` : ''}
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <button class="btn btn-primary" id="get-recommended" ${busy ? '' : ''}>Download everything recommended — ${esc(t.remainingRecommendedHuman)}</button>
+          <button class="btn" id="get-everything">Everything in the catalogue</button>
+          <span class="faint">Queues in order of usefulness: medical and small things first, the 49 GB Wikipedia last.</span>
+        </div>
+      </div>
+
+      <div id="queue-panel">${queueHtml()}</div>
+
+      ${byCategory.map((c) => `
+        <h2>${esc(c.title)} <span class="faint" style="font-weight:400;font-size:13px">${c.items.length} · ${esc(humanGb(c.items.reduce((n, i) => n + i.size, 0)))}</span></h2>
+        ${c.items.map((i) => {
+          const [label, cls] = STATUS_LABEL[i.status] || ['', ''];
+          const checkable = i.status === 'missing' || i.status === 'partial' || i.status === 'failed';
+          return `
+          <label class="pack-row ${i.status}">
+            <input type="checkbox" class="pack-pick" value="${esc(i.id)}" ${checkable ? '' : 'disabled'} ${i.recommended && checkable ? 'data-rec="1"' : ''}>
+            <span class="pack-main">
+              <span class="pack-title">${esc(i.title)}${i.recommended ? ' <span class="faint">· recommended</span>' : ''}</span>
+              <span class="faint">${esc(i.description)}</span>
+              ${i.error ? `<span class="faint" style="color:var(--bad)">${esc(i.error)}</span>` : ''}
+            </span>
+            <span class="pack-side">
+              <span class="mono">${esc(i.sizeHuman)}</span>
+              ${label ? `<span class="tag ${cls}">${label}</span>` : ''}
+            </span>
+          </label>`;
+        }).join('')}
+      `).join('')}
+
+      <div class="card" style="margin-top:20px;position:sticky;bottom:12px">
+        <div class="row-between">
+          <span id="pick-summary" class="muted">Nothing selected.</span>
+          <div class="row" style="gap:8px">
+            <button class="btn btn-sm" id="pick-recommended">Tick recommended</button>
+            <button class="btn btn-sm" id="pick-none">Clear</button>
+            <button class="btn btn-primary" id="install-picked" disabled>Download selected</button>
           </div>
         </div>
-      `).join('') : '<div class="empty">Nothing matched.</div>';
+      </div>
 
-      for (const btn of results.querySelectorAll('.get-btn')) {
-        btn.onclick = async () => {
-          btn.disabled = true;
-          btn.textContent = 'Downloading…';
-          await api('downloads', { method: 'POST', body: { url: btn.dataset.url, filename: btn.dataset.filename } });
-          location.hash = '#/library';
-        };
-      }
-    } catch (err) {
-      results.innerHTML = `<div class="empty">${esc(err.message)}</div>`;
-    }
+      <h2>Anything else from Kiwix</h2>
+      <p class="muted" style="margin:-6px 0 12px">The full catalogue — hundreds of packs in dozens of languages.</p>
+      <form class="row" id="catalog-form" style="margin-bottom:20px">
+        <input id="catalog-q" class="btn" style="flex:1;min-width:200px;text-align:left" value="" placeholder="wikipedia, medicine, gutenberg, stackexchange…">
+        <button class="btn" type="submit">Search catalogue</button>
+      </form>
+      <div id="catalog-results"></div>
+
+      <p class="faint" style="margin-top:28px">${esc(data.note)}</p>
+    `;
+
+    wire();
   };
 
-  form.onsubmit = (e) => { e.preventDefault(); runSearch(); };
-  runSearch();
+  const humanGb = (bytes) => (bytes >= 1073741824 ? `${(bytes / 1073741824).toFixed(1)} GB` : `${Math.round(bytes / 1048576)} MB`);
+
+  const queueHtml = () => {
+    const a = data.active;
+    const q = data.queue;
+    if (!a && !q.length) return '';
+    const job = a && a.job;
+    return `
+      <div class="card" style="border-color:var(--accent)">
+        ${a ? `
+          <div class="row-between">
+            <strong>${esc(a.title)}</strong>
+            <span class="faint">${a.fileCount > 1 ? `file ${a.fileIndex + 1} of ${a.fileCount} · ` : ''}${a.attempt > 1 ? `attempt ${a.attempt} · ` : ''}<button class="btn btn-sm" id="cancel-active">Cancel</button></span>
+          </div>
+          <div class="progress"><div style="width:${job ? job.percent : 0}%"></div></div>
+          <div class="faint">${job ? `${esc(job.receivedHuman)}${job.total ? ` of ${esc(job.totalHuman)} · ${job.percent}%` : ''}${job.rateHuman ? ` · ${esc(job.rateHuman)}` : ''}${job.etaSeconds ? ` · ${formatEta(job.etaSeconds)} left` : ''}` : 'Starting…'}</div>
+        ` : data.lockedElsewhere && q.length ? (() => {
+          const first = data.items.find((i) => i.id === q[0].id);
+          const pct = first && first.size ? Math.round((first.bytesOnDisk / first.size) * 100) : 0;
+          return `<strong>${esc(q[0].title)}</strong>
+            <div class="progress"><div style="width:${pct}%"></div></div>
+            <div class="faint">Being downloaded by another Vault window on this machine · ${esc(humanGb(first ? first.bytesOnDisk : 0))} of ${esc(q[0].sizeHuman)} on disk</div>`;
+        })() : '<strong>Queue paused</strong> <span class="faint">— it resumes when the Vault is next started</span>'}
+        ${q.length ? `<p class="faint" style="margin:10px 0 0">Then: ${q.slice(0, 6).map((i) => esc(i.title)).join(' · ')}${q.length > 6 ? ` · and ${q.length - 6} more` : ''} — ${esc(humanGb(q.reduce((n, i) => n + i.size, 0)))} in all
+          <button class="btn btn-sm" id="cancel-all" style="margin-left:8px">Clear queue</button></p>` : ''}
+      </div>`;
+  };
+
+  const wire = () => {
+    const picks = () => [...view.querySelectorAll('.pack-pick:checked')].map((b) => b.value);
+    const summarise = () => {
+      const ids = picks();
+      const bytes = ids.reduce((n, id) => n + (data.items.find((i) => i.id === id)?.size || 0), 0);
+      document.getElementById('pick-summary').textContent = ids.length ? `${ids.length} selected · ${humanGb(bytes)}` : 'Nothing selected.';
+      document.getElementById('install-picked').disabled = ids.length === 0;
+    };
+    for (const box of view.querySelectorAll('.pack-pick')) box.onchange = summarise;
+
+    document.getElementById('pick-recommended').onclick = () => {
+      for (const box of view.querySelectorAll('.pack-pick[data-rec]')) box.checked = true;
+      summarise();
+    };
+    document.getElementById('pick-none').onclick = () => {
+      for (const box of view.querySelectorAll('.pack-pick')) box.checked = false;
+      summarise();
+    };
+    document.getElementById('install-picked').onclick = async () => {
+      await api('setup/install', { method: 'POST', body: { ids: picks() } });
+      await refresh();
+    };
+    document.getElementById('get-recommended').onclick = async () => {
+      await api('setup/install', { method: 'POST', body: { bundle: 'recommended' } });
+      await refresh();
+    };
+    document.getElementById('get-everything').onclick = async () => {
+      if (!confirm(`Queue everything in the catalogue — ${data.totals.everythingHuman}?`)) return;
+      await api('setup/install', { method: 'POST', body: { bundle: 'everything' } });
+      await refresh();
+    };
+    const cancelActive = document.getElementById('cancel-active');
+    if (cancelActive) cancelActive.onclick = async () => { await api('setup/cancel', { method: 'POST', body: { id: data.active.id } }); await refresh(); };
+    const cancelAll = document.getElementById('cancel-all');
+    if (cancelAll) cancelAll.onclick = async () => { if (confirm('Clear the whole queue?')) { await api('setup/cancel', { method: 'POST', body: {} }); await refresh(); } };
+
+    wireCatalogSearch();
+  };
+
+  const refresh = async () => {
+    const scrollY = window.scrollY;
+    data = await api('setup');
+    paint();
+    window.scrollTo(0, scrollY);
+  };
+
+  // While something is downloading, redraw only the queue panel so the
+  // tick-list does not jump under the cursor.
+  const tick = async () => {
+    if (!document.getElementById('queue-panel')) return stopPolling();
+    const fresh = await api('setup');
+    const structural = fresh.items.map((i) => i.status).join() !== data.items.map((i) => i.status).join();
+    data = fresh;
+    if (structural) { paint(); return; }
+    const panel = document.getElementById('queue-panel');
+    if (panel) { panel.innerHTML = queueHtml(); wire(); }
+  };
+
+  paint();
+  pollTimer = setInterval(tick, 2500);
+
+  function wireCatalogSearch() {
+    const form = document.getElementById('catalog-form');
+    const results = document.getElementById('catalog-results');
+    if (!form || form.dataset.wired) return;
+    form.dataset.wired = '1';
+
+    const runSearch = async () => {
+      const q = document.getElementById('catalog-q').value.trim();
+      if (!q) return;
+      results.innerHTML = '<div class="loading">Searching…</div>';
+      try {
+        const found = await api(`catalog/search?q=${encodeURIComponent(q)}`);
+        if (!found.online) { results.innerHTML = `<div class="empty">Could not reach the catalogue. You are offline.</div>`; return; }
+        results.innerHTML = found.entries.length ? found.entries.map((entry) => `
+          <div class="card">
+            <div class="row-between"><strong>${esc(entry.title)}</strong><span class="tag">${esc(entry.sizeHuman)}</span></div>
+            <p class="faint" style="margin:6px 0 0">${esc(entry.date || '')} · ${esc(entry.language || '')}${entry.flavour ? ` · ${esc(entry.flavour)}` : ''}${entry.articleCount ? ` · ${entry.articleCount.toLocaleString()} articles` : ''}</p>
+            ${entry.summary ? `<p class="faint" style="margin:6px 0 0">${esc(entry.summary.slice(0, 240))}</p>` : ''}
+            <div class="row" style="margin-top:12px">
+              <button class="btn btn-sm get-btn" data-url="${esc(entry.url)}" data-filename="${esc(entry.filename)}">Download</button>
+              <span class="faint mono">${esc(entry.filename || '')}</span>
+            </div>
+          </div>`).join('') : '<div class="empty">Nothing matched.</div>';
+        for (const btn of results.querySelectorAll('.get-btn')) {
+          btn.onclick = async () => {
+            btn.disabled = true; btn.textContent = 'Downloading…';
+            await api('downloads', { method: 'POST', body: { url: btn.dataset.url, filename: btn.dataset.filename } });
+            location.hash = '#/library';
+          };
+        }
+      } catch (err) {
+        results.innerHTML = `<div class="empty">${esc(err.message)}</div>`;
+      }
+    };
+    form.onsubmit = (e) => { e.preventDefault(); runSearch(); };
+  }
 }
 
 // --------------------------------------------------------------- handbook
