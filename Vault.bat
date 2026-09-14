@@ -11,7 +11,7 @@ title Vault - Offline Knowledge Vault
 where node >nul 2>nul
 if errorlevel 1 goto nodemissing
 
-node bin\ark.js serve --open %*
+node bin\vault.js serve --open %*
 
 echo.
 echo   The vault has closed.

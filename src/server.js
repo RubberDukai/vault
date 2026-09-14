@@ -450,7 +450,7 @@ class ArkServer {
     if (route === 'status') {
       const packs = this.library.list();
       return this.json(res, 200, {
-        name: 'Ark',
+        name: 'Vault',
         version: require('../package.json').version,
         node: process.version,
         platform: `${os.type()} ${os.release()}`,
