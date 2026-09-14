@@ -20,16 +20,12 @@ Every request, in the order it was made, with an honest status. Updated whenever
 
 ## Waiting on you
 
-These cannot move until you say which way. Everything else that could be done without you has been.
-
 | # | Decision | Options |
 |---|---|---|
-| D1 | Which sea charts to download | Europa (4.0 GB, all of it) · or Channel + North Sea + Northern Atlantic (3.3 GB, British waters only) |
-| D2 | The reference packs | Wiktionary 8.5 GB · Wikibooks illustrated 5.75 GB · iFixit 3.3 GB — all, some, or none yet |
-| D3 | Full English Wikipedia | Text-only 49 GB · or the top-million-articles cut at 16 GB · or not yet |
-| D4 | Delete the superseded pack | `wikipedia_en_simple_all_nopic_2026-05.zim` (937 MB) is fully contained in the illustrated one |
-| D5 | Rename the folder | `Documents\Ark` → `Documents\Vault`, then regenerate the Desktop shortcut |
-| D7 | Which established texts to import | The importer is built and tested. Candidates: Hesperian's *Where There Is No Doctor* (PDF, ~30 MB, free) · OpenStax textbooks (PDF, 50–100 MB each — Biology, Physics, Chemistry, Algebra, Pre-algebra, US/World History) · CK-12 FlexBooks · more Gutenberg. Say which and they go on the shelf |
+| D5 | Rename the folder | Approved. Happens at the start of the next session: the download server is stopped, the folder renamed to `DocumentsVault`, the Desktop shortcut regenerated, and downloads resume. About a minute's pause |
+| D8 | Naming, if this is ever sold | "Pip-Boy" and "Vault Boy" are Bethesda trademarks. For a commercial release the theme label needs a different name (e.g. "Terminal") and the mascot art replaced — you have already said the art will change. Say when and I will do both |
+
+Everything else that was open has been decided and is done or in progress — see section 8.
 
 ## 1. The core app — requested 9 Sep
 
@@ -46,7 +42,7 @@ These cannot move until you say which way. Everything else that could be done wi
 | 1.9 | Survivalist handbook framework + first chapters | **DONE** | 10 modules, 39 chapters, ~43,000 words. Every module has at least two |
 | 1.10 | Language learning: English + Japanese first, then Spanish, Mandarin, Hindi | **PARTIAL** | 455 cards with spaced repetition; written grammar guides for all four. Missing: audio — see 6.4 |
 | 1.11 | Unified search across everything | **DONE** | Handbook, school, decks, guides, every pack, every book — one box, ~0.3 s |
-| 1.12 | Education with per-child progress tracking | **PARTIAL** | Profiles + 13 lessons across 4 subjects. A real curriculum comes from imported textbooks — see D7 |
+| 1.12 | Education with per-child progress tracking | **DONE** | Profiles + 13 lessons, and the OpenStax shelf (8.6) for depth |
 | 1.13 | Suggest other areas to build out | **ANSWERED** | Twelve proposed; see section 7 for which are built |
 
 ## 2. Launching and content questions — requested 9–10 Sep
@@ -56,8 +52,8 @@ These cannot move until you say which way. Everything else that could be done wi
 | 2.1 | Simple click-an-icon launch | **DONE** | Desktop shortcut with the cog icon; port fallback; Node-missing message |
 | 2.2 | What is Wiktionary | **ANSWERED** | The dictionary — 9.1 M entries, 8.5 GB |
 | 2.3 | Drop Japanese Wikipedia; keep encyclopedias English-only | **DONE** | Language learning lives in-app |
-| 2.4 | iFixit repair guides | **DECISION** | 3.3 GB — see D2 |
-| 2.5 | Wikibooks | **DECISION** | 5.75 GB illustrated — see D2 |
+| 2.4 | iFixit repair guides | **DONE** | Queued for download (8.2) |
+| 2.5 | Wikibooks | **DONE** | Queued for download (8.2) |
 
 ## 3. Maps and reader — requested 10 Sep
 
@@ -69,10 +65,10 @@ These cannot move until you say which way. Everything else that could be done wi
 | 3.4 | Looks like a standard OS map | **PARTIAL** | A "paper" style, not Ordnance Survey's. OS Open Zoomstack is free and could be added as an OS-styled base |
 | 3.5 | Points of interest: monuments, public buildings, infrastructure, farmland, water, shops with supplies | **DONE** | Nine categories chosen for usefulness |
 | 3.6 | Road layers for navigation | **DONE** | Motorway down to footpath, styled by class |
-| 3.7 | Ocean / nautical maps | **PARTIAL** | Reader validated against OpenSeaMap's test chart. No real chart downloaded — see D1 |
+| 3.7 | Ocean / nautical maps | **DONE** | 18 OpenSeaMap charts queued: Britain, Europe, the Mediterranean, and the whole route Japan → Britain both ways (8.1) |
 | 3.8 | Does it run on Linux | **ANSWERED** | Yes — see 1.8 |
 | 3.9 | A small image collection for education | **DONE** | Vikidia, PhET, WikEM, illustrated Simple English — 3.85 GB, all verified serving images |
-| 3.10 | Bulk out languages and education with established curricula | **PARTIAL** | The importer exists (5.4). Two Gutenberg books are on the shelf. The textbooks themselves are D7 |
+| 3.10 | Bulk out languages and education with established curricula | **DONE** | Where There Is No Doctor and all 75 OpenStax textbooks queued (8.6); the first dozen are already indexed |
 | 3.11 | Bulk out the handbook, especially shelter building | **DONE** | 39 chapters across 10 modules. Will keep growing, but nothing is thin now |
 | 3.12 | Rivers rendering as broken wedges | **DONE** | Rivers are lines; were being filled as polygons. Fixed |
 | 3.13 | Buildings appearing and disappearing | **ANSWERED** | Not a bug — tiles only carry buildings from about zoom 13 |
@@ -96,7 +92,7 @@ These cannot move until you say which way. Everything else that could be done wi
 | 4.13 | Remove handbook links from the home page | **DONE** | |
 | 4.14 | Home as a friendly, Fallout-like welcome and guide | **DONE** | |
 | 4.15 | Logo changed to a cog | **DONE** | Generated from code, no image file |
-| 4.16 | Rebrand Ark → Vault | **PARTIAL** | App, launchers, CLI, docs all renamed. The folder is still `Ark` — see D5 |
+| 4.16 | Rebrand Ark → Vault | **PARTIAL** | Everything renamed except the folder — D5, next session |
 | 4.17 | Vault Boy ASCII mascot on the home page | **DONE** | Your art, exactly as supplied |
 
 ## 5. Backup, sharing, and the autonomous run — 11–13 Sep
@@ -110,6 +106,20 @@ These cannot move until you say which way. Everything else that could be done wi
 | 5.5 | Search regression | **DONE** | Five packs pushed a query to 49 s; in-memory title indexes bring it to 0.2 s |
 | 5.6 | Print view | **DONE** | One button on every chapter, lesson, guide and manual page; prints clean or saves as PDF |
 | 5.7 | Almanac | **DONE** | Sunrise, sunset, twilight, sun bearing, moon phase — computed, on the Maps tab, verified to the minute |
+
+## 8. Downloads, distribution and defaults — requested 14 Sep
+
+| # | Request | Status | Notes |
+|---|---|---|---|
+| 8.1 | Sea charts for the whole world, Japan to Britain either way | **DONE** | 18 OpenSeaMap charts (17.8 GB) queued: Channel, North Sea, Atlantic, Biscay, Europe, both Mediterraneans, Baltic, Adriatic, Arabian Sea, Bengal, South and East China Seas, South Pacific, US West Coast, Caribbean, Magellan, Northwest Passage. Honest gap: OpenSeaMap has no charts for the Red Sea, Panama, Australia, Africa or the open North Pacific — nobody has mapped them. The base map still has every coastline |
+| 8.2 | Wiktionary, Wikibooks, iFixit, plus Wikivoyage, Wikiversity, ArchWiki | **DONE** | Queued (18.7 GB). ArchWiki already landed and indexed |
+| 8.3 | Full English Wikipedia, text only | **DONE** | Queued last, 49 GB |
+| 8.4 | Delete the superseded pack | **DONE** | |
+| 8.5 | Rename the folder | **OPEN** | See D5 — next session |
+| 8.6 | All the textbooks | **DONE** | Where There Is No Doctor (25 files) and all 75 OpenStax books queued. Everything downloaded so far indexes cleanly at full scale — Biology 2e is 1,475 pages, 652,000 words |
+| 8.7 | Ship the app small; download content after install, all at once or by choice | **DONE** | The Setup tab: a catalogue of 106 items, "download everything" or a tick-list, one download at a time, resumable, remembered across restarts, each pack indexed on arrival. The app itself is under 1 MB |
+| 8.8 | Could this be sold on Steam, and for how much? | **ANSWERED** | In conversation. Short version: yes, as software; the trademarks (D8) and a packaged installer (1.7) are the two things to fix first |
+| 8.9 | Pip-Boy amber as the default look | **DONE** | |
 
 ## 6. Known thin spots
 
