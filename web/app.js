@@ -111,17 +111,60 @@ const routes = [
   [/^\/read\/([^/]+)$/, renderPack],
   [/^\/read\/([^/]+)\/(.+)$/, renderArticle],
   [/^\/search$/, renderSearch],
+  [/^\/calendar$/, () => window.renderCalendar()],
+  [/^\/tools$/, () => window.renderTools()],
 ];
+
+// Each section remembers where you were. Leave the Library on an article,
+// go and look at the map, come back — the article is still open. The nav
+// links are re-pointed at the remembered place after every navigation.
+let lastRoute = {};
+try { lastRoute = JSON.parse(localStorage.getItem('vault.lastRoute') || '{}'); } catch { lastRoute = {}; }
+
+// Sections whose "where you were" is worth keeping. Search results and the
+// study session are deliberately not remembered.
+const SECTION_ROOT = {
+  library: '#/library', handbook: '#/handbook', maps: '#/maps', calendar: '#/calendar',
+  comms: '#/comms', languages: '#/languages', school: '#/school', tools: '#/tools',
+  manual: '#/manual', setup: '#/setup',
+};
+
+function rememberRoute(hash) {
+  for (const link of tabs.querySelectorAll('a')) {
+    const section = link.dataset.section;
+    if (!section || !SECTION_ROOT[section]) continue;
+    if (new RegExp(link.dataset.match).test(hash)) {
+      lastRoute[section] = hash;
+      try { localStorage.setItem('vault.lastRoute', JSON.stringify(lastRoute)); } catch { /* fine */ }
+    }
+  }
+}
+
+function repointNav(currentHash) {
+  for (const link of tabs.querySelectorAll('a')) {
+    const section = link.dataset.section;
+    const active = new RegExp(link.dataset.match).test(currentHash);
+    link.classList.toggle('active', active);
+    if (!section || !SECTION_ROOT[section]) continue;
+    // Clicking the active section's link takes you to its root (a way back
+    // to the list); an inactive one takes you to wherever you left it.
+    const remembered = lastRoute[section];
+    link.href = active || !remembered ? SECTION_ROOT[section] : remembered;
+  }
+}
 
 async function route() {
   stopPolling();
   const raw = location.hash.slice(1) || '/';
   const [pathname, queryString] = raw.split('?');
   const params = new URLSearchParams(queryString || '');
+  const hash = `#${pathname}${queryString ? '?' + queryString : ''}`;
 
-  for (const link of tabs.querySelectorAll('a')) {
-    link.classList.toggle('active', new RegExp(link.dataset.match).test(`#${pathname}`));
-  }
+  rememberRoute(hash);
+  repointNav(hash);
+
+  // Wide pages get the whole screen; prose keeps its own measure.
+  view.classList.toggle('wide', /^#\/(maps|read|doc|calendar|setup|tools)/.test(hash));
 
   for (const [pattern, handler] of routes) {
     const match = pathname.match(pattern);
@@ -138,6 +181,26 @@ async function route() {
   view.innerHTML = '<div class="empty">That page does not exist in here.</div>';
 }
 
+// The article reader updates the hash as you follow links, without a
+// hashchange event; keep the memory current from there too.
+const _replaceState = history.replaceState.bind(history);
+history.replaceState = (state, title, url) => {
+  _replaceState(state, title, url);
+  if (typeof url === 'string' && url.startsWith('#')) { rememberRoute(url); repointNav(url); }
+};
+
+// ---------------------------------------------------------------- sidebar
+
+const shell = document.getElementById('shell');
+const collapseBtn = document.getElementById('sidebar-collapse');
+if (localStorage.getItem('vault.sidebar') === 'collapsed') shell.classList.add('collapsed');
+collapseBtn.onclick = () => {
+  shell.classList.toggle('collapsed');
+  localStorage.setItem('vault.sidebar', shell.classList.contains('collapsed') ? 'collapsed' : 'open');
+  collapseBtn.title = shell.classList.contains('collapsed') ? 'Expand the sidebar' : 'Collapse the sidebar';
+  if (MAP) requestAnimationFrame(() => MAP.resize());
+};
+
 // ------------------------------------------------------------------- home
 
 const FEATURES = [
@@ -148,6 +211,8 @@ const FEATURES = [
   ['Languages', '#/languages', 'Spaced repetition that shows you a card just before you would have forgotten it.'],
   ['School', '#/school', 'A curriculum that needs no teacher, server or signal. Progress tracked per person.'],
   ['Manual', '#/manual', 'How all of this works and how it was built — so you can keep it running, or rebuild it.'],
+  ['Calendar', '#/calendar', 'Shared dates for the household — plus sunrise, sunset and the moon for every day, worked out on the spot.'],
+  ['Tools', '#/tools', 'A piano, a metronome, a tuner and a unit converter. Small things people miss.'],
   ['Setup', '#/setup', 'Choose what to download while you still have a connection — everything in one click, or pick and choose. The one page that needs the internet.'],
 ];
 
@@ -217,8 +282,8 @@ async function renderHome() {
       are kept per person, so the children's work stays theirs.</p>
       <p><strong>Read it on anything.</strong> Whatever device is serving this prints an address on
       its console — type that into a phone or tablet on the same wifi and you are in. No app to install.</p>
-      <p style="margin:0"><strong>Make it yours.</strong> Three appearances in the top right, including a
-      phosphor terminal with a screen colour of your choosing. Purely for the pleasure of it.</p>
+      <p style="margin:0"><strong>Make it yours.</strong> Three appearances under the sidebar, including a
+      retro terminal with a screen colour of your choosing. Purely for the pleasure of it.</p>
     </div>
   `;
 
@@ -670,9 +735,38 @@ async function renderLanguages() {
   setBusy();
   const { languages } = await api(`languages?profile=${encodeURIComponent(PROFILE)}`);
 
+  const totalCards = languages.reduce((sum, l) => sum + l.decks.reduce((n, d) => n + d.cardCount, 0), 0);
+  const settings = studySettings();
+
   view.innerHTML = `
     <h1>Languages</h1>
     <p class="lede">Spaced repetition: each card comes back just before you would have forgotten it. Ten minutes a day beats an hour a week.</p>
+
+    <div class="card" style="margin-bottom:18px">
+      <div class="row" style="gap:18px;flex-wrap:wrap;align-items:center">
+        <label class="row" style="gap:8px">
+          <span>New cards per session</span>
+          <select id="study-new" class="map-select" style="width:auto">
+            ${[5, 10, 20, 40, 100].map((n) => `<option value="${n}" ${n === settings.newLimit ? 'selected' : ''}>${n}</option>`).join('')}
+          </select>
+        </label>
+        <label class="row" style="gap:8px">
+          <span>Session size</span>
+          <select id="study-limit" class="map-select" style="width:auto">
+            ${[30, 60, 100, 200].map((n) => `<option value="${n}" ${n === settings.limit ? 'selected' : ''}>${n}</option>`).join('')}
+          </select>
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" id="study-reading" ${settings.showReading ? 'checked' : ''}>
+          <span>Show pronunciation on the front of the card</span>
+        </label>
+      </div>
+      <p class="faint" style="margin:10px 0 0">A session is everything due for review plus up to this many cards you have not seen yet — so the first
+      session of a new deck shows ${settings.newLimit} cards, not the whole deck. ${totalCards} cards are installed across
+      ${languages.length} languages. Pronunciation is written the way an English speaker would say it (rōmaji for Japanese,
+      pinyin for Mandarin) — hide it once you can read the script.</p>
+    </div>
+
     ${languages.length === 0 ? '<div class="empty">No language decks installed.</div>' : languages.map((lang) => `
       <h2>${esc(lang.name)}${lang.nativeName ? ` <span class="muted" style="font-weight:400">${esc(lang.nativeName)}</span>` : ''}</h2>
       <div class="row" style="margin:-6px 0 12px">
@@ -683,6 +777,7 @@ async function renderLanguages() {
         ${lang.guide ? `<a class="btn btn-sm" href="#/languages/${encodeURIComponent(lang.id)}/guide">How it works</a>` : ''}
       </div>
       ${lang.notes ? `<p class="faint" style="margin:0 0 12px">${esc(lang.notes)}</p>` : ''}
+      ${lang.syllabus ? `<p class="faint" style="margin:0 0 12px"><strong>Where this sits:</strong> ${esc(lang.syllabus)}</p>` : ''}
       ${lang.decks.map((deck) => `
         <div class="card">
           <div class="row-between">
@@ -697,6 +792,23 @@ async function renderLanguages() {
       `).join('')}
     `).join('')}
   `;
+
+  document.getElementById('study-new').onchange = (e) => saveStudySettings({ newLimit: Number(e.target.value) });
+  document.getElementById('study-limit').onchange = (e) => saveStudySettings({ limit: Number(e.target.value) });
+  document.getElementById('study-reading').onchange = (e) => saveStudySettings({ showReading: e.target.checked });
+}
+
+/** How big a study session is and whether the reading shows before the flip. Per browser. */
+function studySettings() {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem('vault.study') || '{}'); } catch { saved = {}; }
+  return { newLimit: 10, limit: 60, showReading: true, ...saved };
+}
+
+function saveStudySettings(patch) {
+  const next = { ...studySettings(), ...patch };
+  localStorage.setItem('vault.study', JSON.stringify(next));
+  return next;
 }
 
 async function renderLanguageGuide(langId) {
@@ -712,7 +824,8 @@ async function renderLanguageGuide(langId) {
 async function renderStudy(deckId, params) {
   setBusy('Building your review queue…');
 
-  const query = new URLSearchParams({ profile: PROFILE });
+  const settings = studySettings();
+  const query = new URLSearchParams({ profile: PROFILE, limit: settings.limit, new: settings.newLimit });
   if (deckId) query.set('deck', deckId);
   const language = params?.get('language');
   if (language) query.set('language', language);
@@ -740,7 +853,7 @@ async function renderStudy(deckId, params) {
 
   const draw = () => {
     const card = queue[index];
-    view.innerHTML = `
+    view.innerHTML = `<div class="study">
       <div class="row-between" style="margin-bottom:12px">
         <span class="faint">${done} reviewed · ${queue.length - index} left</span>
         <a class="btn btn-sm" href="#/languages">Finish</a>
@@ -749,7 +862,7 @@ async function renderStudy(deckId, params) {
 
       <div class="flashcard" id="card">
         <div class="front">${esc(card.front)}</div>
-        ${revealed && card.reading ? `<div class="reading">${esc(card.reading)}</div>` : ''}
+        ${card.reading && (revealed || settings.showReading) ? `<div class="reading">${esc(card.reading)}</div>` : ''}
         ${revealed ? `<div class="back">${esc(card.back)}</div>` : ''}
         ${revealed && card.note ? `<div class="note">${esc(card.note)}</div>` : ''}
         ${!revealed ? '<div class="hint">tap, or press space, to reveal</div>' : ''}
@@ -764,8 +877,18 @@ async function renderStudy(deckId, params) {
         </div>
         <p class="faint" style="text-align:center;margin-top:10px">keys 1 – 4</p>
       ` : ''}
-      <p class="faint" style="margin-top:16px">${esc(card.deckTitle || '')}</p>
-    `;
+      <p class="faint" style="margin-top:16px">${esc(card.deckTitle || '')}${card.deckTitle && card.reading ? ' · ' : ''}${card.reading ? `<a href="#" id="toggle-reading">${settings.showReading ? 'hide' : 'show'} pronunciation before the flip</a>` : ''}</p>
+    </div>`;
+
+    const toggle = document.getElementById('toggle-reading');
+    if (toggle) {
+      toggle.onclick = (e) => {
+        e.preventDefault();
+        settings.showReading = !settings.showReading;
+        saveStudySettings({ showReading: settings.showReading });
+        draw();
+      };
+    }
 
     document.getElementById('card').onclick = () => { if (!revealed) { revealed = true; draw(); } };
     for (const btn of view.querySelectorAll('[data-grade]')) {
@@ -887,14 +1010,17 @@ async function renderMaps() {
         <p class="faint" style="margin:6px 0 10px">Drawn on the map and saved here, so everyone on
         the network sees the same routes and notes.</p>
 
-        <div class="row" style="gap:6px;margin-bottom:8px">
+        <div class="row" style="gap:6px;margin-bottom:8px;flex-wrap:wrap">
           <button class="btn btn-sm" id="tool-pan">Pan</button>
           <button class="btn btn-sm" id="tool-pen">Draw</button>
           <button class="btn btn-sm" id="tool-pin">Pin</button>
           <button class="btn btn-sm" id="tool-eraser">Erase</button>
           <button class="btn btn-sm" id="tool-measure">Measure</button>
+          <button class="btn btn-sm" id="tool-route">Route</button>
         </div>
         <p class="faint" id="tool-hint" style="margin:0 0 8px"></p>
+        <div id="measure-panel" class="tool-panel" hidden></div>
+        <div id="route-panel" class="tool-panel" hidden></div>
 
         <div class="swatches" id="swatches"></div>
         <div class="pen-sizes" id="pen-sizes"></div>
@@ -929,8 +1055,31 @@ async function renderMaps() {
   const readout = document.getElementById('map-readout');
   const colours = Object.fromEntries(categories.map((c) => [c.id, c.colour]));
 
-  MAP = new VaultMap(canvas, { categories: colours });
+  // Come back to the map where you left it.
+  let savedView = null;
+  try { savedView = JSON.parse(localStorage.getItem('vault.mapView') || 'null'); } catch { savedView = null; }
+
+  MAP = new VaultMap(canvas, {
+    categories: colours,
+    lon: savedView?.lon, lat: savedView?.lat, zoom: savedView?.zoom,
+    style: savedView?.style === 'dark' ? 'dark' : 'paper',
+  });
   window.vaultMap = MAP; // handy when debugging from the console
+
+  let saveTimer = null;
+  const saveView = () => {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try {
+        localStorage.setItem('vault.mapView', JSON.stringify({
+          lon: MAP.centre.lon, lat: MAP.centre.lat, zoom: MAP.zoom, style: MAP.styleName,
+          base: document.getElementById('map-base')?.value || null,
+          overlays: [...view.querySelectorAll('.map-overlay:checked')].map((b) => b.value),
+        }));
+      } catch { /* storage full or blocked: not worth a fuss */ }
+    }, 400);
+  };
+  MAP.onMove = saveView;
   MAP.onHover = (position) => {
     if (!position) return;
     readout.dataset.position = `${position.lat.toFixed(5)}, ${position.lon.toFixed(5)}  ·  zoom ${MAP.zoom.toFixed(1)}`;
@@ -941,9 +1090,11 @@ async function renderMaps() {
 
   const baseSelect = document.getElementById('map-base');
   if (baseSelect) {
+    if (savedView?.base && vectorPacks.some((p) => p.id === savedView.base)) baseSelect.value = savedView.base;
     const applyBase = () => {
       const pack = vectorPacks.find((p) => p.id === baseSelect.value);
       MAP.setBase(pack.id, pack);
+      saveView();
     };
     baseSelect.onchange = applyBase;
     applyBase();
@@ -955,17 +1106,24 @@ async function renderMaps() {
   document.getElementById('map-zoom-out').onclick = () => MAP.zoomBy(-1);
 
   const styleBtn = document.getElementById('map-style');
+  styleBtn.textContent = MAP.styleName === 'paper' ? 'Dark' : 'Paper';
   styleBtn.onclick = () => {
     const next = MAP.styleName === 'paper' ? 'dark' : 'paper';
     MAP.setStyle(next);
     styleBtn.textContent = next === 'paper' ? 'Dark' : 'Paper';
+    saveView();
   };
 
-  for (const box of view.querySelectorAll('.map-overlay')) {
-    box.onchange = () => {
-      MAP.setOverlays([...view.querySelectorAll('.map-overlay:checked')].map((b) => b.value));
-    };
+  const overlayBoxes = [...view.querySelectorAll('.map-overlay')];
+  const syncOverlays = () => {
+    MAP.setOverlays(overlayBoxes.filter((b) => b.checked).map((b) => b.value));
+    saveView();
+  };
+  for (const box of overlayBoxes) {
+    if (Array.isArray(savedView?.overlays) && savedView.overlays.includes(box.value)) box.checked = true;
+    box.onchange = syncOverlays;
   }
+  if (overlayBoxes.some((b) => b.checked)) MAP.setOverlays(overlayBoxes.filter((b) => b.checked).map((b) => b.value));
 
   const catBoxes = [...view.querySelectorAll('.map-cat')];
   const syncCategories = () => {
@@ -1082,14 +1240,18 @@ async function setUpAnnotations() {
     pin: document.getElementById('tool-pin'),
     eraser: document.getElementById('tool-eraser'),
     measure: document.getElementById('tool-measure'),
+    route: document.getElementById('tool-route'),
   };
   const hint = document.getElementById('tool-hint');
+  const measurePanel = document.getElementById('measure-panel');
+  const routePanel = document.getElementById('route-panel');
   const HINTS = {
     pan: 'Drag to move, scroll to zoom.',
     pen: 'Drag to draw. The length of each line is shown at its end.',
     pin: 'Click to drop a labelled marker.',
-    eraser: 'Drag over lines or pins to remove them.',
-    measure: 'Click points to measure a route. Press Escape or choose another tool to clear.',
+    eraser: 'Drag over lines, pins or routes to remove them.',
+    measure: 'Click points to measure a distance. Click the first point again (or Close) for a perimeter and area. Escape clears.',
+    route: 'Click to add each node of the route. Backspace removes the last node, Escape clears. Save it to a layer when it is right.',
   };
 
   const selectTool = (name) => {
@@ -1098,21 +1260,104 @@ async function setUpAnnotations() {
       btn.classList.toggle('btn-active', key === name);
     }
     hint.textContent = HINTS[name] || '';
+    measurePanel.hidden = name !== 'measure';
+    routePanel.hidden = name !== 'route';
+    if (name === 'measure') paintMeasure(MAP.measurement());
+    if (name === 'route') paintRoute(MAP.routePlan());
   };
   for (const [name, btn] of Object.entries(toolButtons)) btn.onclick = () => selectTool(name);
-  selectTool('pan');
 
+  const G = window.vaultGeo;
   const readout = document.getElementById('map-readout');
-  MAP.onMeasure = (metres, points, mode) => {
-    if (!readout) return;
-    if (points < 1) { readout.dataset.measure = ''; return; }
-    const label = metres < 1000 ? `${Math.round(metres)} m` : `${(metres / 1000).toFixed(2)} km`;
-    readout.dataset.measure = `${mode === 'drawing' ? 'line' : 'route'} ${label}`;
-    readout.textContent = `${readout.dataset.measure}  ·  ${readout.dataset.position || ''}`;
+
+  const paintMeasure = (m) => {
+    if (!m || !m.points) {
+      measurePanel.innerHTML = '<p class="faint" style="margin:0">Nothing measured yet.</p>';
+      return;
+    }
+    measurePanel.innerHTML = `
+      <div class="almanac-row"><span class="faint">${m.closed ? 'Perimeter' : 'Distance'}</span><span class="mono">${G.formatDistance(m.length)}</span></div>
+      ${m.closed ? `<div class="almanac-row"><span class="faint">Area</span><span class="mono">${G.formatArea(m.area)} · ${(m.area / 4046.86).toLocaleString(undefined, { maximumFractionDigits: m.area < 4e5 ? 2 : 0 })} acres</span></div>` : ''}
+      <div class="almanac-row"><span class="faint">Points</span><span class="mono">${m.points}</span></div>
+      <div class="row" style="gap:6px;margin-top:8px">
+        ${!m.closed && m.points >= 3 ? '<button class="btn btn-sm" id="measure-close">Close shape</button>' : ''}
+        <button class="btn btn-sm" id="measure-clear">Clear</button>
+      </div>`;
+    const closeBtn = document.getElementById('measure-close');
+    if (closeBtn) closeBtn.onclick = () => MAP.closeMeasure();
+    document.getElementById('measure-clear').onclick = () => MAP.clearMeasure();
   };
 
+  MAP.onMeasure = (metres, points, mode, m) => {
+    if (readout) {
+      if (points < 1) {
+        readout.dataset.measure = '';
+      } else {
+        const label = mode === 'closed'
+          ? `perimeter ${G.formatDistance(metres)} · ${G.formatArea(m.area)}`
+          : `${mode === 'drawing' ? 'line' : 'distance'} ${G.formatDistance(metres)}`;
+        readout.dataset.measure = label;
+      }
+      readout.textContent = readout.dataset.measure
+        ? `${readout.dataset.measure}  ·  ${readout.dataset.position || ''}`
+        : (readout.dataset.position || '—');
+    }
+    if (mode !== 'drawing') paintMeasure(m || MAP.measurement());
+  };
+
+  // Route planner: the legs read out as a table you could copy onto paper.
+  const paintRoute = (plan) => {
+    if (!plan.points.length) {
+      routePanel.innerHTML = '<p class="faint" style="margin:0">Click the map to place the first node.</p>';
+      return;
+    }
+    const rows = plan.legs.map((leg, i) => `
+      <tr><td class="mono">${i + 1} → ${i + 2}</td>
+          <td class="mono">${G.formatDistance(leg.distance)}</td>
+          <td class="mono">${String(Math.round(leg.bearing)).padStart(3, '0')}° ${window.vaultAlmanac ? window.vaultAlmanac.compassPoint(leg.bearing) : ''}</td></tr>`).join('');
+    const walking = plan.length / 5000; // hours at a steady 5 km/h on the flat
+    routePanel.innerHTML = `
+      <table class="route-table">
+        <thead><tr><th>Leg</th><th>Distance</th><th>Bearing</th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="3" class="faint">One node so far.</td></tr>'}</tbody>
+      </table>
+      <div class="almanac-row"><span class="faint">Total</span><span class="mono">${G.formatDistance(plan.length)}${plan.length > 500 ? ` · about ${window.vaultAlmanac ? window.vaultAlmanac.formatDuration(Math.round(walking * 60)) : Math.round(walking * 60) + ' min'} walking` : ''}</span></div>
+      <div class="almanac-row"><span class="faint">Elevation gain</span><span class="mono faint" title="Needs a terrain pack. Not installed.">no terrain data</span></div>
+      <div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">
+        <button class="btn btn-sm" id="route-undo" ${plan.points.length ? '' : 'disabled'}>Undo node</button>
+        <button class="btn btn-sm" id="route-clear">Clear</button>
+        <button class="btn btn-sm btn-primary" id="route-save" ${plan.points.length > 1 ? '' : 'disabled'}>Save route</button>
+      </div>`;
+    document.getElementById('route-undo').onclick = () => MAP.undoRouteNode();
+    document.getElementById('route-clear').onclick = () => MAP.clearRoute();
+    document.getElementById('route-save').onclick = async () => {
+      const name = prompt('Name this route (where to, and why):', '');
+      if (name === null) return;
+      const target = layers.find((l) => l.id === MAP.activeLayerId) || layers[0];
+      if (!target) return;
+      const saved = await api('maps/annotations/strokes', {
+        method: 'POST',
+        body: {
+          layerId: target.id, type: 'route', name: name.trim(), colour: MAP.penColour, width: 3,
+          points: plan.points, legs: plan.legs.map((l) => ({ distance: Math.round(l.distance), bearing: Math.round(l.bearing) })),
+          length: plan.length,
+        },
+      });
+      target.strokes.push(saved.stroke);
+      MAP.setAnnotations(layers);
+      MAP.clearRoute();
+      paintLayers();
+    };
+  };
+  MAP.onRoute = paintRoute;
+  selectTool('pan');
+
   document.addEventListener('keydown', (e) => {
+    if (!MAP || !document.getElementById('map-canvas')) return;
+    const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '');
     if (e.key === 'Escape' && MAP.drawMode === 'measure') MAP.clearMeasure();
+    if (e.key === 'Escape' && MAP.drawMode === 'route') MAP.clearRoute();
+    if (e.key === 'Backspace' && MAP.drawMode === 'route' && !typing) { e.preventDefault(); MAP.undoRouteNode(); }
   });
 
   MAP.onPin = async (position) => {
@@ -1267,7 +1512,7 @@ async function renderComms() {
       </div>
 
       <p class="faint" style="margin-top:12px">
-        Posting as <strong>${esc(profileName())}</strong>. Change profile in the top right.
+        Posting as <strong>${esc(profileName())}</strong>. Change profile in the sidebar.
         Setting up a network to run this over is covered in
         <a href="#/handbook/comms/mesh-networks">the handbook</a>.
       </p>
@@ -1374,7 +1619,7 @@ async function renderSchool() {
 
   view.innerHTML = `
     <h1>School</h1>
-    <p class="lede">A curriculum that does not need a teacher, a server or a signal. Progress is tracked per person — switch profile in the top right.</p>
+    <p class="lede">A curriculum that does not need a teacher, a server or a signal. Progress is tracked per person — switch profile in the sidebar.</p>
     ${allLessons.length ? `<div class="progress" style="height:8px"><div style="width:${(doneCount / allLessons.length) * 100}%"></div></div>
     <p class="faint" style="margin:4px 0 24px">${doneCount} of ${allLessons.length} lessons complete for ${esc(profileName())}</p>` : ''}
 
@@ -1705,7 +1950,7 @@ window.addEventListener('hashchange', route);
     STATUS = await api('status');
     await loadProfiles();
   } catch {
-    footerStatus.textContent = 'Could not reach the Ark server.';
+    footerStatus.textContent = 'Could not reach the Vault server.';
   }
   route();
 })();

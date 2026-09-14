@@ -22,7 +22,7 @@ Every request, in the order it was made, with an honest status. Updated whenever
 
 | # | Decision | Options |
 |---|---|---|
-| D5 | Rename the folder | Approved. Happens at the start of the next session: the download server is stopped, the folder renamed to `DocumentsVault`, the Desktop shortcut regenerated, and downloads resume. About a minute's pause |
+| D5 | Rename the folder | Approved, but it cannot be done from inside this session: the desktop app holds the folder open, so the rename is refused. Three steps for you, any time: close every Vault window, rename `Documents\Ark` to `Documents\Vault` in Explorer, double-click `Create Desktop Shortcut.bat` in the renamed folder. Then reopen Claude in the new folder. Downloads carry on from where they were |
 | D8 | Naming, if this is ever sold | "Pip-Boy" and "Vault Boy" are Bethesda trademarks. For a commercial release the theme label needs a different name (e.g. "Terminal") and the mascot art replaced — you have already said the art will change. Say when and I will do both |
 
 Everything else that was open has been decided and is done or in progress — see section 8.
@@ -115,11 +115,32 @@ Everything else that was open has been decided and is done or in progress — se
 | 8.2 | Wiktionary, Wikibooks, iFixit, plus Wikivoyage, Wikiversity, ArchWiki | **DONE** | Queued (18.7 GB). ArchWiki already landed and indexed |
 | 8.3 | Full English Wikipedia, text only | **DONE** | Queued last, 49 GB |
 | 8.4 | Delete the superseded pack | **DONE** | |
-| 8.5 | Rename the folder | **OPEN** | See D5 — next session |
+| 8.5 | Rename the folder | **DECISION** | See D5 — needs your hands, the app holds the folder |
 | 8.6 | All the textbooks | **DONE** | Where There Is No Doctor (25 files) and all 75 OpenStax books queued. Everything downloaded so far indexes cleanly at full scale — Biology 2e is 1,475 pages, 652,000 words |
 | 8.7 | Ship the app small; download content after install, all at once or by choice | **DONE** | The Setup tab: a catalogue of 106 items, "download everything" or a tick-list, one download at a time, resumable, remembered across restarts, each pack indexed on arrival. The app itself is under 1 MB |
 | 8.8 | Could this be sold on Steam, and for how much? | **ANSWERED** | In conversation. Short version: yes, as software; the trademarks (D8) and a packaged installer (1.7) are the two things to fix first |
 | 8.9 | Pip-Boy amber as the default look | **DONE** | |
+
+## 9. Screen space, tabs, calendar, route planning — requested 14 Sep
+
+| # | Request | Status | Notes |
+|---|---|---|---|
+| 9.1 | Tabs remember where you left them | **DONE** | Each section keeps its last page (Library on an article, Handbook on a chapter, a document at its page). Clicking the section you are in takes you to its front page. Search results and study sessions are deliberately not remembered |
+| 9.2 | Map keeps its position | **DONE** | Centre, zoom, paper/dark, base pack and overlays survive tab changes and restarts |
+| 9.3 | Calendar tab with addable events | **DONE** | Shared household calendar: events with time, notes, colour, and repeats (weekly/monthly/yearly). Every day shows sunrise, sunset, first/last light, day length and the moon for wherever the map was last looking; the month grid marks the days the moon turns. A "coming up" list for the next two months |
+| 9.4 | Measuring tool: distance and perimeter | **DONE** | Click points for distance; click the first point again (or Close shape) for perimeter and area in m²/ha/km² and acres |
+| 9.5 | Route planner with nodes, leg distances, elevation | **PARTIAL** | Click nodes; every leg listed with distance and true bearing; total and a rough walking time; Backspace/Escape to edit; saved to a layer with a name, drawn on everyone's map with legs labelled. **Elevation gain is not there** — it needs a terrain pack (hill heights), which no installed map carries. Doable later: a world terrain pack is ~1–2 GB for coarse, far more for fine |
+| 9.6 | Are libraries on the map? | **ANSWERED** | Yes — public libraries are a point of interest under "Shelter & gathering", alongside town halls, schools and places of worship, at zoom 13 and above |
+| 9.7 | Where is ocean navigation? | **ANSWERED** | Inside the map: the sea charts are raster overlays (Overlays list under Base map) once downloaded — they are in the queue now. The handbook's sailing/navigation material is text; the charts give depths, buoys, lights and hazards |
+| 9.8 | Satellite view | **OPEN** | Not built. Feasible as a raster base layer: NASA Blue Marble (public domain, ~500 MB for 500 m/pixel) shows terrain, vegetation and cities; true high-resolution imagery of everywhere is terabytes and licensed. Say if you want the Blue Marble layer added to the catalogue |
+| 9.9 | Map bigger, full width | **DONE** | The map fills the content area and most of the window height |
+| 9.10 | Use the whole screen, everywhere | **DONE** | No more fixed page width. Reading views keep a comfortable line length; lists, maps, calendar and setup use the full width |
+| 9.11 | Sidebar instead of top tabs and search | **DONE** | Left sidebar with search, sections, appearance and profile; collapses to an icon strip (remembered); becomes a top strip on phones |
+| 9.12 | Rename Pip-Boy view to "retro" | **DONE** | "Retro terminal" |
+| 9.13 | Header on the appearance dropdown | **DONE** | "Customise view" |
+| 9.14 | Other features people would miss (music, piano?) | **PARTIAL** | Tools tab: a two-octave piano playable from the keyboard, a metronome with tap tempo and tuning pitches, a countdown timer with alarm and a stopwatch, and a unit converter. Not yet built, in rough order of usefulness: a music/audio player for your own files (and a local photo/video viewer), a notebook/journal per person, a chess/draughts board, a periodic table and star chart, a Morse trainer, a calculator, a recipe book. Say which |
+| 9.15 | Are 10-card modules adequate? Matched to real syllabuses? | **ANSWERED / PARTIAL** | The 10 was the per-session limit on *new* cards, now a setting (5–100) — the decks are 20–47 cards each, 455 in all. Honest answer to adequacy: no. Each language page now says where its decks sit against the real levels (JLPT N5, HSK 1, CEFR A1) — Japanese covers both kana in full, 40 of 100 N5 kanji and under a tenth of N5 vocabulary; Spanish about a fifth of A1. Expanding to full N5 / A1 decks is the next content job |
+| 9.16 | Japanese cards show only symbols | **DONE** | Pronunciation (rōmaji, pinyin, or a plain English rendering) now shows on the front of the card by default; a toggle hides it once you can read the script. Every Japanese, Mandarin and Hindi card carries a reading; the kana decks are the exception on purpose — the reading *is* the answer |
 
 ## 6. Known thin spots
 
@@ -130,10 +151,10 @@ Not separate requests — the places where a "done" is doing less than it should
 | 6.1 | Fire module | Resolved — 4 chapters |
 | 6.2 | Computing module | Resolved — 3 chapters |
 | 6.3 | Comms module | Resolved — 6 chapters, incl. Meshtastic step by step and a plan template |
-| 6.4 | Languages | Guides for all four. No audio. Kanji stops at 40 |
+| 6.4 | Languages | Guides for all four. No audio. Kanji stops at 40. Decks are a survival core, well short of N5 / A1 — see 9.15 |
 | 6.5 | School | 13 lessons. Real depth comes from imported textbooks (D7) |
 | 6.6 | Medical | Resolved — 7 chapters, incl. childbirth, mental health and long-term conditions |
-| 6.7 | Maps | Pins and lengths done. Still no offline place-name search, no elevation, no OS style |
+| 6.7 | Maps | Pins, lengths, perimeter/area and a route planner done. Still no offline place-name search, no elevation, no satellite, no OS style |
 | 6.8 | Food | Hunting, trapping and fishing now covered. Livestock still a paragraph |
 | 6.9 | Water | Resolved — wells and drought covered |
 

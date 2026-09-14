@@ -219,6 +219,7 @@ class ContentLibrary {
         script: langMeta.script || '',
         order: langMeta.order ?? 50,
         notes: langMeta.notes || '',
+        syllabus: langMeta.syllabus || '',
         decks,
         guide,
         cardCount: decks.reduce((n, d) => n + d.cards.length, 0),

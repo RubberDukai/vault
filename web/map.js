@@ -49,6 +49,55 @@ function formatDistance(metres) {
   return `${(metres / 1000).toFixed(1)} km`;
 }
 
+/** Initial bearing from one point to the next, in degrees clockwise from north. */
+function bearing(lat1, lon1, lat2, lon2) {
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dLon = toRad(lon2 - lon1);
+  const y = Math.sin(dLon) * Math.cos(toRad(lat2));
+  const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2))
+    - Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLon);
+  return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
+}
+
+/**
+ * Area of a closed ring of [lon, lat] points in square metres. The ring is
+ * projected onto a flat plane around its own centre first (metres east and
+ * north), then the shoelace formula does the rest. Accurate to well under
+ * a percent for anything you could walk round in a day.
+ */
+function polygonArea(points) {
+  if (points.length < 3) return 0;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const midLat = points.reduce((sum, p) => sum + p[1], 0) / points.length;
+  const midLon = points.reduce((sum, p) => sum + p[0], 0) / points.length;
+  const kx = EARTH_RADIUS * Math.cos(toRad(midLat));
+  const local = points.map(([lon, lat]) => [toRad(lon - midLon) * kx, toRad(lat - midLat) * EARTH_RADIUS]);
+  let twice = 0;
+  for (let i = 0; i < local.length; i++) {
+    const [x1, y1] = local[i];
+    const [x2, y2] = local[(i + 1) % local.length];
+    twice += x1 * y2 - x2 * y1;
+  }
+  return Math.abs(twice) / 2;
+}
+
+function formatArea(m2) {
+  if (m2 < 10000) return `${Math.round(m2)} m²`;
+  if (m2 < 1e6) return `${(m2 / 10000).toFixed(2)} ha`;
+  return `${(m2 / 1e6).toFixed(2)} km²`;
+}
+
+/** Per-leg distances and bearings for a route of [lon, lat] nodes. */
+function routeLegs(points) {
+  const legs = [];
+  for (let i = 1; i < points.length; i++) {
+    const [lon1, lat1] = points[i - 1];
+    const [lon2, lat2] = points[i];
+    legs.push({ distance: haversine(lat1, lon1, lat2, lon2), bearing: bearing(lat1, lon1, lat2, lon2) });
+  }
+  return legs;
+}
+
 // ------------------------------------------------------------------ style
 
 /** Two palettes: a paper map for navigating, a dark one to match the app. */
@@ -191,12 +240,14 @@ class VaultMap {
     // not know about because the world changed after the map was made.
     this.annotationLayers = [];
     this.activeLayerId = null;
-    this.drawMode = null;          // null | 'pen' | 'eraser' | 'pin' | 'measure'
+    this.drawMode = null;          // null | 'pen' | 'eraser' | 'pin' | 'measure' | 'route'
     this.penColour = '#f85149';
     this.penWidth = 3;
     this.showAnnotations = true;
     this.showLengths = true;
     this._measure = [];            // points of the measuring tape, not saved
+    this._measureClosed = false;   // tape joined back to its start: perimeter + area
+    this._route = [];              // nodes of the route being planned, until saved
 
     this._tiles = new Map();
     this._pending = new Set();
@@ -361,14 +412,26 @@ class VaultMap {
 
       // A click — not a drag — with a click tool active.
       const moved = Math.hypot(e.clientX - downX, e.clientY - downY);
-      if (moved < 5 && (this.drawMode === 'pin' || this.drawMode === 'measure')) {
+      if (moved < 5 && (this.drawMode === 'pin' || this.drawMode === 'measure' || this.drawMode === 'route')) {
         const rect = this.canvas.getBoundingClientRect();
-        const position = this.pixelToLonLat(e.clientX - rect.left, e.clientY - rect.top);
+        const px = e.clientX - rect.left;
+        const py = e.clientY - rect.top;
+        const position = this.pixelToLonLat(px, py);
         if (this.drawMode === 'pin') {
           if (this.onPin) this.onPin(position);
-        } else {
+        } else if (this.drawMode === 'measure') {
+          if (this._measureClosed) { this._measure = []; this._measureClosed = false; }
+          // Clicking back on the first point closes the shape.
+          if (this._measure.length >= 3) {
+            const first = this.lonLatToPixel(this._measure[0][0], this._measure[0][1]);
+            if (Math.hypot(first.x - px, first.y - py) <= 10) { this.closeMeasure(); return; }
+          }
           this._measure.push([position.lon, position.lat]);
-          if (this.onMeasure) this.onMeasure(pathLength(this._measure), this._measure.length);
+          this._reportMeasure();
+          this.draw();
+        } else {
+          this._route.push([position.lon, position.lat]);
+          this._reportRoute();
           this.draw();
         }
       }
@@ -504,6 +567,10 @@ class VaultMap {
     const ctx = this.ctx;
     const style = this.style;
 
+    // Tell whoever is listening that the view moved (used to remember it).
+    const viewKey = this.centre.lon.toFixed(5) + "," + this.centre.lat.toFixed(5) + "," + this.zoom.toFixed(2);
+    if (viewKey !== this._lastViewKey) { this._lastViewKey = viewKey; if (this.onMove) this.onMove(this.centre, this.zoom); }
+
     ctx.fillStyle = style.background;
     ctx.fillRect(0, 0, this.width, this.height);
 
@@ -598,17 +665,71 @@ class VaultMap {
     this.canvas.classList.toggle('drawing', Boolean(mode));
     this.canvas.style.cursor = mode ? 'crosshair' : 'grab';
     if (mode !== 'measure') this.clearMeasure();
+    if (mode !== 'route') this.clearRoute();
   }
 
   clearMeasure() {
     this._measure = [];
+    this._measureClosed = false;
     if (this.onMeasure) this.onMeasure(0, 0);
     this.draw();
   }
 
-  /** Total length of the measuring tape so far. */
+  /** Join the tape back to its first point: a perimeter, with the area inside. */
+  closeMeasure() {
+    if (this._measure.length < 3) return;
+    this._measureClosed = true;
+    this._reportMeasure();
+    this.draw();
+  }
+
+  /** Total length of the measuring tape so far (round the shape if closed). */
   measuredLength() {
-    return pathLength(this._measure);
+    if (!this._measure.length) return 0;
+    const points = this._measureClosed ? [...this._measure, this._measure[0]] : this._measure;
+    return pathLength(points);
+  }
+
+  measurement() {
+    return {
+      points: this._measure.length,
+      closed: this._measureClosed,
+      length: this.measuredLength(),
+      area: this._measureClosed ? polygonArea(this._measure) : 0,
+    };
+  }
+
+  _reportMeasure() {
+    if (!this.onMeasure) return;
+    const m = this.measurement();
+    this.onMeasure(m.length, m.points, m.closed ? 'closed' : 'tape', m);
+  }
+
+  // Route planning: click nodes, read the legs, save the route as a mark.
+
+  clearRoute() {
+    this._route = [];
+    this._reportRoute();
+    this.draw();
+  }
+
+  undoRouteNode() {
+    this._route.pop();
+    this._reportRoute();
+    this.draw();
+  }
+
+  routePlan() {
+    const legs = routeLegs(this._route);
+    return {
+      points: this._route.map((p) => [...p]),
+      legs,
+      length: legs.reduce((sum, leg) => sum + leg.distance, 0),
+    };
+  }
+
+  _reportRoute() {
+    if (this.onRoute) this.onRoute(this.routePlan());
   }
 
   _strokePath(points) {
@@ -634,6 +755,7 @@ class VaultMap {
       for (const mark of layer.strokes) {
         if (this._erasedIds && this._erasedIds.has(mark.id)) continue;
         if (mark.type === 'pin') { pins.push(mark); continue; }
+        if (mark.type === 'route') { this._drawRoute(mark.points, mark.colour, mark.width || 3, mark.name, false); continue; }
 
         ctx.strokeStyle = mark.colour;
         ctx.lineWidth = mark.width;
@@ -649,6 +771,9 @@ class VaultMap {
       }
     }
 
+    // The route being planned right now.
+    if (this._route.length) this._drawRoute(this._route, this.penColour, 3, null, true);
+
     // The stroke currently under the pen, before it is saved.
     if (this._activeStroke && this._activeStroke.points.length > 1) {
       ctx.strokeStyle = this._activeStroke.colour;
@@ -662,12 +787,25 @@ class VaultMap {
     for (const pin of pins) this._drawPin(pin);
 
     // The measuring tape: dashed, with the running total at the last point.
+    // Closed back on itself it becomes a perimeter, shaded, with the area.
     if (this._measure.length) {
+      const points = this._measureClosed ? [...this._measure, this._measure[0]] : this._measure;
+      if (this._measureClosed) {
+        ctx.fillStyle = this.style.layers.label;
+        ctx.globalAlpha = 0.12;
+        ctx.beginPath();
+        this._measure.forEach(([lon, lat], i) => {
+          const { x, y } = this.lonLatToPixel(lon, lat);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.closePath();
+        ctx.fill();
+      }
       ctx.strokeStyle = this.style.layers.label;
       ctx.lineWidth = 2;
       ctx.setLineDash([6, 5]);
       ctx.globalAlpha = 0.9;
-      this._strokePath(this._measure);
+      this._strokePath(points);
       ctx.setLineDash([]);
       ctx.globalAlpha = 1;
       for (const [lon, lat] of this._measure) {
@@ -677,9 +815,68 @@ class VaultMap {
         ctx.arc(x, y, 3.5, 0, Math.PI * 2);
         ctx.fill();
       }
+      // The first point grows a ring once it can be clicked to close the shape.
+      if (!this._measureClosed && this._measure.length >= 3) {
+        const { x, y } = this.lonLatToPixel(this._measure[0][0], this._measure[0][1]);
+        ctx.strokeStyle = this.style.layers.label;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(x, y, 9, 0, Math.PI * 2);
+        ctx.stroke();
+      }
       const last = this._measure[this._measure.length - 1];
       const { x, y } = this.lonLatToPixel(last[0], last[1]);
-      this._drawTag(formatDistance(this.measuredLength()), x + 10, y - 10, this.style.layers.label);
+      const m = this.measurement();
+      const text = m.closed
+        ? `${formatDistance(m.length)} round · ${formatArea(m.area)}`
+        : formatDistance(m.length);
+      this._drawTag(text, x + 10, y - 10, this.style.layers.label);
+    }
+  }
+
+  /** A planned route: numbered nodes, a distance on every leg, the total at the end. */
+  _drawRoute(points, colour, width, name, live) {
+    if (!points.length) return;
+    const ctx = this.ctx;
+    ctx.strokeStyle = colour;
+    ctx.lineWidth = width;
+    ctx.globalAlpha = 0.92;
+    if (live) ctx.setLineDash([10, 6]);
+    this._strokePath(points);
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
+
+    const showLegs = this.showLengths || live;
+    for (let i = 1; i < points.length && showLegs; i++) {
+      const a = this.lonLatToPixel(points[i - 1][0], points[i - 1][1]);
+      const b = this.lonLatToPixel(points[i][0], points[i][1]);
+      if (Math.hypot(b.x - a.x, b.y - a.y) < 70) continue; // too short to label without clutter
+      const d = haversine(points[i - 1][1], points[i - 1][0], points[i][1], points[i][0]);
+      this._drawTag(formatDistance(d), (a.x + b.x) / 2 + 6, (a.y + b.y) / 2 - 6, colour);
+    }
+
+    ctx.font = '700 10px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    points.forEach(([lon, lat], i) => {
+      const { x, y } = this.lonLatToPixel(lon, lat);
+      if (x < -20 || x > this.width + 20 || y < -20 || y > this.height + 20) return;
+      ctx.fillStyle = colour;
+      ctx.strokeStyle = this.style.layers.labelHalo;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(x, y, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#fff';
+      ctx.fillText(String(i + 1), x, y + 0.5);
+    });
+
+    if (points.length > 1 && showLegs) {
+      const end = points[points.length - 1];
+      const { x, y } = this.lonLatToPixel(end[0], end[1]);
+      const total = formatDistance(pathLength(points));
+      this._drawTag(name ? `${name} · ${total}` : `${total} total`, x + 12, y - 14, colour);
     }
   }
 
@@ -744,7 +941,7 @@ class VaultMap {
 
         for (const [lon, lat] of mark.points) {
           const { x, y } = this.lonLatToPixel(lon, lat);
-          if (Math.hypot(x - px, y - py) <= radius + mark.width) {
+          if (Math.hypot(x - px, y - py) <= radius + (mark.width || 3)) {
             this._erasedIds.add(mark.id);
             break;
           }
@@ -1066,5 +1263,6 @@ class VaultMap {
 }
 
 window.VaultMap = VaultMap;
+window.vaultGeo = { haversine, bearing, pathLength, polygonArea, routeLegs, formatDistance, formatArea };
 window.ArkMap = VaultMap; // old name, kept so nothing breaks mid-session
 window.vaultMapHelpers = { haversine };

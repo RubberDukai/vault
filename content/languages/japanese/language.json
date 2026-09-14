@@ -3,5 +3,6 @@
   "nativeName": "日本語",
   "script": "Hiragana, Katakana, Kanji",
   "order": 1,
-  "notes": "Start with hiragana — it is a true alphabet of 46 sounds and can be learned in a week. Once you can read it, everything else in Japanese becomes approachable. Japanese has no tones and very regular pronunciation, which makes speaking it far easier than reading it."
+  "notes": "Start with hiragana — it is a true alphabet of 46 sounds and can be learned in a week. Once you can read it, everything else in Japanese becomes approachable. Japanese has no tones and very regular pronunciation, which makes speaking it far easier than reading it.",
+  "syllabus": "These decks cover both kana in full (JLPT N5 needs both), about 40 of the 100 N5 kanji, and under a tenth of the 800 or so N5 words. N5 is the first of five official levels; passing it means simple, slow conversations. The decks are a survival core to build on, not a course — the guide says what to add next."
 }

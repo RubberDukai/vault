@@ -183,11 +183,18 @@ class PackCatalog {
     return path.join(path.dirname(this.state.filePath), 'downloads.lock');
   }
 
+  /** Is the process that wrote a lock still alive? A dead one is not waited for. */
+  _lockHolderAlive(existing) {
+    if (existing.pid === process.pid) return false;
+    if (Date.now() - existing.at >= 120000) return false;
+    try { process.kill(existing.pid, 0); return true; } catch (err) { return err.code === 'EPERM'; }
+  }
+
   _acquireLock() {
     const lock = this._lockPath();
     try {
       const existing = JSON.parse(fs.readFileSync(lock, 'utf8'));
-      if (existing.pid !== process.pid && Date.now() - existing.at < 120000) return false;
+      if (this._lockHolderAlive(existing)) return false;
     } catch { /* no lock, or unreadable — take it */ }
     fs.writeFileSync(lock, JSON.stringify({ pid: process.pid, at: Date.now() }));
     this._heartbeat = setInterval(() => {
@@ -207,8 +214,7 @@ class PackCatalog {
 
   lockedElsewhere() {
     try {
-      const existing = JSON.parse(fs.readFileSync(this._lockPath(), 'utf8'));
-      return existing.pid !== process.pid && Date.now() - existing.at < 120000;
+      return this._lockHolderAlive(JSON.parse(fs.readFileSync(this._lockPath(), 'utf8')));
     } catch {
       return false;
     }
@@ -218,7 +224,12 @@ class PackCatalog {
   async run() {
     if (this._running) return;
     if (!this._acquireLock()) {
-      console.log('[vault] another Vault on this machine is running the download queue; leaving it to that one');
+      // Try again later: when the other window closes, this one carries on.
+      if (!this._retry) {
+        console.log('[vault] another Vault on this machine is running the download queue; leaving it to that one');
+        this._retry = setTimeout(() => { this._retry = null; this.run().catch(() => {}); }, 60000);
+        if (this._retry.unref) this._retry.unref();
+      }
       return;
     }
     this._running = true;

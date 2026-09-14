@@ -85,6 +85,9 @@ class ArkServer {
     this.messages = new Store(path.join(this.dataDir, 'messages.json'), {
       channels: { general: [] },
     });
+
+    // One household calendar, shared by everyone on the network.
+    this.calendar = new Store(path.join(this.dataDir, 'calendar.json'), { events: [] });
   }
 
   async init() {
@@ -546,6 +549,20 @@ class ArkServer {
           label: String(body.label || '').slice(0, 80),
           colour: body.colour || '#f85149',
         };
+      } else if (body.type === 'route') {
+        // A planned route: named nodes in order, with the leg figures kept
+        // so the plan reads the same on a machine without the map maths.
+        const points = Array.isArray(body.points) ? body.points.filter((p) => Array.isArray(p) && p.length === 2) : [];
+        if (points.length < 2) return this.json(res, 400, { error: 'A route needs at least two nodes' });
+        stroke = {
+          id, type: 'route',
+          name: String(body.name || '').slice(0, 80),
+          colour: body.colour || '#f85149',
+          width: Number(body.width) || 3,
+          points,
+          legs: Array.isArray(body.legs) ? body.legs.slice(0, points.length) : undefined,
+          length: Number.isFinite(body.length) ? Math.round(body.length) : undefined,
+        };
       } else {
         if (!Array.isArray(body.points) || body.points.length < 1) {
           return this.json(res, 400, { error: 'A stroke needs points' });
@@ -573,6 +590,46 @@ class ArkServer {
         for (const layer of d.layers) layer.strokes = layer.strokes.filter((s) => !ids.has(s.id));
       });
       return this.json(res, 200, { removed: ids.size });
+    }
+
+    // --- calendar ---------------------------------------------------------
+    // Events are plain dates with an optional repeat; the client works out
+    // which days they land on, along with the sun and moon for each day.
+    if (route === 'calendar' && method === 'GET') {
+      return this.json(res, 200, { events: this.calendar.get().events });
+    }
+
+    if (route === 'calendar' && method === 'POST') {
+      const body = await this.readBody(req);
+      const title = String(body.title || '').trim().slice(0, 120);
+      const date = String(body.date || '');
+      if (!title) return this.json(res, 400, { error: 'An event needs a title' });
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return this.json(res, 400, { error: 'Date must be YYYY-MM-DD' });
+      const repeats = ['none', 'weekly', 'monthly', 'yearly'];
+      const event = {
+        id: `e${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+        title,
+        date,
+        time: /^\d{2}:\d{2}$/.test(String(body.time || '')) ? body.time : '',
+        repeat: repeats.includes(body.repeat) ? body.repeat : 'none',
+        notes: String(body.notes || '').trim().slice(0, 2000),
+        colour: /^#[0-9a-f]{6}$/i.test(String(body.colour || '')) ? body.colour : '',
+        by: String(body.by || '').slice(0, 60),
+        created: new Date().toISOString(),
+      };
+      this.calendar.update((d) => { d.events.push(event); });
+      return this.json(res, 200, { event });
+    }
+
+    if (route.startsWith('calendar/') && method === 'DELETE') {
+      const id = route.slice('calendar/'.length);
+      let removed = 0;
+      this.calendar.update((d) => {
+        const before = d.events.length;
+        d.events = d.events.filter((e) => e.id !== id);
+        removed = before - d.events.length;
+      });
+      return this.json(res, removed ? 200 : 404, removed ? { removed } : { error: 'No such event' });
     }
 
     // --- outpost comms ----------------------------------------------------
