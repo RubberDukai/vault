@@ -61,6 +61,18 @@ class UnifiedSearch {
       }
     }
 
+    for (const recipe of content.recipes || []) {
+      this._add({
+        kind: 'recipe',
+        id: recipe.id,
+        title: recipe.title,
+        context: 'Recipes',
+        summary: recipe.summary,
+        href: `#/notebook?tab=recipes&open=${recipe.id}`,
+        text: `${recipe.title} ${recipe.summary} recipe ${recipe.plain}`,
+      });
+    }
+
     for (const lang of content.languages) {
       if (lang.guide) {
         this._add({

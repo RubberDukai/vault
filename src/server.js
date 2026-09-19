@@ -19,6 +19,8 @@ const catalog = require('./library/catalog');
 const downloads = require('./library/download');
 const { ContentLibrary } = require('./content/loader');
 const { MapManager } = require('./maps/manager');
+const { Elevation } = require('./maps/terrain');
+const { MediaLibrary } = require('./media');
 const { DocumentManager } = require('./docs/manager');
 const { PackCatalog } = require('./library/packs');
 const markdown = require('./content/markdown');
@@ -55,6 +57,8 @@ class ArkServer {
 
     this.library = new LibraryManager(this.libraryDir, path.join(this.dataDir, 'title-index'));
     this.maps = new MapManager(options.mapsDir || path.join(this.libraryDir, 'maps'));
+    this.elevation = new Elevation(this.maps);
+    this.media = new MediaLibrary(options.mediaDir || path.join(this.libraryDir, 'media'));
     this.documents = new DocumentManager(
       options.docsDir || path.join(this.libraryDir, 'docs'),
       path.join(this.dataDir, 'docs-cache')
@@ -88,6 +92,10 @@ class ArkServer {
 
     // One household calendar, shared by everyone on the network.
     this.calendar = new Store(path.join(this.dataDir, 'calendar.json'), { events: [] });
+
+    // Notebooks: journal pages, recipes and lists, per person, with a flag
+    // to share a page with the household.
+    this.notebook = new Store(path.join(this.dataDir, 'notebook.json'), { notes: [] });
   }
 
   async init() {
@@ -222,6 +230,7 @@ class ArkServer {
     if (pathname.startsWith('/z/')) return this.handleZim(req, res, pathname);
     if (pathname.startsWith('/tile/')) return this.handleTile(req, res, pathname);
     if (pathname.startsWith('/doc/')) return this.handleDoc(req, res, pathname);
+    if (pathname.startsWith('/media/')) return this.media.serve(req, res, pathname.slice('/media/'.length));
     return this.handleStatic(req, res, pathname);
   }
 
@@ -511,6 +520,23 @@ class ArkServer {
       return this.json(res, 200, { packs: this.maps.list() });
     }
 
+    // --- terrain ----------------------------------------------------------
+    // Heights come from terrain packs (Setup → Satellite & terrain). With
+    // none installed for the area the answer is null, never a guess.
+    if (route === 'elevation' && method === 'GET') {
+      const lat = Number(q.get('lat'));
+      const lon = Number(q.get('lon'));
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) return this.json(res, 400, { error: 'lat and lon are needed' });
+      return this.json(res, 200, { elevation: await this.elevation.at(lon, lat) });
+    }
+
+    if (route === 'elevation/profile' && method === 'POST') {
+      const body = await this.readBody(req);
+      const points = Array.isArray(body.points) ? body.points.filter((p) => Array.isArray(p) && Number.isFinite(p[0]) && Number.isFinite(p[1])).slice(0, 500) : [];
+      if (points.length < 1) return this.json(res, 400, { error: 'A profile needs points' });
+      return this.json(res, 200, await this.elevation.profile(points));
+    }
+
     // --- map annotations --------------------------------------------------
     // Drawings are stored as longitude/latitude, not screen pixels, so they
     // stay put at every zoom level and on every device.
@@ -630,6 +656,58 @@ class ArkServer {
         removed = before - d.events.length;
       });
       return this.json(res, removed ? 200 : 404, removed ? { removed } : { error: 'No such event' });
+    }
+
+    // --- notebook ---------------------------------------------------------
+    if (route === 'notebook' && method === 'GET') {
+      const profileId = q.get('profile') || 'default';
+      const notes = this.notebook.get().notes.filter((n) => n.profile === profileId || n.shared);
+      return this.json(res, 200, {
+        notes,
+        recipes: (this.content.recipes || []).map(({ body, plain, ...rest }) => ({ ...rest, html: markdown.render(body) })),
+      });
+    }
+
+    if (route === 'notebook' && method === 'POST') {
+      const body = await this.readBody(req);
+      const kinds = ['note', 'recipe', 'list'];
+      const now = new Date().toISOString();
+      let saved = null;
+      this.notebook.update((d) => {
+        const existing = body.id ? d.notes.find((n) => n.id === body.id) : null;
+        const note = existing || {
+          id: `n${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+          profile: String(body.profile || 'default'),
+          created: now,
+        };
+        note.kind = kinds.includes(body.kind) ? body.kind : (note.kind || 'note');
+        note.title = String(body.title ?? note.title ?? '').slice(0, 200);
+        note.body = String(body.body ?? note.body ?? '').slice(0, 200000);
+        note.items = Array.isArray(body.items)
+          ? body.items.slice(0, 500).map((i) => ({ text: String(i.text || '').slice(0, 500), done: Boolean(i.done) }))
+          : (note.items || []);
+        note.shared = Boolean(body.shared ?? note.shared);
+        note.updated = now;
+        if (!existing) d.notes.push(note);
+        saved = note;
+      });
+      return this.json(res, 200, { note: saved });
+    }
+
+    if (route.startsWith('notebook/') && method === 'DELETE') {
+      const id = route.slice('notebook/'.length);
+      let removed = 0;
+      this.notebook.update((d) => {
+        const before = d.notes.length;
+        d.notes = d.notes.filter((n) => n.id !== id);
+        removed = before - d.notes.length;
+      });
+      return this.json(res, removed ? 200 : 404, removed ? { removed } : { error: 'No such page' });
+    }
+
+    // --- media ------------------------------------------------------------
+    if (route === 'media' && method === 'GET') {
+      return this.json(res, 200, { files: await this.media.list(), dir: this.media.dir });
     }
 
     // --- outpost comms ----------------------------------------------------

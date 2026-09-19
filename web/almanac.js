@@ -150,3 +150,28 @@ function formatDuration(minutes) {
 }
 
 window.vaultAlmanac = { sunTimes, sunPosition, moonPhase, compassPoint, formatTime, formatDuration };
+
+/**
+ * Where the sun is directly overhead at this instant: latitude is the
+ * declination, longitude follows from the time of day. Everything about
+ * day and night on the globe comes from this one point.
+ */
+function subsolarPoint(date) {
+  const { declination, eqTime } = solarBasis(date);
+  const utcMinutes = date.getUTCHours() * 60 + date.getUTCMinutes() + date.getUTCSeconds() / 60;
+  let lon = (720 - eqTime - utcMinutes) / 4;
+  while (lon > 180) lon -= 360;
+  while (lon < -180) lon += 360;
+  return { lat: declination, lon };
+}
+
+/** Sun altitude in degrees at a position, straight from the subsolar point. */
+function sunAltitudeFrom(sub, lat, lon) {
+  const h = (lon - sub.lon) * RAD;
+  const s = Math.sin(lat * RAD) * Math.sin(sub.lat * RAD)
+    + Math.cos(lat * RAD) * Math.cos(sub.lat * RAD) * Math.cos(h);
+  return Math.asin(Math.max(-1, Math.min(1, s))) * DEG;
+}
+
+window.vaultAlmanac.subsolarPoint = subsolarPoint;
+window.vaultAlmanac.sunAltitudeFrom = sunAltitudeFrom;

@@ -37,6 +37,29 @@ function applyAppearance() {
   }
 }
 
+/**
+ * Scanlines for the retro terminal, drawn so the pattern is consistent
+ * across the whole screen: one dark device pixel, then clear ones, as an
+ * image sized to a whole number of device pixels. Re-done when the zoom
+ * level (and so the device pixel ratio) changes.
+ */
+function alignScanlines() {
+  const dpr = window.devicePixelRatio || 1;
+  const period = dpr >= 2 ? 4 : 3; // device pixels per line
+  const canvas = document.createElement('canvas');
+  canvas.width = 1;
+  canvas.height = period;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, 1, period);
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+  ctx.fillRect(0, 0, 1, 1);
+  const root = document.documentElement.style;
+  root.setProperty('--scanlines', `url(${canvas.toDataURL()})`);
+  root.setProperty('--scanline-size', `1px ${period / dpr}px`);
+}
+alignScanlines();
+window.addEventListener('resize', alignScanlines);
+
 themeSelect.onchange = () => {
   localStorage.setItem('vault.theme', themeSelect.value);
   applyAppearance();
@@ -113,6 +136,11 @@ const routes = [
   [/^\/search$/, renderSearch],
   [/^\/calendar$/, () => window.renderCalendar()],
   [/^\/tools$/, () => window.renderTools()],
+  [/^\/music$/, () => window.renderMusic()],
+  [/^\/science$/, (p) => window.renderScience(p)],
+  [/^\/notebook$/, () => window.renderNotebook()],
+  [/^\/media$/, (p) => window.renderMedia(p)],
+  [/^\/games$/, (p) => window.renderGames(p)],
 ];
 
 // Each section remembers where you were. Leave the Library on an article,
@@ -126,8 +154,28 @@ try { lastRoute = JSON.parse(localStorage.getItem('vault.lastRoute') || '{}'); }
 const SECTION_ROOT = {
   library: '#/library', handbook: '#/handbook', maps: '#/maps', calendar: '#/calendar',
   comms: '#/comms', languages: '#/languages', school: '#/school', tools: '#/tools',
-  manual: '#/manual', setup: '#/setup',
+  manual: '#/manual', setup: '#/setup', music: '#/music', science: '#/science',
+  notebook: '#/notebook', media: '#/media', games: '#/games',
 };
+
+// The three folders in the sidebar fold and unfold; remembered per browser.
+let foldedGroups = [];
+try { foldedGroups = JSON.parse(localStorage.getItem('vault.navFolded') || '[]'); } catch { foldedGroups = []; }
+for (const group of tabs.querySelectorAll('.nav-group')) {
+  const name = group.dataset.group;
+  const heading = group.querySelector('.nav-heading');
+  const apply = () => {
+    const folded = foldedGroups.includes(name);
+    group.classList.toggle('folded', folded);
+    heading.setAttribute('aria-expanded', String(!folded));
+  };
+  heading.onclick = () => {
+    foldedGroups = foldedGroups.includes(name) ? foldedGroups.filter((g) => g !== name) : [...foldedGroups, name];
+    try { localStorage.setItem('vault.navFolded', JSON.stringify(foldedGroups)); } catch { /* fine */ }
+    apply();
+  };
+  apply();
+}
 
 function rememberRoute(hash) {
   for (const link of tabs.querySelectorAll('a')) {
@@ -164,7 +212,12 @@ async function route() {
   repointNav(hash);
 
   // Wide pages get the whole screen; prose keeps its own measure.
-  view.classList.toggle('wide', /^#\/(maps|read|doc|calendar|setup|tools)/.test(hash));
+  view.classList.toggle('wide', /^#\/(maps|read|doc|calendar|setup|tools|music|science|media|games|notebook)/.test(hash));
+
+  // A section in a folded folder still shows where you are: unfold it.
+  const activeLink = [...tabs.querySelectorAll('a')].find((a) => new RegExp(a.dataset.match).test(hash));
+  const group = activeLink && activeLink.closest('.nav-group');
+  if (group && group.classList.contains('folded')) group.querySelector('.nav-heading').click();
 
   for (const [pattern, handler] of routes) {
     const match = pathname.match(pattern);
@@ -204,15 +257,23 @@ collapseBtn.onclick = () => {
 // ------------------------------------------------------------------- home
 
 const FEATURES = [
-  ['Library', '#/library', 'Your encyclopedia packs. Every one records the day it was cloned, and tells you when a fresher copy exists.'],
+  ['Knowledge', null, null],
+  ['Library', '#/library', 'Your encyclopedia packs and books. Every one records the day it was cloned, and tells you when a fresher copy exists.'],
   ['Handbook', '#/handbook', 'Water, fire, medicine, food, power, shelter, comms, community, repair. Written to be read before you need it.'],
-  ['Maps', '#/maps', 'Offline maps you can draw on. Mark routes, hazards and what you found where — the world changes, your map should too.'],
-  ['Comms', '#/comms', 'Message anyone else on this network. No internet, no accounts, no company in the middle.'],
-  ['Languages', '#/languages', 'Spaced repetition that shows you a card just before you would have forgotten it.'],
+  ['Languages', '#/languages', 'Spaced repetition that shows you a card just before you would have forgotten it. Japanese to N5, Spanish to A1.'],
   ['School', '#/school', 'A curriculum that needs no teacher, server or signal. Progress tracked per person.'],
-  ['Manual', '#/manual', 'How all of this works and how it was built — so you can keep it running, or rebuild it.'],
+  ['Music', '#/music', 'A piano you can play from the keyboard, a metronome and tuning pitches. So the music does not stop.'],
+  ['Science', '#/science', 'The periodic table, and the night sky for any place, date and hour — stars, planets and the moon, computed on the spot.'],
+  ['Life', null, null],
   ['Calendar', '#/calendar', 'Shared dates for the household — plus sunrise, sunset and the moon for every day, worked out on the spot.'],
-  ['Tools', '#/tools', 'A piano, a metronome, a tuner and a unit converter. Small things people miss.'],
+  ['Comms', '#/comms', 'Message anyone else on this network. No internet, no accounts, no company in the middle.'],
+  ['Maps', '#/maps', 'Offline maps you can draw on. Measure, plan routes, mark hazards and what you found where — the world changes, your map should too.'],
+  ['Notebook', '#/notebook', 'Journal, recipes and lists, per person. Written here, kept here.'],
+  ['Media', '#/media', 'Your own music, photos and films, played from a folder. Nothing streams.'],
+  ['Games', '#/games', 'Chess and draughts for two, or against the machine. Evenings are long.'],
+  ['System', null, null],
+  ['Tools', '#/tools', 'Calculator, unit converter, timer and stopwatch, Morse trainer.'],
+  ['Manual', '#/manual', 'How all of this works and how it was built — so you can keep it running, or rebuild it.'],
   ['Setup', '#/setup', 'Choose what to download while you still have a connection — everything in one click, or pick and choose. The one page that needs the internet.'],
 ];
 
@@ -267,11 +328,11 @@ async function renderHome() {
 
     <h2>What's in here</h2>
     <div class="feature-list">
-      ${FEATURES.map(([name, href, desc]) => `
+      ${FEATURES.map(([name, href, desc]) => (href ? `
         <a class="feature" href="${href}">
           <span class="feature-name">${esc(name)}</span>
           <span class="feature-desc">${esc(desc)}</span>
-        </a>`).join('')}
+        </a>` : `<h3 class="feature-group">${esc(name)}</h3>`)).join('')}
     </div>
 
     <h2>Getting your bearings</h2>
@@ -940,7 +1001,9 @@ async function renderMaps() {
   const { packs, categories, mapsDir } = await api('maps');
 
   const vectorPacks = packs.filter((p) => p.ok !== false && p.kind === 'vector');
-  const rasterPacks = packs.filter((p) => p.ok !== false && p.kind === 'raster');
+  const rasterPacks = packs.filter((p) => p.ok !== false && p.kind === 'raster' && !p.baselayer);
+  const satellitePacks = packs.filter((p) => p.ok !== false && p.kind === 'raster' && p.baselayer);
+  const terrainPacks = packs.filter((p) => p.ok !== false && p.kind === 'terrain');
 
   view.innerHTML = `
     <div class="row-between" style="margin-bottom:12px">
@@ -963,6 +1026,22 @@ async function renderMaps() {
         ${vectorPacks.length ? `<select id="map-base" class="map-select">
           ${vectorPacks.map((p) => `<option value="${esc(p.id)}">${esc(p.title)} · ${esc(p.sizeHuman)}</option>`).join('')}
         </select>` : '<p class="faint">None installed.</p>'}
+
+        <h3 style="margin-top:16px">Satellite</h3>
+        ${satellitePacks.length ? `<select id="map-satellite" class="map-select">
+          <option value="">Off — the drawn map</option>
+          ${satellitePacks.map((p) => `<option value="${esc(p.id)}">${esc(p.title)} · ${esc(p.sizeHuman)}</option>`).join('')}
+        </select>
+        <p class="faint" style="margin:6px 0 0">Roads, boundaries and names stay drawn over the photograph.</p>`
+        : '<p class="faint" style="margin:0">No imagery installed. Setup → Satellite &amp; terrain.</p>'}
+
+        <h3 style="margin-top:16px">Terrain</h3>
+        ${terrainPacks.length ? `<label class="checkbox-row">
+          <input type="checkbox" id="map-hillshade">
+          <span>Hill shading</span>
+        </label>
+        <p class="faint" style="margin:6px 0 0">${esc(terrainPacks.map((p) => p.title).join(', '))} installed. Route plans get their climb from it.</p>`
+        : '<p class="faint" style="margin:0">No heights installed, so routes cannot say how much climb there is. Setup → Satellite &amp; terrain.</p>'}
 
         ${rasterPacks.length ? `<h3 style="margin-top:16px">Overlays</h3>
           ${rasterPacks.map((p) => `
@@ -1035,7 +1114,16 @@ async function renderMaps() {
           <h3 style="margin:0">Almanac</h3>
           <input type="date" id="almanac-date" class="map-select" style="width:auto;padding:4px 8px;font-size:13px">
         </div>
-        <p class="faint" style="margin:6px 0 10px">For the centre of the map. Computed, not looked up — it works with no data at all.</p>
+        <p class="faint" style="margin:6px 0 8px">For the centre of the map. Computed, not looked up — it works with no data at all.</p>
+        <div class="row" style="gap:8px;align-items:center;margin-bottom:6px">
+          <input type="range" id="almanac-time" min="0" max="1439" step="5" style="flex:1" title="Time of day">
+          <span class="mono" id="almanac-time-label" style="min-width:3.2rem">12:00</span>
+          <button class="btn btn-sm" id="almanac-now">Now</button>
+        </div>
+        <label class="checkbox-row" style="font-size:13px;margin-bottom:8px">
+          <input type="checkbox" id="almanac-night" checked>
+          <span>Shade the night side of the world at this time</span>
+        </label>
         <div id="almanac-body" class="almanac"></div>
       </div>
     </div>
@@ -1064,6 +1152,7 @@ async function renderMaps() {
     lon: savedView?.lon, lat: savedView?.lat, zoom: savedView?.zoom,
     style: savedView?.style === 'dark' ? 'dark' : 'paper',
   });
+  MAP.setRasterInfo(packs.filter((p) => p.ok !== false));
   window.vaultMap = MAP; // handy when debugging from the console
 
   let saveTimer = null;
@@ -1075,6 +1164,8 @@ async function renderMaps() {
           lon: MAP.centre.lon, lat: MAP.centre.lat, zoom: MAP.zoom, style: MAP.styleName,
           base: document.getElementById('map-base')?.value || null,
           overlays: [...view.querySelectorAll('.map-overlay:checked')].map((b) => b.value),
+          satellite: document.getElementById('map-satellite')?.value || '',
+          hillshade: Boolean(document.getElementById('map-hillshade')?.checked),
         }));
       } catch { /* storage full or blocked: not worth a fuss */ }
     }, 400);
@@ -1113,6 +1204,20 @@ async function renderMaps() {
     styleBtn.textContent = next === 'paper' ? 'Dark' : 'Paper';
     saveView();
   };
+
+  const satelliteSelect = document.getElementById('map-satellite');
+  if (satelliteSelect) {
+    if (savedView?.satellite && satellitePacks.some((p) => p.id === savedView.satellite)) satelliteSelect.value = savedView.satellite;
+    satelliteSelect.onchange = () => { MAP.setBaseRaster(satelliteSelect.value); saveView(); };
+    if (satelliteSelect.value) MAP.setBaseRaster(satelliteSelect.value);
+  }
+  const hillshadeBox = document.getElementById('map-hillshade');
+  if (hillshadeBox) {
+    const best = terrainPacks.slice().sort((a, b) => (b.maxZoom || 0) - (a.maxZoom || 0))[0];
+    hillshadeBox.checked = savedView?.hillshade !== false; // on by default once a pack exists
+    hillshadeBox.onchange = () => { MAP.setHillshade(hillshadeBox.checked ? best.id : null); saveView(); };
+    if (hillshadeBox.checked) MAP.setHillshade(best.id);
+  }
 
   const overlayBoxes = [...view.querySelectorAll('.map-overlay')];
   const syncOverlays = () => {
@@ -1179,6 +1284,18 @@ function setUpAlmanac() {
 
   const today = new Date();
   dateInput.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const timeInput = document.getElementById('almanac-time');
+  const timeLabel = document.getElementById('almanac-time-label');
+  const nightBox = document.getElementById('almanac-night');
+  timeInput.value = today.getHours() * 60 + today.getMinutes();
+  let followClock = true; // until the slider is touched, the time is now
+
+  const chosenInstant = () => {
+    const [y, m, d] = dateInput.value.split('-').map(Number);
+    if (!y) return new Date();
+    const minutes = Number(timeInput.value);
+    return new Date(y, m - 1, d, Math.floor(minutes / 60), minutes % 60);
+  };
 
   const paint = () => {
     const [y, m, d] = dateInput.value.split('-').map(Number);
@@ -1188,9 +1305,14 @@ function setUpAlmanac() {
     const sun = A.sunTimes(date, lat, lon);
     const moon = A.moonPhase(date);
 
+    const at = chosenInstant();
+    timeLabel.textContent = `${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}`;
+    const pos = A.sunPosition(at, lat, lon);
     const isToday = date.toDateString() === new Date().toDateString();
-    const now = new Date();
-    const pos = isToday ? A.sunPosition(now, lat, lon) : null;
+
+    MAP.sunTime = at;
+    MAP.showNight = nightBox.checked;
+    MAP.draw();
 
     const row = (label, value) => `<div class="almanac-row"><span class="faint">${label}</span><span class="mono">${value}</span></div>`;
 
@@ -1202,9 +1324,9 @@ function setUpAlmanac() {
       ${row('Sunset', A.formatTime(sun.sunset))}
       ${row('Last light', A.formatTime(sun.dusk))}
       ${row('Day length', A.formatDuration(sun.dayLengthMinutes))}
-      ${pos ? row('Sun now', pos.altitude > 0
-        ? `${pos.azimuth.toFixed(0)}° ${A.compassPoint(pos.azimuth)} · ${pos.altitude.toFixed(0)}° up`
-        : 'below the horizon') : ''}
+      ${row(isToday && followClock ? 'Sun now' : `Sun at ${timeLabel.textContent}`, pos.altitude > 0
+        ? `${pos.azimuth.toFixed(0)}° ${A.compassPoint(pos.azimuth)} · ${pos.altitude.toFixed(0)}° up · shadow ${pos.altitude > 2 ? (1 / Math.tan(pos.altitude * Math.PI / 180)).toFixed(1) + '× your height' : 'very long'}`
+        : `below the horizon (${(-pos.altitude).toFixed(0)}° under)`)}
       ${row('Moon', `${moon.glyph} ${moon.name} · ${Math.round(moon.illumination * 100)}% lit`)}
       ${row('Next full moon', moon.nextFull.toLocaleDateString())}
       <p class="faint" style="margin:10px 0 0">${lat.toFixed(3)}, ${lon.toFixed(3)} · local time. First and last light are civil twilight — enough to work by without a lamp.</p>
@@ -1212,6 +1334,20 @@ function setUpAlmanac() {
   };
 
   dateInput.onchange = paint;
+  timeInput.oninput = () => { followClock = false; paint(); };
+  nightBox.onchange = paint;
+  document.getElementById('almanac-now').onclick = () => {
+    const now = new Date();
+    dateInput.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    timeInput.value = now.getHours() * 60 + now.getMinutes();
+    followClock = true;
+    paint();
+  };
+  // While following the clock, keep the shadow moving.
+  const clock = setInterval(() => {
+    if (!document.getElementById('almanac-time')) { clearInterval(clock); return; }
+    if (followClock) { const now = new Date(); timeInput.value = now.getHours() * 60 + now.getMinutes(); paint(); }
+  }, 60000);
   const previous = MAP.onHover;
   // Recompute when the map is moved: cheap, and the panel follows the view.
   let lastCentre = '';
@@ -1322,12 +1458,13 @@ async function setUpAnnotations() {
         <tbody>${rows || '<tr><td colspan="3" class="faint">One node so far.</td></tr>'}</tbody>
       </table>
       <div class="almanac-row"><span class="faint">Total</span><span class="mono">${G.formatDistance(plan.length)}${plan.length > 500 ? ` · about ${window.vaultAlmanac ? window.vaultAlmanac.formatDuration(Math.round(walking * 60)) : Math.round(walking * 60) + ' min'} walking` : ''}</span></div>
-      <div class="almanac-row"><span class="faint">Elevation gain</span><span class="mono faint" title="Needs a terrain pack. Not installed.">no terrain data</span></div>
+      <div id="route-elevation"><div class="almanac-row"><span class="faint">Climb</span><span class="mono faint">…</span></div></div>
       <div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">
         <button class="btn btn-sm" id="route-undo" ${plan.points.length ? '' : 'disabled'}>Undo node</button>
         <button class="btn btn-sm" id="route-clear">Clear</button>
         <button class="btn btn-sm btn-primary" id="route-save" ${plan.points.length > 1 ? '' : 'disabled'}>Save route</button>
       </div>`;
+    paintElevation(plan);
     document.getElementById('route-undo').onclick = () => MAP.undoRouteNode();
     document.getElementById('route-clear').onclick = () => MAP.clearRoute();
     document.getElementById('route-save').onclick = async () => {
@@ -1350,6 +1487,74 @@ async function setUpAnnotations() {
     };
   };
   MAP.onRoute = paintRoute;
+
+  // Ask the server for heights along the route, if any terrain pack covers it.
+  let elevationSeq = 0;
+  const paintElevation = async (plan) => {
+    const box = document.getElementById('route-elevation');
+    if (!box) return;
+    if (plan.points.length < 2) { box.innerHTML = ''; return; }
+    const seq = ++elevationSeq;
+    let profile;
+    try {
+      profile = await api('elevation/profile', { method: 'POST', body: { points: plan.points } });
+    } catch {
+      profile = null;
+    }
+    if (seq !== elevationSeq || !document.getElementById('route-elevation')) return;
+    if (!profile || !profile.coverage) {
+      box.innerHTML = '<div class="almanac-row"><span class="faint">Climb</span><span class="mono faint" title="No terrain pack covers this route. Setup → Satellite &amp; terrain.">no heights here</span></div>';
+      return;
+    }
+    const partial = profile.coverage < 0.98 ? ` <span class="faint">(${Math.round(profile.coverage * 100)}% covered)</span>` : '';
+    box.innerHTML = `
+      <div class="almanac-row"><span class="faint">Climb</span><span class="mono">+${profile.gain} m · −${profile.loss} m${partial}</span></div>
+      <div class="almanac-row"><span class="faint">Highest · lowest</span><span class="mono">${profile.highest} m · ${profile.lowest} m</span></div>
+      <canvas class="route-profile" id="route-profile" width="300" height="70"></canvas>`;
+    drawProfile(document.getElementById('route-profile'), profile);
+    // Naismith: add an hour for every 600 m of climb.
+    const total = document.querySelector('#route-panel .almanac-row .mono');
+    if (total && profile.gain) total.insertAdjacentHTML('beforeend', ` <span class="faint">+${Math.round(profile.gain / 10)} min for the climb</span>`);
+  };
+
+  const drawProfile = (canvas, profile) => {
+    const ratio = window.devicePixelRatio || 1;
+    const cssW = canvas.clientWidth || 300;
+    const cssH = 70;
+    canvas.width = cssW * ratio; canvas.height = cssH * ratio;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(ratio, ratio);
+    const pts = profile.samples.filter((p) => p.metres !== null);
+    if (pts.length < 2) return;
+    const maxD = profile.samples[profile.samples.length - 1].distance || 1;
+    const lo = profile.lowest;
+    const hi = Math.max(profile.highest, lo + 10);
+    const x = (d) => 4 + (d / maxD) * (cssW - 8);
+    const y = (m) => cssH - 14 - ((m - lo) / (hi - lo)) * (cssH - 24);
+    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#e3b341';
+    const faint = getComputedStyle(document.documentElement).getPropertyValue('--text-faint').trim() || '#888';
+    ctx.beginPath();
+    ctx.moveTo(x(pts[0].distance), cssH - 14);
+    for (const p of pts) ctx.lineTo(x(p.distance), y(p.metres));
+    ctx.lineTo(x(pts[pts.length - 1].distance), cssH - 14);
+    ctx.closePath();
+    ctx.fillStyle = accent; ctx.globalAlpha = 0.18; ctx.fill(); ctx.globalAlpha = 1;
+    ctx.beginPath();
+    for (const p of pts) ctx.lineTo(x(p.distance), y(p.metres));
+    ctx.strokeStyle = accent; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = faint;
+    ctx.font = '10px system-ui, sans-serif';
+    for (const p of profile.samples) {
+      if (p.node === null || p.metres === null) continue;
+      ctx.beginPath(); ctx.arc(x(p.distance), y(p.metres), 2.5, 0, Math.PI * 2); ctx.fillStyle = accent; ctx.fill();
+      ctx.fillStyle = faint;
+      ctx.fillText(String(p.node + 1), x(p.distance) - 3, cssH - 3);
+    }
+    ctx.textAlign = 'right';
+    ctx.fillText(`${hi} m`, cssW - 2, 10);
+    ctx.fillText(`${lo} m`, cssW - 2, cssH - 16);
+  };
+
   selectTool('pan');
 
   document.addEventListener('keydown', (e) => {
@@ -1398,16 +1603,72 @@ async function setUpAnnotations() {
     };
   }
 
+  // Which layers are unfolded to show their marks; per browser.
+  let openLayers = new Set();
+  try { openLayers = new Set(JSON.parse(localStorage.getItem('vault.openLayers') || '[]')); } catch { openLayers = new Set(); }
+
+  const describeMark = (mark) => {
+    if (mark.type === 'pin') return { glyph: '⌖', text: mark.label || 'Pin', sub: '' };
+    if (mark.type === 'route') return { glyph: '↝', text: mark.name || 'Route', sub: `${mark.points.length} nodes · ${window.vaultGeo.formatDistance(mark.length || 0)}` };
+    return { glyph: '〰', text: 'Line', sub: mark.length ? window.vaultGeo.formatDistance(mark.length) : `${mark.points.length} points` };
+  };
+
   const paintLayers = () => {
     layerList.innerHTML = layers.map((layer) => `
       <div class="layer-row">
-        <input type="checkbox" class="layer-visible" data-id="${esc(layer.id)}" ${layer.visible ? 'checked' : ''}>
+        <input type="checkbox" class="layer-visible" data-id="${esc(layer.id)}" ${layer.visible ? 'checked' : ''} title="Show this layer">
         <input type="radio" name="active-layer" class="layer-active" data-id="${esc(layer.id)}"
           ${layer.id === MAP.activeLayerId ? 'checked' : ''} title="Draw into this layer">
-        <span class="layer-name">${esc(layer.name)}</span>
+        <button class="layer-name layer-toggle" data-id="${esc(layer.id)}" title="Show what is in this layer">${openLayers.has(layer.id) ? '▾' : '▸'} ${esc(layer.name)}</button>
         <span class="faint">${layer.strokes.length}</span>
         ${layers.length > 1 ? `<button class="btn btn-sm layer-delete" data-id="${esc(layer.id)}" title="Delete layer">×</button>` : ''}
-      </div>`).join('');
+      </div>
+      ${openLayers.has(layer.id) ? `<div class="mark-list">
+        ${layer.strokes.length ? layer.strokes.map((mark) => {
+          const d = describeMark(mark);
+          return `<div class="mark-row">
+            <span class="mark-glyph" style="color:${esc(mark.colour || '#f85149')}">${d.glyph}</span>
+            <span class="mark-text">${esc(d.text)}${d.sub ? ` <span class="faint">${esc(d.sub)}</span>` : ''}</span>
+            <button class="btn btn-sm mark-goto" data-id="${esc(mark.id)}" title="Centre the map on it">→</button>
+            <button class="btn btn-sm mark-delete" data-id="${esc(mark.id)}" title="Delete this mark">×</button>
+          </div>`;
+        }).join('') : '<p class="faint" style="margin:2px 0 6px 10px">Nothing drawn in this layer yet.</p>'}
+      </div>` : ''}`).join('');
+
+    for (const button of layerList.querySelectorAll('.layer-toggle')) {
+      button.onclick = () => {
+        if (openLayers.has(button.dataset.id)) openLayers.delete(button.dataset.id); else openLayers.add(button.dataset.id);
+        try { localStorage.setItem('vault.openLayers', JSON.stringify([...openLayers])); } catch { /* fine */ }
+        paintLayers();
+      };
+    }
+    const findMark = (id) => {
+      for (const layer of layers) { const m = layer.strokes.find((s) => s.id === id); if (m) return { layer, mark: m }; }
+      return null;
+    };
+    for (const button of layerList.querySelectorAll('.mark-goto')) {
+      button.onclick = () => {
+        const found = findMark(button.dataset.id);
+        if (!found) return;
+        const { mark } = found;
+        if (mark.type === 'pin') { MAP.goTo(mark.lon, mark.lat, Math.max(MAP.zoom, 13)); return; }
+        const lons = mark.points.map((p) => p[0]);
+        const lats = mark.points.map((p) => p[1]);
+        MAP.fitBounds([Math.min(...lons), Math.min(...lats), Math.max(...lons), Math.max(...lats)]);
+      };
+    }
+    for (const button of layerList.querySelectorAll('.mark-delete')) {
+      button.onclick = async () => {
+        const found = findMark(button.dataset.id);
+        if (!found) return;
+        const d = describeMark(found.mark);
+        if (!confirm(`Delete ${d.text}${d.sub ? ' (' + d.sub + ')' : ''}?`)) return;
+        await api('maps/annotations/strokes/delete', { method: 'POST', body: { strokeIds: [found.mark.id] } });
+        found.layer.strokes = found.layer.strokes.filter((s) => s.id !== found.mark.id);
+        MAP.setAnnotations(layers);
+        paintLayers();
+      };
+    }
 
     for (const box of layerList.querySelectorAll('.layer-visible')) {
       box.onchange = () => {

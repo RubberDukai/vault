@@ -289,6 +289,31 @@ class PMTiles {
     return null;
   }
 
+  /**
+   * Where a tile's bytes live in the archive, without reading them. Lets an
+   * extractor sort tiles by position and read big contiguous runs at once,
+   * which over HTTP is the difference between hours and minutes.
+   */
+  async locateTile(z, x, y) {
+    if (z < this.header.minZoom || z > this.header.maxZoom) return null;
+    const tileId = zxyToTileId(z, x, y);
+    let directory = this._rootDirectory;
+    for (let depth = 0; depth < 4; depth++) {
+      const entry = findEntry(directory, tileId);
+      if (!entry) return null;
+      if (entry.runLength > 0) {
+        return { offset: this.header.tileDataOffset + entry.offset, length: entry.length, compression: this.header.tileCompression };
+      }
+      directory = await this._leafDirectory(entry.offset, entry.length);
+    }
+    return null;
+  }
+
+  /** Read a byte range of the archive directly (for extraction). */
+  async readRange(offset, length) {
+    return this._read(offset, length);
+  }
+
   describe() {
     return {
       minZoom: this.header.minZoom,

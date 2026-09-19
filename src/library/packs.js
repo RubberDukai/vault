@@ -286,7 +286,7 @@ class PackCatalog {
         if (await present()) { lastError = null; break; } // someone else finished it
         const jobId = `${item.id}:${index}`;
         this.active = { id: item.id, fileIndex: index, jobId, filename: file.filename, attempt };
-        downloads.start({ url: file.url, destDir: dir, filename: file.filename, id: jobId });
+        downloads.start({ url: file.url, tileset: file.tileset, destDir: dir, filename: file.filename, id: jobId });
         const result = await downloads.wait(jobId);
         downloads.prune();
 

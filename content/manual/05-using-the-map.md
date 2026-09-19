@@ -45,10 +45,24 @@ that matters and the figure will be close enough to plan a day by.
 
 ### Elevation
 
-Routes show *no terrain data* against elevation gain. The map packs are
-roads, water, buildings and places; hills need a separate terrain pack,
-which the Vault does not yet ship. Until it does, read contour lines off a
-paper map.
+With a **Terrain** pack installed for the area (Setup → Satellite & terrain),
+a route shows its climb and descent, its highest and lowest points, a height
+profile with the nodes marked, and a Naismith allowance — an extra minute for
+every ten metres climbed. The same pack draws hill shading on the map (the
+tick-box under Terrain). Without one the panel says so plainly: *no heights
+here*. Heights are sampled about 150 m apart, so a sharp summit reads a little
+low and a narrow gully may not show at all.
+
+### Offline maps, satellite views
+
+The drawn map comes from a map pack. The online planet map works while there
+is a connection; **Setup → Maps (offline)** downloads the same map for a region
+into the vault so it keeps working without one — Britain and Ireland down to
+street level is about a gigabyte. Under **Satellite** on the map page a
+photographic layer can be put under the roads and names: the whole world at
+coarse scale from NASA, or a region in detail from Sentinel-2. Both are
+harvested tile by tile from public services when you ask for them, so they
+take a few minutes rather than a few seconds to arrive.
 
 ### Bearings
 

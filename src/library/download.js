@@ -14,6 +14,7 @@ const path = require('node:path');
 const http = require('node:http');
 const https = require('node:https');
 const { pipeline } = require('node:stream/promises');
+const tileset = require('./tileset');
 
 const jobs = new Map();
 
@@ -60,10 +61,11 @@ function jobState(job) {
     status: job.status,
     received: job.received,
     total: job.total,
-    receivedHuman: humanBytes(job.received),
-    totalHuman: humanBytes(job.total),
+    unit: job.tileset ? 'tiles' : 'bytes',
+    receivedHuman: job.tileset ? `${job.received.toLocaleString()} tiles` : humanBytes(job.received),
+    totalHuman: job.tileset ? `${job.total.toLocaleString()} tiles` : humanBytes(job.total),
     percent: job.total ? Math.round((job.received / job.total) * 1000) / 10 : 0,
-    rateHuman: rate ? `${humanBytes(rate)}/s` : null,
+    rateHuman: rate ? (job.tileset ? `${rate.toFixed(1)} tiles/s` : `${humanBytes(rate)}/s`) : null,
     etaSeconds: rate > 0 && remaining > 0 ? Math.round(remaining / rate) : null,
     error: job.error || null,
     startedAt: new Date(job.startedAt).toISOString(),
@@ -92,8 +94,8 @@ function cancel(id) {
  * for progress. The partial file is kept on failure so a retry picks up where
  * it left off.
  */
-function start({ url, destDir, filename, id }) {
-  const name = filename || url.split('/').pop();
+function start({ url, tileset: tilesetSpec, destDir, filename, id }) {
+  const name = filename || (url ? url.split('/').pop() : 'tiles.mbtiles');
   const jobId = id || name;
 
   const existing = jobs.get(jobId);
@@ -102,6 +104,7 @@ function start({ url, destDir, filename, id }) {
   const job = {
     id: jobId,
     url,
+    tileset: tilesetSpec || null,
     filename: name,
     destDir,
     destPath: path.join(destDir, name),
@@ -119,7 +122,8 @@ function start({ url, destDir, filename, id }) {
   // A promise the queue can wait on. Failure and cancellation both resolve
   // (with the final state) rather than reject, so a caller never has to
   // guard against an unhandled rejection from a job nobody is watching.
-  job.done = run(job).then(() => jobState(job)).catch((err) => {
+  const runner = tilesetSpec ? tileset.run(job) : run(job);
+  job.done = runner.then(() => jobState(job)).catch((err) => {
     if (job.status !== 'cancelled') {
       job.status = 'failed';
       job.error = err.message;

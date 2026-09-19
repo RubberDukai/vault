@@ -239,7 +239,7 @@ function describeDistance(date, today) {
   return `${-days} days ago.`;
 }
 
-// =================================================================== tools
+// =================================================================== audio
 
 let AUDIO = null;
 function ensureAudio() {
@@ -318,36 +318,19 @@ function beep(times = 3) {
   }
 }
 
-const UNITS = {
-  length: { base: 'metre', units: { mm: 0.001, cm: 0.01, m: 1, km: 1000, inch: 0.0254, foot: 0.3048, yard: 0.9144, mile: 1609.344, 'nautical mile': 1852 } },
-  mass: { base: 'kilogram', units: { g: 0.001, kg: 1, tonne: 1000, oz: 0.028349523, lb: 0.45359237, stone: 6.35029318 } },
-  volume: { base: 'litre', units: { ml: 0.001, litre: 1, tsp: 0.005, tbsp: 0.015, 'cup (metric)': 0.25, 'pint (UK)': 0.56826125, 'pint (US)': 0.473176473, 'gallon (UK)': 4.54609, 'gallon (US)': 3.785411784 } },
-  area: { base: 'square metre', units: { 'm²': 1, ha: 10000, 'km²': 1e6, 'ft²': 0.09290304, acre: 4046.8564224, 'sq mile': 2589988.11 } },
-  speed: { base: 'metre per second', units: { 'm/s': 1, 'km/h': 1 / 3.6, mph: 0.44704, knot: 0.514444 } },
-  temperature: { base: '°C', units: { '°C': null, '°F': null, K: null } },
-};
-
-function convertUnits(category, value, from, to) {
-  if (category === 'temperature') {
-    const c = from === '°C' ? value : from === '°F' ? (value - 32) * 5 / 9 : value - 273.15;
-    return to === '°C' ? c : to === '°F' ? c * 9 / 5 + 32 : c + 273.15;
-  }
-  const table = UNITS[category].units;
-  return (value * table[from]) / table[to];
+/** Anything on the page that should stop when the page changes registers here. */
+function pageCleanup() {
+  const fns = [];
+  window.addEventListener('hashchange', () => { for (const fn of fns) fn(); }, { once: true });
+  return (fn) => fns.push(fn);
 }
 
-const tidy = (n) => {
-  if (!Number.isFinite(n)) return '—';
-  const abs = Math.abs(n);
-  // Enough digits to keep small results meaningful: 1 mm in km is 0.000001, not 0.
-  const digits = abs >= 1000 ? 1 : abs >= 10 ? 2 : abs >= 1 ? 3 : Math.min(10, 3 - Math.floor(Math.log10(abs || 1)));
-  return Number(n.toFixed(digits)).toLocaleString(undefined, { maximumFractionDigits: digits });
-};
+// =================================================================== music
 
-async function renderTools() {
+async function renderMusic() {
   view.innerHTML = `
-    <h1 style="margin:0 0 4px">Tools</h1>
-    <p class="muted" style="margin:0 0 16px">Small things that are hard to do without when the phone is dead. All of them run in the page; none of them need a file.</p>
+    <h1 style="margin:0 0 4px">Music</h1>
+    <p class="muted" style="margin:0 0 16px">An instrument that needs no batteries beyond the one in this machine. Enough to learn the notes, keep time, and tune a real one.</p>
 
     <div class="card tool-card">
       <div class="row-between" style="flex-wrap:wrap;gap:8px">
@@ -378,56 +361,39 @@ async function renderTools() {
           <button class="btn" id="metro-tap" title="Tap this in time to set the tempo">Tap tempo</button>
         </div>
         <div class="metro-beats" id="metro-dots"></div>
-        <p class="faint" style="margin:8px 0 0">Reference pitches:
+        <p class="faint" style="margin:10px 0 0">Largo 40–60 · Adagio 66–76 · Andante 76–108 · Moderato 108–120 · Allegro 120–168 · Presto 168–200</p>
+      </div>
+
+      <div class="card tool-card">
+        <h2 style="margin:0 0 8px">Tuning</h2>
+        <p class="faint" style="margin:0 0 8px">Reference pitches. Play one and tune the string until the beating stops.</p>
+        <div class="row" style="gap:6px;flex-wrap:wrap">
           <button class="btn btn-sm tone" data-midi="69">A 440</button>
+          <span class="faint" style="width:100%">Guitar, low to high:</span>
           <button class="btn btn-sm tone" data-midi="40">E2</button>
           <button class="btn btn-sm tone" data-midi="45">A2</button>
           <button class="btn btn-sm tone" data-midi="50">D3</button>
           <button class="btn btn-sm tone" data-midi="55">G3</button>
           <button class="btn btn-sm tone" data-midi="59">B3</button>
           <button class="btn btn-sm tone" data-midi="64">E4</button>
-          — the six guitar strings.</p>
-      </div>
-
-      <div class="card tool-card">
-        <h2 style="margin:0 0 8px">Timer</h2>
-        <div class="row" style="gap:6px;flex-wrap:wrap;align-items:center">
-          <input class="map-select" type="number" id="timer-min" min="0" max="999" value="10" style="width:5rem" aria-label="minutes"> <span class="faint">min</span>
-          <input class="map-select" type="number" id="timer-sec" min="0" max="59" value="0" style="width:5rem" aria-label="seconds"> <span class="faint">sec</span>
-          <button class="btn" id="timer-toggle">Start</button>
-          <button class="btn btn-sm" id="timer-reset">Reset</button>
+          <span class="faint" style="width:100%">Violin:</span>
+          <button class="btn btn-sm tone" data-midi="55">G3</button>
+          <button class="btn btn-sm tone" data-midi="62">D4</button>
+          <button class="btn btn-sm tone" data-midi="69">A4</button>
+          <button class="btn btn-sm tone" data-midi="76">E5</button>
+          <span class="faint" style="width:100%">Ukulele:</span>
+          <button class="btn btn-sm tone" data-midi="67">G4</button>
+          <button class="btn btn-sm tone" data-midi="60">C4</button>
+          <button class="btn btn-sm tone" data-midi="64">E4</button>
+          <button class="btn btn-sm tone" data-midi="69">A4</button>
         </div>
-        <div class="timer-face mono" id="timer-face">10:00</div>
-        <div class="row" style="gap:6px;flex-wrap:wrap">
-          <button class="btn btn-sm" data-preset="1">1 min · rolling boil makes water safe</button>
-          <button class="btn btn-sm" data-preset="3">3 min · same boil above 2,000 m</button>
-          <button class="btn btn-sm" data-preset="10">10 min · rice, eggs</button>
-          <button class="btn btn-sm" data-preset="45">45 min · bread in the oven</button>
-        </div>
-        <h3 style="margin:14px 0 6px">Stopwatch</h3>
-        <div class="row" style="gap:6px;align-items:center">
-          <span class="timer-face mono" id="watch-face" style="margin:0">0:00.0</span>
-          <button class="btn btn-sm" id="watch-toggle">Start</button>
-          <button class="btn btn-sm" id="watch-reset">Reset</button>
-        </div>
-      </div>
-
-      <div class="card tool-card">
-        <h2 style="margin:0 0 8px">Unit converter</h2>
-        <div class="row" style="gap:6px;flex-wrap:wrap">
-          <select class="map-select" id="conv-cat" style="flex:1">
-            ${Object.keys(UNITS).map((c) => `<option value="${c}">${c[0].toUpperCase()}${c.slice(1)}</option>`).join('')}
-          </select>
-          <input class="map-select" type="number" id="conv-value" value="1" step="any" style="width:8rem">
-          <select class="map-select" id="conv-from" style="flex:1"></select>
-        </div>
-        <div id="conv-out" style="margin-top:10px"></div>
+        <h3 style="margin:14px 0 6px">First chords</h3>
+        <div class="row" style="gap:6px;flex-wrap:wrap" id="chords"></div>
+        <p class="faint" style="margin:8px 0 0">Click a chord to hear it. Major sounds settled; minor sounds sad. Most songs ever written use four of these.</p>
       </div>
     </div>`;
 
-  const cleanups = [];
-  const cleanup = () => { for (const fn of cleanups) fn(); };
-  window.addEventListener('hashchange', cleanup, { once: true });
+  const onCleanup = pageCleanup();
 
   // --- piano ---
   const piano = document.getElementById('piano');
@@ -479,11 +445,24 @@ async function renderTools() {
   };
   document.addEventListener('keydown', onKeyDown);
   document.addEventListener('keyup', onKeyUp);
-  cleanups.push(() => { document.removeEventListener('keydown', onKeyDown); document.removeEventListener('keyup', onKeyUp); });
+  onCleanup(() => { document.removeEventListener('keydown', onKeyDown); document.removeEventListener('keyup', onKeyUp); });
   paintPiano();
 
   for (const button of view.querySelectorAll('.tone')) {
     button.onclick = () => playNote(Number(button.dataset.midi), { hold: 2.2, velocity: 0.45 });
+  }
+
+  // --- chords ---
+  const CHORDS = [
+    ['C', [60, 64, 67]], ['G', [55, 59, 62, 67]], ['Am', [57, 60, 64]], ['F', [53, 57, 60, 65]],
+    ['D', [62, 66, 69]], ['Em', [52, 55, 59, 64]], ['Dm', [62, 65, 69]], ['E', [52, 56, 59, 64]], ['A', [57, 61, 64]],
+  ];
+  document.getElementById('chords').innerHTML = CHORDS.map(([name, notes]) => `<button class="btn btn-sm chord" data-notes="${notes.join(',')}">${name}</button>`).join('');
+  for (const button of view.querySelectorAll('.chord')) {
+    button.onclick = () => {
+      const notes = button.dataset.notes.split(',').map(Number);
+      notes.forEach((n, i) => setTimeout(() => playNote(n, { hold: 1.8, velocity: 0.35 }), i * 35));
+    };
   }
 
   // --- metronome ---
@@ -542,7 +521,337 @@ async function renderTools() {
     }
   };
   paintDots();
-  cleanups.push(stopMetro);
+  onCleanup(stopMetro);
+}
+
+// =================================================================== tools
+
+const UNITS = {
+  length: { base: 'metre', units: { mm: 0.001, cm: 0.01, m: 1, km: 1000, inch: 0.0254, foot: 0.3048, yard: 0.9144, mile: 1609.344, 'nautical mile': 1852 } },
+  mass: { base: 'kilogram', units: { g: 0.001, kg: 1, tonne: 1000, oz: 0.028349523, lb: 0.45359237, stone: 6.35029318 } },
+  volume: { base: 'litre', units: { ml: 0.001, litre: 1, tsp: 0.005, tbsp: 0.015, 'cup (metric)': 0.25, 'pint (UK)': 0.56826125, 'pint (US)': 0.473176473, 'gallon (UK)': 4.54609, 'gallon (US)': 3.785411784 } },
+  area: { base: 'square metre', units: { 'm²': 1, ha: 10000, 'km²': 1e6, 'ft²': 0.09290304, acre: 4046.8564224, 'sq mile': 2589988.11 } },
+  speed: { base: 'metre per second', units: { 'm/s': 1, 'km/h': 1 / 3.6, mph: 0.44704, knot: 0.514444 } },
+  temperature: { base: '°C', units: { '°C': null, '°F': null, K: null } },
+  energy: { base: 'joule', units: { J: 1, kJ: 1000, kcal: 4184, Wh: 3600, kWh: 3.6e6 } },
+  pressure: { base: 'pascal', units: { Pa: 1, kPa: 1000, bar: 1e5, atm: 101325, psi: 6894.757, mmHg: 133.322 } },
+};
+
+function convertUnits(category, value, from, to) {
+  if (category === 'temperature') {
+    const c = from === '°C' ? value : from === '°F' ? (value - 32) * 5 / 9 : value - 273.15;
+    return to === '°C' ? c : to === '°F' ? c * 9 / 5 + 32 : c + 273.15;
+  }
+  const table = UNITS[category].units;
+  return (value * table[from]) / table[to];
+}
+
+const tidy = (n) => {
+  if (!Number.isFinite(n)) return '—';
+  const abs = Math.abs(n);
+  // Enough digits to keep small results meaningful: 1 mm in km is 0.000001, not 0.
+  const digits = abs >= 1000 ? 1 : abs >= 10 ? 2 : abs >= 1 ? 3 : Math.min(10, 3 - Math.floor(Math.log10(abs || 1)));
+  return Number(n.toFixed(digits)).toLocaleString(undefined, { maximumFractionDigits: digits });
+};
+
+// --- calculator: a small expression evaluator, no eval() ------------------
+
+const CALC_FUNCTIONS = {
+  sin: (x, deg) => Math.sin(deg ? x * Math.PI / 180 : x),
+  cos: (x, deg) => Math.cos(deg ? x * Math.PI / 180 : x),
+  tan: (x, deg) => Math.tan(deg ? x * Math.PI / 180 : x),
+  asin: (x, deg) => (deg ? Math.asin(x) * 180 / Math.PI : Math.asin(x)),
+  acos: (x, deg) => (deg ? Math.acos(x) * 180 / Math.PI : Math.acos(x)),
+  atan: (x, deg) => (deg ? Math.atan(x) * 180 / Math.PI : Math.atan(x)),
+  sqrt: (x) => Math.sqrt(x), cbrt: (x) => Math.cbrt(x),
+  ln: (x) => Math.log(x), log: (x) => Math.log10(x), log2: (x) => Math.log2(x),
+  exp: (x) => Math.exp(x), abs: (x) => Math.abs(x),
+  round: (x) => Math.round(x), floor: (x) => Math.floor(x), ceil: (x) => Math.ceil(x),
+};
+const CALC_CONSTANTS = { pi: Math.PI, e: Math.E, g: 9.80665, c: 299792458 };
+
+/**
+ * Evaluate "2*(3+4)^2 / sqrt(16)" and the like. A hand-rolled recursive
+ * descent parser: numbers, + − × ÷ ^ %, brackets, the functions above,
+ * pi and e, and "ans" for the previous answer.
+ */
+function calculate(text, { degrees = true, ans = 0 } = {}) {
+  const src = text.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/\s+/g, '');
+  let pos = 0;
+  const peek = () => src[pos];
+  const fail = (why) => { throw new Error(why); };
+
+  function number() {
+    const m = /^(\d+\.?\d*|\.\d+)(e[+-]?\d+)?/i.exec(src.slice(pos));
+    if (!m) fail(`Expected a number at "${src.slice(pos, pos + 6) || 'end'}"`);
+    pos += m[0].length;
+    return Number(m[0]);
+  }
+  function primary() {
+    const ch = peek();
+    if (ch === undefined) fail('Unexpected end');
+    if (ch === '(') {
+      pos++;
+      const v = expression();
+      if (peek() !== ')') fail('Missing )');
+      pos++;
+      return v;
+    }
+    if (ch === '-') { pos++; return -power(); } // so -3^2 is -9, as on paper
+    if (ch === '+') { pos++; return power(); }
+    const word = /^[a-z][a-z0-9]*/i.exec(src.slice(pos));
+    if (word) {
+      const name = word[0].toLowerCase();
+      pos += name.length;
+      if (name === 'ans') return ans;
+      if (name in CALC_CONSTANTS) return CALC_CONSTANTS[name];
+      if (name in CALC_FUNCTIONS) {
+        if (peek() !== '(') fail(`${name} needs brackets: ${name}(…)`);
+        pos++;
+        const v = expression();
+        if (peek() !== ')') fail('Missing )');
+        pos++;
+        return CALC_FUNCTIONS[name](v, degrees);
+      }
+      fail(`Unknown word "${name}"`);
+    }
+    return number();
+  }
+  function unary() {
+    let v = primary();
+    while (peek() === '!') { pos++; v = factorial(v); }
+    while (peek() === '%') { pos++; v /= 100; }
+    return v;
+  }
+  function power() {
+    const base = unary();
+    if (peek() === '^') { pos++; return Math.pow(base, power()); }
+    return base;
+  }
+  function term() {
+    let v = power();
+    for (;;) {
+      const ch = peek();
+      if (ch === '*') { pos++; v *= power(); }
+      else if (ch === '/') { pos++; v /= power(); }
+      else if (ch === '(' ) { v *= primary(); } // 2(3+4)
+      else return v;
+    }
+  }
+  function expression() {
+    let v = term();
+    for (;;) {
+      const ch = peek();
+      if (ch === '+') { pos++; v += term(); }
+      else if (ch === '-') { pos++; v -= term(); }
+      else return v;
+    }
+  }
+  function factorial(n) {
+    if (n < 0 || n !== Math.floor(n) || n > 170) fail('Factorial needs a whole number up to 170');
+    let r = 1;
+    for (let i = 2; i <= n; i++) r *= i;
+    return r;
+  }
+
+  if (!src) return null;
+  const value = expression();
+  if (pos < src.length) fail(`Did not understand "${src.slice(pos)}"`);
+  return value;
+}
+
+// --- Morse ---------------------------------------------------------------
+
+const MORSE = {
+  a: '.-', b: '-...', c: '-.-.', d: '-..', e: '.', f: '..-.', g: '--.', h: '....', i: '..', j: '.---',
+  k: '-.-', l: '.-..', m: '--', n: '-.', o: '---', p: '.--.', q: '--.-', r: '.-.', s: '...', t: '-',
+  u: '..-', v: '...-', w: '.--', x: '-..-', y: '-.--', z: '--..',
+  1: '.----', 2: '..---', 3: '...--', 4: '....-', 5: '.....', 6: '-....', 7: '--...', 8: '---..', 9: '----.', 0: '-----',
+  '.': '.-.-.-', ',': '--..--', '?': '..--..', '/': '-..-.', '=': '-...-', '+': '.-.-.', '-': '-....-', '@': '.--.-.',
+};
+const MORSE_REVERSE = Object.fromEntries(Object.entries(MORSE).map(([k, v]) => [v, k]));
+
+function textToMorse(text) {
+  return text.toLowerCase().split(/\s+/).map((word) => [...word].map((ch) => MORSE[ch] || '').filter(Boolean).join(' ')).join(' / ');
+}
+
+function morseToText(code) {
+  return code.trim().split(/\s*\/\s*|\s{3,}/).map((word) => word.trim().split(/\s+/).map((c) => MORSE_REVERSE[c] || '?').join('')).join(' ');
+}
+
+/** Play Morse at a given words-per-minute (PARIS standard: dit = 1200 / wpm ms). */
+function playMorse(text, wpm = 12, pitch = 700) {
+  const ctx = ensureAudio();
+  const dit = 1.2 / wpm;
+  let t = ctx.currentTime + 0.05;
+  const words = text.toLowerCase().split(/\s+/);
+  const gain = ctx.createGain();
+  gain.gain.value = 0;
+  const osc = ctx.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.value = pitch;
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(t);
+  const tone = (len) => {
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.45, t + 0.004);
+    gain.gain.setValueAtTime(0.45, t + len - 0.004);
+    gain.gain.linearRampToValueAtTime(0, t + len);
+    t += len;
+  };
+  words.forEach((word, wi) => {
+    [...word].forEach((ch, ci) => {
+      const code = MORSE[ch];
+      if (!code) return;
+      [...code].forEach((sym, si) => {
+        tone(sym === '.' ? dit : dit * 3);
+        if (si < code.length - 1) t += dit;
+      });
+      if (ci < word.length - 1) t += dit * 3;
+    });
+    if (wi < words.length - 1) t += dit * 7;
+  });
+  osc.stop(t + 0.1);
+  return { seconds: t - ctx.currentTime, stop() { try { osc.stop(); } catch { /* done */ } } };
+}
+
+async function renderTools() {
+  view.innerHTML = `
+    <h1 style="margin:0 0 4px">Tools</h1>
+    <p class="muted" style="margin:0 0 16px">Small things that are hard to do without when the phone is dead. All of them run in the page; none of them need a file.</p>
+
+    <div class="tools-grid">
+      <div class="card tool-card">
+        <h2 style="margin:0 0 8px">Calculator</h2>
+        <form id="calc-form" class="row" style="gap:6px">
+          <input class="map-select mono" id="calc-input" placeholder="2 * (3 + 4)^2 / sqrt(16)" autocomplete="off" style="flex:1" spellcheck="false">
+          <button class="btn btn-primary" type="submit">=</button>
+        </form>
+        <div class="calc-result mono" id="calc-result">&nbsp;</div>
+        <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:6px">
+          <label class="checkbox-row" style="font-size:13px"><input type="checkbox" id="calc-degrees" checked><span>Angles in degrees</span></label>
+        </div>
+        <div class="calc-keys" id="calc-keys">
+          ${['7', '8', '9', '÷', '(', ')', '4', '5', '6', '×', '^', 'sqrt(', '1', '2', '3', '−', 'pi', 'sin(', '0', '.', 'ans', '+', 'e', 'cos(', '%', '!', 'log(', 'ln(', 'tan(', 'C'].map((k) => `<button type="button" class="btn btn-sm" data-key="${esc(k)}">${esc(k)}</button>`).join('')}
+        </div>
+        <div id="calc-history" class="faint" style="margin-top:8px"></div>
+      </div>
+
+      <div class="card tool-card">
+        <h2 style="margin:0 0 8px">Unit converter</h2>
+        <div class="row" style="gap:6px;flex-wrap:wrap">
+          <select class="map-select" id="conv-cat" style="flex:1">
+            ${Object.keys(UNITS).map((c) => `<option value="${c}">${c[0].toUpperCase()}${c.slice(1)}</option>`).join('')}
+          </select>
+          <input class="map-select" type="number" id="conv-value" value="1" step="any" style="width:8rem">
+          <select class="map-select" id="conv-from" style="flex:1"></select>
+        </div>
+        <div id="conv-out" style="margin-top:10px"></div>
+      </div>
+
+      <div class="card tool-card">
+        <h2 style="margin:0 0 8px">Timer</h2>
+        <div class="row" style="gap:6px;flex-wrap:wrap;align-items:center">
+          <input class="map-select" type="number" id="timer-min" min="0" max="999" value="10" style="width:5rem" aria-label="minutes"> <span class="faint">min</span>
+          <input class="map-select" type="number" id="timer-sec" min="0" max="59" value="0" style="width:5rem" aria-label="seconds"> <span class="faint">sec</span>
+          <button class="btn" id="timer-toggle">Start</button>
+          <button class="btn btn-sm" id="timer-reset">Reset</button>
+        </div>
+        <div class="timer-face mono" id="timer-face">10:00</div>
+        <div class="row" style="gap:6px;flex-wrap:wrap">
+          <button class="btn btn-sm" data-preset="1">1 min · rolling boil makes water safe</button>
+          <button class="btn btn-sm" data-preset="3">3 min · same boil above 2,000 m</button>
+          <button class="btn btn-sm" data-preset="10">10 min · rice, eggs</button>
+          <button class="btn btn-sm" data-preset="45">45 min · bread in the oven</button>
+        </div>
+        <h3 style="margin:14px 0 6px">Stopwatch</h3>
+        <div class="row" style="gap:6px;align-items:center;flex-wrap:wrap">
+          <span class="timer-face mono" id="watch-face" style="margin:0">0:00.0</span>
+          <button class="btn btn-sm" id="watch-toggle">Start</button>
+          <button class="btn btn-sm" id="watch-lap">Lap</button>
+          <button class="btn btn-sm" id="watch-reset">Reset</button>
+        </div>
+        <div id="watch-laps" class="mono faint" style="margin-top:6px"></div>
+      </div>
+
+      <div class="card tool-card">
+        <h2 style="margin:0 0 8px">Morse code</h2>
+        <p class="faint" style="margin:0 0 8px">Works over a torch, a whistle, a radio carrier or a tapped pipe. SOS is <span class="mono">··· −−− ···</span>.</p>
+        <textarea class="map-select mono" id="morse-text" rows="2" placeholder="Type text here…" style="width:100%"></textarea>
+        <div class="morse-out mono" id="morse-out">&nbsp;</div>
+        <div class="row" style="gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px">
+          <button class="btn" id="morse-play">Play</button>
+          <label class="faint">Speed <input type="range" id="morse-wpm" min="5" max="30" value="12" style="vertical-align:middle"> <span class="mono" id="morse-wpm-label">12 wpm</span></label>
+          <button class="btn btn-sm" id="morse-flash" title="Flash the screen instead of sounding it">Flash it</button>
+        </div>
+        <h3 style="margin:14px 0 6px">Practice</h3>
+        <p class="faint" style="margin:0 0 6px">Hear a letter, type what it was. Start with the easy ones and it adds more as you get them right.</p>
+        <div class="row" style="gap:6px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-sm" id="morse-quiz-play">Play one</button>
+          <input class="map-select mono" id="morse-answer" maxlength="1" style="width:4rem;text-align:center" placeholder="?">
+          <span id="morse-quiz-result" class="mono"></span>
+          <span class="faint" id="morse-quiz-score"></span>
+        </div>
+        <details style="margin-top:10px"><summary class="faint">The alphabet</summary>
+          <div class="morse-table mono">${Object.entries(MORSE).filter(([k]) => /^[a-z0-9]$/.test(k)).map(([k, v]) => `<span><b>${k.toUpperCase()}</b> ${v.replace(/\./g, '·').replace(/-/g, '−')}</span>`).join('')}</div>
+        </details>
+      </div>
+    </div>`;
+
+  const onCleanup = pageCleanup();
+
+  // --- calculator ---
+  const calcInput = document.getElementById('calc-input');
+  const calcResult = document.getElementById('calc-result');
+  const calcHistory = document.getElementById('calc-history');
+  let ans = 0;
+  const history = [];
+  const evaluate = () => {
+    try {
+      const value = calculate(calcInput.value, { degrees: document.getElementById('calc-degrees').checked, ans });
+      if (value === null) { calcResult.innerHTML = '&nbsp;'; return; }
+      ans = value;
+      calcResult.textContent = Number.isInteger(value) && Math.abs(value) < 1e15 ? value.toLocaleString() : tidy(value);
+      calcResult.classList.remove('bad');
+      history.unshift(`${calcInput.value} = ${calcResult.textContent}`);
+      calcHistory.innerHTML = history.slice(0, 5).map((h) => `<div>${esc(h)}</div>`).join('');
+    } catch (err) {
+      calcResult.textContent = err.message;
+      calcResult.classList.add('bad');
+    }
+  };
+  document.getElementById('calc-form').onsubmit = (e) => { e.preventDefault(); evaluate(); };
+  for (const key of view.querySelectorAll('#calc-keys [data-key]')) {
+    key.onclick = () => {
+      const k = key.dataset.key;
+      if (k === 'C') { calcInput.value = ''; calcResult.innerHTML = '&nbsp;'; }
+      else calcInput.value += k;
+      calcInput.focus();
+    };
+  }
+
+  // --- converter ---
+  const catSelect = document.getElementById('conv-cat');
+  const fromSelect = document.getElementById('conv-from');
+  const valueInput = document.getElementById('conv-value');
+  const out = document.getElementById('conv-out');
+  const paintUnits = () => {
+    fromSelect.innerHTML = Object.keys(UNITS[catSelect.value].units).map((u) => `<option value="${esc(u)}">${esc(u)}</option>`).join('');
+    convert();
+  };
+  const convert = () => {
+    const value = Number(valueInput.value);
+    const category = catSelect.value;
+    const from = fromSelect.value;
+    out.innerHTML = Object.keys(UNITS[category].units)
+      .filter((u) => u !== from)
+      .map((u) => `<div class="almanac-row"><span class="faint">${esc(u)}</span><span class="mono">${tidy(convertUnits(category, value, from, u))}</span></div>`)
+      .join('');
+  };
+  catSelect.onchange = paintUnits;
+  fromSelect.onchange = convert;
+  valueInput.oninput = convert;
+  paintUnits();
 
   // --- timer ---
   const minInput = document.getElementById('timer-min');
@@ -578,21 +887,19 @@ async function renderTools() {
     button.onclick = () => { stopTimer(); minInput.value = button.dataset.preset; secInput.value = 0; setFromInputs(); };
   }
   showTimer();
-  cleanups.push(stopTimer);
+  onCleanup(stopTimer);
 
   // --- stopwatch ---
   const watchFace = document.getElementById('watch-face');
   const watchToggle = document.getElementById('watch-toggle');
+  const laps = document.getElementById('watch-laps');
   let watchStart = 0;
   let watchBase = 0;
   let watchTick = null;
-  const showWatch = () => {
-    const ms = watchBase + (watchTick ? Date.now() - watchStart : 0);
-    const m = Math.floor(ms / 60000);
-    const s = Math.floor((ms % 60000) / 1000);
-    const tenths = Math.floor((ms % 1000) / 100);
-    watchFace.textContent = `${m}:${String(s).padStart(2, '0')}.${tenths}`;
-  };
+  let lapCount = 0;
+  const elapsedMs = () => watchBase + (watchTick ? Date.now() - watchStart : 0);
+  const fmtWatch = (ms) => `${Math.floor(ms / 60000)}:${String(Math.floor((ms % 60000) / 1000)).padStart(2, '0')}.${Math.floor((ms % 1000) / 100)}`;
+  const showWatch = () => { watchFace.textContent = fmtWatch(elapsedMs()); };
   const stopWatch = () => { if (watchTick) { watchBase += Date.now() - watchStart; clearInterval(watchTick); watchTick = null; } watchToggle.textContent = 'Start'; showWatch(); };
   watchToggle.onclick = () => {
     if (watchTick) return stopWatch();
@@ -600,32 +907,98 @@ async function renderTools() {
     watchTick = setInterval(showWatch, 100);
     watchToggle.textContent = 'Stop';
   };
-  document.getElementById('watch-reset').onclick = () => { stopWatch(); watchBase = 0; showWatch(); };
-  cleanups.push(stopWatch);
+  document.getElementById('watch-lap').onclick = () => {
+    if (!watchTick && !watchBase) return;
+    lapCount++;
+    laps.insertAdjacentHTML('afterbegin', `<div>Lap ${lapCount} · ${fmtWatch(elapsedMs())}</div>`);
+  };
+  document.getElementById('watch-reset').onclick = () => { stopWatch(); watchBase = 0; lapCount = 0; laps.innerHTML = ''; showWatch(); };
+  onCleanup(stopWatch);
 
-  // --- converter ---
-  const catSelect = document.getElementById('conv-cat');
-  const fromSelect = document.getElementById('conv-from');
-  const valueInput = document.getElementById('conv-value');
-  const out = document.getElementById('conv-out');
-  const paintUnits = () => {
-    fromSelect.innerHTML = Object.keys(UNITS[catSelect.value].units).map((u) => `<option value="${esc(u)}">${esc(u)}</option>`).join('');
-    convert();
+  // --- morse ---
+  const morseText = document.getElementById('morse-text');
+  const morseOut = document.getElementById('morse-out');
+  const wpmInput = document.getElementById('morse-wpm');
+  const wpmLabel = document.getElementById('morse-wpm-label');
+  let playing = null;
+  morseText.oninput = () => {
+    const t = morseText.value.trim();
+    morseOut.textContent = t ? (/^[.\-·−\s/]+$/.test(t) ? morseToText(t.replace(/·/g, '.').replace(/−/g, '-')) : textToMorse(t).replace(/\./g, '·').replace(/-/g, '−')) : '';
+    if (!t) morseOut.innerHTML = '&nbsp;';
   };
-  const convert = () => {
-    const value = Number(valueInput.value);
-    const category = catSelect.value;
-    const from = fromSelect.value;
-    out.innerHTML = Object.keys(UNITS[category].units)
-      .filter((u) => u !== from)
-      .map((u) => `<div class="almanac-row"><span class="faint">${esc(u)}</span><span class="mono">${tidy(convertUnits(category, value, from, u))}</span></div>`)
-      .join('');
+  wpmInput.oninput = () => { wpmLabel.textContent = `${wpmInput.value} wpm`; };
+  document.getElementById('morse-play').onclick = () => {
+    if (playing) playing.stop();
+    const t = morseText.value.trim();
+    if (!t) return;
+    const text = /^[.\-·−\s/]+$/.test(t) ? morseToText(t.replace(/·/g, '.').replace(/−/g, '-')) : t;
+    playing = playMorse(text, Number(wpmInput.value));
   };
-  catSelect.onchange = paintUnits;
-  fromSelect.onchange = convert;
-  valueInput.oninput = convert;
-  paintUnits();
+  // A visual send: the whole page flashes, for a torch across a valley or
+  // teaching without waking the house.
+  let flashTimers = [];
+  document.getElementById('morse-flash').onclick = () => {
+    for (const id of flashTimers) clearTimeout(id);
+    flashTimers = [];
+    const t = morseText.value.trim();
+    if (!t) return;
+    const dit = 1200 / Number(wpmInput.value);
+    let at = 0;
+    const flash = document.createElement('div');
+    flash.className = 'morse-flash';
+    document.body.appendChild(flash);
+    const on = (len) => {
+      flashTimers.push(setTimeout(() => { flash.style.opacity = '1'; }, at));
+      flashTimers.push(setTimeout(() => { flash.style.opacity = '0'; }, at + len));
+      at += len;
+    };
+    t.toLowerCase().split(/\s+/).forEach((word, wi, words) => {
+      [...word].forEach((ch, ci) => {
+        const code = MORSE[ch];
+        if (!code) return;
+        [...code].forEach((sym, si) => { on(sym === '.' ? dit : dit * 3); if (si < code.length - 1) at += dit; });
+        if (ci < word.length - 1) at += dit * 3;
+      });
+      if (wi < words.length - 1) at += dit * 7;
+    });
+    flashTimers.push(setTimeout(() => flash.remove(), at + 300));
+    onCleanup(() => { for (const id of flashTimers) clearTimeout(id); flash.remove(); });
+  };
+  onCleanup(() => { if (playing) playing.stop(); });
+
+  // Practice: Koch-style — a few letters at first, another when you are right often.
+  const KOCH = 'kmrsuaptlowi.njef0yv,g5/q9zh38b?427c1d6x';
+  let known = 2;
+  let asked = null;
+  let right = 0;
+  let total = 0;
+  const answer = document.getElementById('morse-answer');
+  const result = document.getElementById('morse-quiz-result');
+  const score = document.getElementById('morse-quiz-score');
+  document.getElementById('morse-quiz-play').onclick = () => {
+    asked = KOCH[Math.floor(Math.random() * known)];
+    playMorse(asked, Math.max(15, Number(wpmInput.value)));
+    answer.value = '';
+    answer.focus();
+    result.textContent = '';
+  };
+  answer.oninput = () => {
+    if (!asked || !answer.value) return;
+    total++;
+    if (answer.value.toLowerCase() === asked) {
+      right++;
+      result.textContent = `✓ ${asked.toUpperCase()}`;
+      if (right % 4 === 0 && known < KOCH.length) known++;
+    } else {
+      result.textContent = `✗ it was ${asked.toUpperCase()} (${MORSE[asked].replace(/\./g, '·').replace(/-/g, '−')})`;
+    }
+    score.textContent = `${right}/${total} · ${known} letters in play`;
+    asked = null;
+  };
 }
 
 window.renderCalendar = renderCalendar;
+window.renderMusic = renderMusic;
 window.renderTools = renderTools;
+window.vaultAudio = { ensureAudio, playNote, beep, click };
+window.vaultCalc = { calculate };

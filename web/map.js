@@ -217,6 +217,16 @@ const WATER_LINE_WIDTHS = {
 // The order layers are painted in; anything not listed is skipped.
 const DRAW_ORDER = ['earth', 'landcover', 'landuse', 'natural', 'water', 'buildings', 'roads', 'boundaries'];
 
+// How important each road class is: 0 shows from the world view, 6 only
+// when you are practically standing on it.
+const ROAD_RANK = {
+  motorway: 0, highway: 0, trunk: 1, ferry: 1, rail: 2,
+  primary: 2, major_road: 2, motorway_link: 3, trunk_link: 3, secondary: 3,
+  primary_link: 4, tertiary: 4, subway: 4,
+  residential: 5, unclassified: 5, minor_road: 5, pedestrian: 5, other: 5,
+  service: 6, footway: 6, sidewalk: 6, cycleway: 6, bridleway: 6, steps: 6, track: 6, path: 6,
+};
+
 class VaultMap {
   constructor(canvas, options = {}) {
     this.canvas = canvas;
@@ -228,6 +238,10 @@ class VaultMap {
 
     this.basePack = null;      // vector pack id
     this.overlayPacks = [];    // raster pack ids drawn on top
+    this.baseRaster = null;    // satellite imagery under the roads and names
+    this.hillshade = null;     // terrain pack id shading the slopes
+    this.rasterInfo = {};      // pack id -> { minZoom, maxZoom }, for drawing beyond a pack's zoom
+    this._shades = new Map();  // computed hillshade tiles
     this.minZoom = 0;
     this.maxZoom = 15;
 
@@ -248,6 +262,8 @@ class VaultMap {
     this._measure = [];            // points of the measuring tape, not saved
     this._measureClosed = false;   // tape joined back to its start: perimeter + area
     this._route = [];              // nodes of the route being planned, until saved
+    this.sunTime = null;           // a Date: shade the night side of the world for that instant
+    this.showNight = false;
 
     this._tiles = new Map();
     this._pending = new Set();
@@ -304,6 +320,23 @@ class VaultMap {
   setOverlays(ids) {
     this.overlayPacks = ids;
     this._raster.clear();
+    this.draw();
+  }
+
+  /** Zoom ranges of the raster packs, so a tile can be borrowed from a lower zoom. */
+  setRasterInfo(packs) {
+    this.rasterInfo = {};
+    for (const p of packs) this.rasterInfo[p.id] = { minZoom: p.minZoom ?? 0, maxZoom: p.maxZoom ?? 18 };
+  }
+
+  setBaseRaster(packId) {
+    this.baseRaster = packId || null;
+    this.draw();
+  }
+
+  setHillshade(packId) {
+    this.hillshade = packId || null;
+    this._shades.clear();
     this.draw();
   }
 
@@ -472,6 +505,20 @@ class VaultMap {
     this.zoomAround(this.width / 2, this.height / 2, delta);
   }
 
+  /** Move and zoom so a lon/lat box fills most of the view. */
+  fitBounds([west, south, east, north], padding = 0.75) {
+    const lon = (west + east) / 2;
+    const lat = (south + north) / 2;
+    let zoom = this.maxZoom + 1;
+    for (; zoom > this.minZoom; zoom -= 0.25) {
+      const scale = Math.pow(2, zoom) * TILE_SIZE;
+      const w = Math.abs(lonToWorldX(east, 0) - lonToWorldX(west, 0)) * scale;
+      const h = Math.abs(latToWorldY(north, 0) - latToWorldY(south, 0)) * scale;
+      if (w <= this.width * padding && h <= this.height * padding) break;
+    }
+    this.goTo(lon, lat, Math.min(zoom, 16));
+  }
+
   goTo(lon, lat, zoom) {
     this.centre = { lon, lat };
     if (zoom !== undefined) this.zoom = Math.max(this.minZoom, Math.min(this.maxZoom + 2, zoom));
@@ -539,6 +586,114 @@ class VaultMap {
       this._raster.delete(oldest);
     }
     return null;
+  }
+
+  /**
+   * Draw a raster pack over the visible tiles. Past the pack's own zoom the
+   * nearest ancestor tile is scaled up, so a photo taken to zoom 11 still
+   * shows (blurrily) at zoom 14 rather than vanishing.
+   */
+  _drawRasterPack(packId, visible, tz, tilePx, alpha) {
+    const ctx = this.ctx;
+    const info = this.rasterInfo[packId] || { minZoom: 0, maxZoom: 18 };
+    const z = Math.min(tz, info.maxZoom);
+    const shift = tz - z;
+    ctx.globalAlpha = alpha;
+    for (const tile of visible) {
+      const ax = tile.tx >> shift;
+      const ay = tile.ty >> shift;
+      const image = this._rasterTile(packId, z, ax, ay);
+      if (!image) continue;
+      if (shift === 0) {
+        ctx.drawImage(image, tile.px, tile.py, tilePx, tilePx);
+      } else {
+        const part = image.width / Math.pow(2, shift);
+        const sx = (tile.tx - ax * Math.pow(2, shift)) * part;
+        const sy = (tile.ty - ay * Math.pow(2, shift)) * part;
+        ctx.drawImage(image, sx, sy, part, part, tile.px, tile.py, tilePx, tilePx);
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  /**
+   * Hillshade from a Terrarium tile: heights decoded from the pixel colours,
+   * slope and aspect from the neighbours, lit from the north-west as maps
+   * are. Computed once per tile and kept.
+   */
+  _shadeTile(packId, z, x, y) {
+    const key = `${packId}/${z}/${x}/${y}`;
+    if (this._shades.has(key)) return this._shades.get(key);
+    const image = this._rasterTile(packId, z, x, y);
+    if (!image) return null;
+
+    const size = image.width;
+    const src = document.createElement('canvas');
+    src.width = size; src.height = size;
+    const sctx = src.getContext('2d', { willReadFrequently: true });
+    sctx.drawImage(image, 0, 0);
+    let pixels;
+    try { pixels = sctx.getImageData(0, 0, size, size).data; } catch { return null; }
+
+    const heights = new Float32Array(size * size);
+    for (let i = 0; i < size * size; i++) {
+      heights[i] = pixels[i * 4] * 256 + pixels[i * 4 + 1] + pixels[i * 4 + 2] / 256 - 32768;
+    }
+
+    // Metres per pixel at this tile's latitude.
+    const lat = worldYToLat(y + 0.5, z);
+    const metresPerPixel = (40075016.686 * Math.cos(lat * Math.PI / 180)) / (size * Math.pow(2, z));
+    const out = document.createElement('canvas');
+    out.width = size; out.height = size;
+    const octx = out.getContext('2d');
+    const shade = octx.createImageData(size, size);
+    const zenith = 45 * Math.PI / 180;
+    const azimuth = 315 * Math.PI / 180;
+    const clampIdx = (v) => Math.max(0, Math.min(size - 1, v));
+
+    for (let py = 0; py < size; py++) {
+      for (let px = 0; px < size; px++) {
+        const h = (dx, dy) => heights[clampIdx(py + dy) * size + clampIdx(px + dx)];
+        const dzdx = (h(1, 0) - h(-1, 0)) / (2 * metresPerPixel);
+        const dzdy = (h(0, 1) - h(0, -1)) / (2 * metresPerPixel);
+        const slope = Math.atan(1.6 * Math.hypot(dzdx, dzdy)); // exaggerated a little, as paper maps do
+        let aspect = Math.atan2(dzdy, -dzdx);
+        if (aspect < 0) aspect += 2 * Math.PI;
+        const value = Math.cos(zenith) * Math.cos(slope) + Math.sin(zenith) * Math.sin(slope) * Math.cos(azimuth - aspect);
+        const dark = Math.max(0, Math.min(1, 0.72 - value)) * 0.9;
+        const light = Math.max(0, value - 0.78) * 0.5;
+        const i = (py * size + px) * 4;
+        if (light > dark) { shade.data[i] = 255; shade.data[i + 1] = 255; shade.data[i + 2] = 240; shade.data[i + 3] = Math.round(light * 255); }
+        else { shade.data[i] = 20; shade.data[i + 1] = 16; shade.data[i + 2] = 10; shade.data[i + 3] = Math.round(dark * 255); }
+      }
+    }
+    octx.putImageData(shade, 0, 0);
+    if (this._shades.size > 200) this._shades.delete(this._shades.keys().next().value);
+    this._shades.set(key, out);
+    return out;
+  }
+
+  _drawHillshade(visible, tz, tilePx) {
+    const ctx = this.ctx;
+    const info = this.rasterInfo[this.hillshade] || { minZoom: 0, maxZoom: 10 };
+    const z = Math.min(tz, info.maxZoom);
+    const shift = tz - z;
+    ctx.globalAlpha = tz >= 14 ? 0.45 : 0.7;
+    for (const tile of visible) {
+      const ax = tile.tx >> shift;
+      const ay = tile.ty >> shift;
+      const shaded = this._shadeTile(this.hillshade, z, ax, ay);
+      if (!shaded) continue;
+      if (shift === 0) {
+        ctx.drawImage(shaded, tile.px, tile.py, tilePx, tilePx);
+      } else {
+        const part = shaded.width / Math.pow(2, shift);
+        const sx = (tile.tx - ax * Math.pow(2, shift)) * part;
+        const sy = (tile.ty - ay * Math.pow(2, shift)) * part;
+        ctx.drawImage(shaded, sx, sy, part, part, tile.px, tile.py, tilePx, tilePx);
+      }
+    }
+    ctx.globalAlpha = 1;
   }
 
   // ----------------------------------------------------------------- drawing
@@ -611,6 +766,11 @@ class VaultMap {
       }
     }
 
+    // Satellite imagery goes underneath; the vector map then draws only its
+    // roads, boundaries and names over the photograph.
+    if (this.baseRaster) this._drawRasterPack(this.baseRaster, visible, tz, tilePx, 1);
+    this._skipFills = Boolean(this.baseRaster);
+
     // Vector base
     for (const tile of visible) {
       const key = `${tz}/${tile.tx}/${tile.ty}`;
@@ -622,17 +782,14 @@ class VaultMap {
       this._drawTile(data, tile.px, tile.py, tilePx);
     }
 
+    // Slopes, from the terrain heights.
+    if (this.hillshade && !this.baseRaster) this._drawHillshade(visible, tz, tilePx);
+
     // Raster overlays, e.g. the nautical chart
-    for (const packId of this.overlayPacks) {
-      for (const tile of visible) {
-        const image = this._rasterTile(packId, tz, tile.tx, tile.ty);
-        if (image) {
-          ctx.globalAlpha = 0.9;
-          ctx.drawImage(image, tile.px, tile.py, tilePx, tilePx);
-          ctx.globalAlpha = 1;
-        }
-      }
-    }
+    for (const packId of this.overlayPacks) this._drawRasterPack(packId, visible, tz, tilePx, 0.9);
+
+    // Day and night, under the labels so place names stay legible.
+    if (this.showNight && this.sunTime && window.vaultAlmanac) this._drawNight();
 
     // Points of interest and labels go over everything. Label placement is
     // greedy: first come, first served, and anything that would overlap is
@@ -834,6 +991,74 @@ class VaultMap {
     }
   }
 
+  /**
+   * Shade the part of the world where the sun is down at this.sunTime. Column
+   * by column: for each screen x the latitudes below a given sun altitude are
+   * one or two spans, found by solving the altitude equation directly. Three
+   * bands — sun set, civil dark, full night — build up the shadow.
+   */
+  _drawNight() {
+    const A = window.vaultAlmanac;
+    const sub = A.subsolarPoint(this.sunTime);
+    const ctx = this.ctx;
+    const step = 2;
+    const bands = [[0, 0.10], [-6, 0.12], [-12, 0.14]];
+    const sinD = Math.sin(sub.lat * Math.PI / 180);
+    const cosD = Math.cos(sub.lat * Math.PI / 180);
+
+    ctx.fillStyle = this.styleName === 'paper' ? '#0a1020' : '#000';
+    for (const [h0, alpha] of bands) {
+      ctx.globalAlpha = alpha;
+      const c = Math.sin(h0 * Math.PI / 180);
+      for (let x = 0; x < this.width; x += step) {
+        const { lon } = this.pixelToLonLat(x, this.height / 2);
+        const H = (lon - sub.lon) * Math.PI / 180;
+        const a = sinD;
+        const b = cosD * Math.cos(H);
+        const R = Math.hypot(a, b);
+        const theta = Math.atan2(b, a);
+        // sin(phi + theta) = c / R. Breakpoints in latitude where the altitude crosses h0.
+        const cuts = [-90, 90];
+        if (R > 1e-9 && Math.abs(c / R) <= 1) {
+          const s = Math.asin(c / R);
+          for (const root of [s - theta, Math.PI - s - theta]) {
+            let phi = ((root + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI; // into (-pi, pi]
+            phi = phi * 180 / Math.PI;
+            if (phi > -90 && phi < 90) cuts.push(phi);
+          }
+        }
+        cuts.sort((p, q) => p - q);
+        for (let i = 0; i < cuts.length - 1; i++) {
+          const lo = cuts[i];
+          const hi = cuts[i + 1];
+          if (hi - lo < 0.01) continue;
+          const mid = (lo + hi) / 2;
+          const alt = Math.asin(Math.max(-1, Math.min(1, a * Math.sin(mid * Math.PI / 180) + b * Math.cos(mid * Math.PI / 180))));
+          if (alt < h0 * Math.PI / 180) {
+            const top = this.lonLatToPixel(lon, Math.min(85, hi)).y;
+            const bottom = this.lonLatToPixel(lon, Math.max(-85, lo)).y;
+            if (bottom > 0 && top < this.height) ctx.fillRect(x, Math.max(0, top), step, Math.min(this.height, bottom) - Math.max(0, top));
+          }
+        }
+      }
+    }
+    ctx.globalAlpha = 1;
+
+    // The subsolar point: where it is noon, straight overhead.
+    const p = this.lonLatToPixel(sub.lon, sub.lat);
+    if (p.x >= 0 && p.x <= this.width && p.y >= 0 && p.y <= this.height) {
+      ctx.strokeStyle = '#ffd24a';
+      ctx.fillStyle = 'rgba(255, 210, 74, 0.85)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 11, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+
   /** A planned route: numbered nodes, a distance on every leg, the total at the end. */
   _drawRoute(points, colour, width, name, live) {
     if (!points.length) return;
@@ -997,6 +1222,7 @@ class VaultMap {
     for (const layerName of DRAW_ORDER) {
       const features = data[layerName];
       if (!features) continue;
+      if (this._skipFills && layerName !== 'roads' && layerName !== 'boundaries') continue;
 
       for (const feature of features) {
         if (feature.t === POINT) continue; // points are drawn in the overlay pass
@@ -1085,18 +1311,39 @@ class VaultMap {
     ctx.setLineDash([]);
   }
 
+  /**
+   * Roads at the zoom they deserve. Zoomed out, only the trunk network shows,
+   * as hairlines; the full widths arrive around zoom 12 where a street is a
+   * street. Without this a continent is a plate of orange spaghetti.
+   */
+  _roadVisibility(feature) {
+    const z = this.zoom;
+    const cls = feature.d || feature.k || 'other';
+    const rank = ROAD_RANK[cls] ?? 6;
+    // Each rank has a zoom it appears at; below that it is not drawn at all.
+    const appearsAt = [0, 4, 7, 9, 11, 12, 13][rank];
+    if (z < appearsAt) return null;
+    // Width fades in from a hairline over the six zoom levels after it appears.
+    const scale = Math.min(1, 0.18 + 0.82 * Math.max(0, (z - appearsAt) / 6));
+    const alpha = z < 6 ? 0.55 : z < 9 ? 0.75 : 1;
+    return { scale, alpha };
+  }
+
   _drawRoad(feature, px, py, size) {
     const ctx = this.ctx;
     const roads = this.style.layers.roads;
     // kind_detail is the useful one ("motorway", "residential"); kind only
     // distinguishes major from minor.
     const spec = roads[feature.d] || roads[feature.k] || roads.other;
+    const vis = this._roadVisibility(feature);
+    if (!vis) return;
 
     ctx.strokeStyle = spec.colour;
-    ctx.lineWidth = spec.width;
+    ctx.lineWidth = Math.max(0.5, spec.width * vis.scale);
+    ctx.globalAlpha = vis.alpha;
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
-    ctx.setLineDash(spec.dash || []);
+    ctx.setLineDash(spec.dash ? spec.dash.map((d) => d * Math.max(0.6, vis.scale)) : []);
 
     ctx.beginPath();
     for (const ring of feature.g) {
@@ -1108,6 +1355,7 @@ class VaultMap {
     }
     ctx.stroke();
     ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
   }
 
   _drawBoundary(feature, px, py, size) {

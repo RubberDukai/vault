@@ -30,17 +30,34 @@
   </form>
 
   <nav class="nav" id="tabs">
-    <a href="#/" data-section="home" data-match="^#/$"><span class="nav-glyph">⌂</span><span class="nav-label">Home</span></a>
-    <a href="#/library" data-section="library" data-match="^#/(library|read|doc)"><span class="nav-glyph">▤</span><span class="nav-label">Library</span></a>
-    <a href="#/handbook" data-section="handbook" data-match="^#/handbook"><span class="nav-glyph">✚</span><span class="nav-label">Handbook</span></a>
-    <a href="#/maps" data-section="maps" data-match="^#/maps"><span class="nav-glyph">⌖</span><span class="nav-label">Maps</span></a>
-    <a href="#/calendar" data-section="calendar" data-match="^#/calendar"><span class="nav-glyph">▦</span><span class="nav-label">Calendar</span></a>
-    <a href="#/comms" data-section="comms" data-match="^#/comms"><span class="nav-glyph">☏</span><span class="nav-label">Comms</span></a>
-    <a href="#/languages" data-section="languages" data-match="^#/(languages|study)"><span class="nav-glyph">文</span><span class="nav-label">Languages</span></a>
-    <a href="#/school" data-section="school" data-match="^#/school"><span class="nav-glyph">✎</span><span class="nav-label">School</span></a>
-    <a href="#/tools" data-section="tools" data-match="^#/tools"><span class="nav-glyph">♫</span><span class="nav-label">Tools</span></a>
-    <a href="#/manual" data-section="manual" data-match="^#/manual"><span class="nav-glyph">?</span><span class="nav-label">Manual</span></a>
-    <a href="#/setup" data-section="setup" data-match="^#/(setup|get)"><span class="nav-glyph">⇩</span><span class="nav-label">Setup</span></a>
+    <a href="#/" data-section="home" data-match="^#/$" class="nav-home"><span class="nav-glyph">⌂</span><span class="nav-label">Home</span></a>
+
+    <div class="nav-group" data-group="knowledge">
+      <button class="nav-heading" type="button" aria-expanded="true"><span class="nav-label">Knowledge</span><span class="nav-caret">▾</span></button>
+      <a href="#/library" data-section="library" data-match="^#/(library|read|doc)"><span class="nav-glyph">▤</span><span class="nav-label">Library</span></a>
+      <a href="#/handbook" data-section="handbook" data-match="^#/handbook"><span class="nav-glyph">✚</span><span class="nav-label">Handbook</span></a>
+      <a href="#/languages" data-section="languages" data-match="^#/(languages|study)"><span class="nav-glyph">文</span><span class="nav-label">Languages</span></a>
+      <a href="#/school" data-section="school" data-match="^#/school"><span class="nav-glyph">✎</span><span class="nav-label">School</span></a>
+      <a href="#/music" data-section="music" data-match="^#/music"><span class="nav-glyph">♫</span><span class="nav-label">Music</span></a>
+      <a href="#/science" data-section="science" data-match="^#/science"><span class="nav-glyph">⚛</span><span class="nav-label">Science</span></a>
+    </div>
+
+    <div class="nav-group" data-group="life">
+      <button class="nav-heading" type="button" aria-expanded="true"><span class="nav-label">Life</span><span class="nav-caret">▾</span></button>
+      <a href="#/calendar" data-section="calendar" data-match="^#/calendar"><span class="nav-glyph">▦</span><span class="nav-label">Calendar</span></a>
+      <a href="#/comms" data-section="comms" data-match="^#/comms"><span class="nav-glyph">☏</span><span class="nav-label">Comms</span></a>
+      <a href="#/maps" data-section="maps" data-match="^#/maps"><span class="nav-glyph">⌖</span><span class="nav-label">Maps</span></a>
+      <a href="#/notebook" data-section="notebook" data-match="^#/notebook"><span class="nav-glyph">≡</span><span class="nav-label">Notebook</span></a>
+      <a href="#/media" data-section="media" data-match="^#/media"><span class="nav-glyph">▶</span><span class="nav-label">Media</span></a>
+      <a href="#/games" data-section="games" data-match="^#/games"><span class="nav-glyph">♞</span><span class="nav-label">Games</span></a>
+    </div>
+
+    <div class="nav-group" data-group="system">
+      <button class="nav-heading" type="button" aria-expanded="true"><span class="nav-label">System</span><span class="nav-caret">▾</span></button>
+      <a href="#/tools" data-section="tools" data-match="^#/tools"><span class="nav-glyph">⚒</span><span class="nav-label">Tools</span></a>
+      <a href="#/manual" data-section="manual" data-match="^#/manual"><span class="nav-glyph">?</span><span class="nav-label">Manual</span></a>
+      <a href="#/setup" data-section="setup" data-match="^#/(setup|get)"><span class="nav-glyph">⇩</span><span class="nav-label">Setup</span></a>
+    </div>
   </nav>
 
   <div class="sidebar-foot">
@@ -94,6 +111,11 @@
 <script src="/map.js"></script>
 <script src="/almanac.js"></script>
 <script src="/extras.js"></script>
+<script src="/life.js"></script>
+<script src="/games.js"></script>
+<script src="/elements.js"></script>
+<script src="/stars.js"></script>
+<script src="/science.js"></script>
 <script src="/app.js"></script>
 </body>
 </html>

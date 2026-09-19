@@ -54,9 +54,33 @@ class ContentLibrary {
       this._loadLanguages(),
       this._loadEducation(),
       this._loadManual(),
+      this._loadRecipes(),
     ]);
     this.loadedAt = new Date().toISOString();
     return this;
+  }
+
+  /** Recipes shipped with the vault; the notebook shows them beside your own. */
+  async _loadRecipes() {
+    const root = path.join(this.contentDir, 'recipes');
+    const recipes = [];
+    for (const file of await readDirSafe(root)) {
+      if (!file.isFile() || !file.name.endsWith('.md')) continue;
+      const raw = await fsp.readFile(path.join(root, file.name), 'utf8');
+      const { meta, body } = parseFrontmatter(raw);
+      const slug = file.name.replace(/\.md$/, '');
+      recipes.push({
+        id: slug,
+        title: meta.title || slug,
+        summary: meta.summary || '',
+        serves: meta.serves || '',
+        time: meta.time || '',
+        body,
+        plain: markdown.toPlainText(body),
+      });
+    }
+    recipes.sort((a, b) => a.title.localeCompare(b.title));
+    this.recipes = recipes;
   }
 
   /** The manual: how this thing works and how it was built. A flat list. */

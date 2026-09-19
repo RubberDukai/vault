@@ -11,6 +11,8 @@ const fsp = require('node:fs/promises');
 const path = require('node:path');
 const { PMTiles } = require('./pmtiles');
 const { decodeTile } = require('./mvt');
+const zlib = require('node:zlib');
+const { resolveProtomapsUrl } = require('../library/tileset');
 
 // node:sqlite is built in from Node 22.5. It is only needed for MBTiles
 // overlays, so a runtime without it simply loses that one feature.
@@ -159,6 +161,12 @@ class MBTiles {
       maxZoom: Number(this.metadata.maxzoom ?? 18),
       bounds: bounds.length === 4 && bounds.every(Number.isFinite) ? bounds : null,
       attribution: this.metadata.attribution || null,
+      // Terrain archives hold heights, not pictures; base layers are meant to
+      // sit under the map rather than over it.
+      encoding: this.metadata.encoding || null,
+      // Photographs (JPEG) sit under the map; the sea charts call themselves
+      // base layers too but are transparent PNGs meant to go over it.
+      baselayer: this.metadata.type === 'baselayer' && /jpe?g/i.test(this.metadata.format || ''),
     };
   }
 
@@ -187,8 +195,16 @@ class MapManager {
       if (this.packs.has(id)) continue;
 
       try {
-        const url = (await fsp.readFile(path.join(this.mapsDir, file), 'utf8')).trim();
+        let url = (await fsp.readFile(path.join(this.mapsDir, file), 'utf8')).trim();
         if (!/^https?:\/\//i.test(url)) throw new Error('Not an http(s) URL');
+
+        // Protomaps keeps a week of daily builds; a stale date is moved on.
+        if (/build\.protomaps\.com\/\d{8}\.pmtiles$/.test(url)) {
+          try {
+            const fresh = await resolveProtomapsUrl(url);
+            if (fresh !== url) { url = fresh; await fsp.writeFile(path.join(this.mapsDir, file), url + '\n'); }
+          } catch { /* offline, or none found: try the one we have */ }
+        }
 
         const archive = await PMTiles.openRemote(url);
         const info = archive.describe();
@@ -244,7 +260,8 @@ class MapManager {
             ...info,
             id,
             file,
-            kind: info.tileFormat === 'pbf' || info.tileFormat === 'mvt' ? 'vector' : 'raster',
+            kind: info.encoding === 'terrarium' ? 'terrain'
+              : info.tileFormat === 'pbf' || info.tileFormat === 'mvt' ? 'vector' : 'raster',
             format: 'mbtiles',
             title: info.name || file.replace(/\.mbtiles$/i, ''),
             size: stat.size,
@@ -295,7 +312,9 @@ class MapManager {
       return null;
     }
 
-    const layers = decodeTile(raw);
+    // MBTiles vector tiles are gzipped by convention; PMTiles ones arrive decompressed.
+    const bytes = raw.length > 2 && raw[0] === 0x1f && raw[1] === 0x8b ? zlib.gunzipSync(raw) : raw;
+    const layers = decodeTile(bytes);
     const output = {};
 
     for (const [name, layer] of Object.entries(layers)) {

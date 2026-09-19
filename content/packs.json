@@ -28,8 +28,16 @@
       "title": "Books"
     },
     {
+      "id": "maps",
+      "title": "Maps (offline)"
+    },
+    {
       "id": "charts",
       "title": "Sea charts"
+    },
+    {
+      "id": "imagery",
+      "title": "Satellite & terrain"
     }
   ],
   "items": [
@@ -1426,6 +1434,38 @@
       ]
     },
     {
+      "id": "map-world",
+      "category": "maps",
+      "title": "Map — the whole world (offline)",
+      "description": "Coastlines, countries, rivers, major roads and cities everywhere, to about 2 km per pixel. The base the sea charts and satellite views sit on when the internet has gone. 5,461 tiles.",
+      "size": 491490000,
+      "dest": "library/maps",
+      "priority": 40,
+      "recommended": true,
+      "files": [
+        {
+          "filename": "Map - World.mbtiles",
+          "tileset": {
+            "url": "https://build.protomaps.com/20260916.pmtiles",
+            "format": "pbf",
+            "bounds": [
+              -180,
+              -85,
+              180,
+              85
+            ],
+            "minZoom": 0,
+            "maxZoom": 6,
+            "name": "Map — World",
+            "attribution": "Protomaps basemap © OpenStreetMap contributors",
+            "type": "baselayer",
+            "description": "Coastlines, countries, rivers, major roads and cities everywhere, to about 2 km per pixel. The base the sea charts and satellite views sit on when the internet has gone.",
+            "source": "pmtiles"
+          }
+        }
+      ]
+    },
+    {
       "id": "wiktionary-en",
       "category": "reference",
       "title": "Wiktionary — the dictionary",
@@ -1438,6 +1478,38 @@
         {
           "url": "https://lb.download.kiwix.org/zim/wiktionary/wiktionary_en_all_nopic_2026-08.zim",
           "filename": "wiktionary_en_all_nopic_2026-08.zim"
+        }
+      ]
+    },
+    {
+      "id": "map-britain",
+      "category": "maps",
+      "title": "Map — Britain and Ireland (offline, streets)",
+      "description": "Every road down to residential streets, footpaths, buildings from zoom 13, rivers, woods, and the points of interest. The map to have when the online one is gone. 187,336 tiles.",
+      "size": 2622704000,
+      "dest": "library/maps",
+      "priority": 41,
+      "recommended": true,
+      "files": [
+        {
+          "filename": "Map - Britain and Ireland.mbtiles",
+          "tileset": {
+            "url": "https://build.protomaps.com/20260916.pmtiles",
+            "format": "pbf",
+            "bounds": [
+              -11,
+              49.5,
+              2.2,
+              61
+            ],
+            "minZoom": 0,
+            "maxZoom": 13,
+            "name": "Map — Britain & Ireland",
+            "attribution": "Protomaps basemap © OpenStreetMap contributors",
+            "type": "baselayer",
+            "description": "Every road down to residential streets, footpaths, buildings from zoom 13, rivers, woods, and the points of interest. The map to have when the online one is gone.",
+            "source": "pmtiles"
+          }
         }
       ]
     },
@@ -1470,6 +1542,70 @@
         {
           "url": "https://lb.download.kiwix.org/zim/ifixit/ifixit_en_all_2025-12.zim",
           "filename": "ifixit_en_all_2025-12.zim"
+        }
+      ]
+    },
+    {
+      "id": "map-europe",
+      "category": "maps",
+      "title": "Map — Europe (offline)",
+      "description": "Main roads, towns and rivers across Europe to about 300 m per pixel. For the journey, not the street. 10,519 tiles.",
+      "size": 473355000,
+      "dest": "library/maps",
+      "priority": 42,
+      "recommended": false,
+      "files": [
+        {
+          "filename": "Map - Europe.mbtiles",
+          "tileset": {
+            "url": "https://build.protomaps.com/20260916.pmtiles",
+            "format": "pbf",
+            "bounds": [
+              -12,
+              34,
+              42,
+              72
+            ],
+            "minZoom": 0,
+            "maxZoom": 9,
+            "name": "Map — Europe",
+            "attribution": "Protomaps basemap © OpenStreetMap contributors",
+            "type": "baselayer",
+            "description": "Main roads, towns and rivers across Europe to about 300 m per pixel. For the journey, not the street.",
+            "source": "pmtiles"
+          }
+        }
+      ]
+    },
+    {
+      "id": "map-japan",
+      "category": "maps",
+      "title": "Map — Japan (offline)",
+      "description": "Roads, towns, rivers and places across Japan to about 80 m per pixel. 16,658 tiles.",
+      "size": 416450000,
+      "dest": "library/maps",
+      "priority": 43,
+      "recommended": false,
+      "files": [
+        {
+          "filename": "Map - Japan.mbtiles",
+          "tileset": {
+            "url": "https://build.protomaps.com/20260916.pmtiles",
+            "format": "pbf",
+            "bounds": [
+              128,
+              30,
+              146.5,
+              46
+            ],
+            "minZoom": 0,
+            "maxZoom": 11,
+            "name": "Map — Japan",
+            "attribution": "Protomaps basemap © OpenStreetMap contributors",
+            "type": "baselayer",
+            "description": "Roads, towns, rivers and places across Japan to about 80 m per pixel.",
+            "source": "pmtiles"
+          }
         }
       ]
     },
@@ -1522,6 +1658,162 @@
       ]
     },
     {
+      "id": "satellite-blue-marble",
+      "category": "imagery",
+      "title": "Satellite — the whole world (NASA Blue Marble)",
+      "description": "True-colour satellite view of the planet, cloud-free, to about 2 km per pixel. Continents, deserts, forests, ice; not streets. Public domain. 5,461 tiles.",
+      "size": 60071000,
+      "dest": "library/maps",
+      "priority": 45,
+      "recommended": true,
+      "files": [
+        {
+          "filename": "Satellite - Blue Marble (world).mbtiles",
+          "tileset": {
+            "url": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_NextGeneration/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg",
+            "format": "jpg",
+            "bounds": [
+              -180,
+              -85,
+              180,
+              85
+            ],
+            "minZoom": 0,
+            "maxZoom": 6,
+            "name": "Satellite — Blue Marble (world)",
+            "attribution": "NASA Earth Observatory Blue Marble, via GIBS",
+            "type": "baselayer",
+            "description": "True-colour satellite view of the planet, cloud-free, to about 2 km per pixel. Continents, deserts, forests, ice; not streets. Public domain."
+          }
+        }
+      ]
+    },
+    {
+      "id": "satellite-sentinel-britain",
+      "category": "imagery",
+      "title": "Satellite — Britain and Ireland (Sentinel-2)",
+      "description": "Cloud-free satellite view to about 40 m per pixel: fields, woods, rivers, towns. Non-commercial licence — fine for a household, not for sale. 11,944 tiles.",
+      "size": 262768000,
+      "dest": "library/maps",
+      "priority": 46,
+      "recommended": true,
+      "files": [
+        {
+          "filename": "Satellite - Britain and Ireland.mbtiles",
+          "tileset": {
+            "url": "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2021_3857/default/g/{z}/{y}/{x}.jpg",
+            "format": "jpg",
+            "bounds": [
+              -11,
+              49.5,
+              2.2,
+              61
+            ],
+            "minZoom": 0,
+            "maxZoom": 11,
+            "name": "Satellite — Britain & Ireland",
+            "attribution": "Sentinel-2 cloudless by EOX IT Services GmbH (contains modified Copernicus Sentinel data 2021), CC BY-NC-SA 4.0",
+            "type": "baselayer",
+            "description": "Cloud-free satellite view to about 40 m per pixel: fields, woods, rivers, towns. Non-commercial licence — fine for a household, not for sale."
+          }
+        }
+      ]
+    },
+    {
+      "id": "satellite-sentinel-europe",
+      "category": "imagery",
+      "title": "Satellite — Europe (Sentinel-2)",
+      "description": "Cloud-free satellite view of Europe to about 300 m per pixel. Non-commercial licence. 2,719 tiles.",
+      "size": 54380000,
+      "dest": "library/maps",
+      "priority": 47,
+      "recommended": false,
+      "files": [
+        {
+          "filename": "Satellite - Europe.mbtiles",
+          "tileset": {
+            "url": "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2021_3857/default/g/{z}/{y}/{x}.jpg",
+            "format": "jpg",
+            "bounds": [
+              -12,
+              34,
+              42,
+              72
+            ],
+            "minZoom": 0,
+            "maxZoom": 8,
+            "name": "Satellite — Europe",
+            "attribution": "Sentinel-2 cloudless by EOX IT Services GmbH (contains modified Copernicus Sentinel data 2021), CC BY-NC-SA 4.0",
+            "type": "baselayer",
+            "description": "Cloud-free satellite view of Europe to about 300 m per pixel. Non-commercial licence."
+          }
+        }
+      ]
+    },
+    {
+      "id": "satellite-sentinel-japan",
+      "category": "imagery",
+      "title": "Satellite — Japan (Sentinel-2)",
+      "description": "Cloud-free satellite view of Japan to about 80 m per pixel. Non-commercial licence. 4,256 tiles.",
+      "size": 93632000,
+      "dest": "library/maps",
+      "priority": 48,
+      "recommended": false,
+      "files": [
+        {
+          "filename": "Satellite - Japan.mbtiles",
+          "tileset": {
+            "url": "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2021_3857/default/g/{z}/{y}/{x}.jpg",
+            "format": "jpg",
+            "bounds": [
+              128,
+              30,
+              146.5,
+              46
+            ],
+            "minZoom": 0,
+            "maxZoom": 10,
+            "name": "Satellite — Japan",
+            "attribution": "Sentinel-2 cloudless by EOX IT Services GmbH (contains modified Copernicus Sentinel data 2021), CC BY-NC-SA 4.0",
+            "type": "baselayer",
+            "description": "Cloud-free satellite view of Japan to about 80 m per pixel. Non-commercial licence."
+          }
+        }
+      ]
+    },
+    {
+      "id": "terrain-britain",
+      "category": "imagery",
+      "title": "Terrain — Britain and Ireland (heights)",
+      "description": "Ground height for every point, about 150 m apart. Gives route plans their climb and descent, and the map its hill shading. 3,128 tiles.",
+      "size": 218960000,
+      "dest": "library/maps",
+      "priority": 49,
+      "recommended": true,
+      "files": [
+        {
+          "filename": "Terrain - Britain and Ireland.mbtiles",
+          "tileset": {
+            "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png",
+            "format": "png",
+            "bounds": [
+              -11,
+              49.5,
+              2.2,
+              61
+            ],
+            "minZoom": 0,
+            "maxZoom": 10,
+            "name": "Terrain — Britain & Ireland",
+            "attribution": "Mapzen/AWS Terrain Tiles: SRTM, GMTED2010, ETOPO1 and others",
+            "type": "overlay",
+            "description": "Ground height for every point, about 150 m apart. Gives route plans their climb and descent, and the map its hill shading.",
+            "encoding": "terrarium"
+          }
+        }
+      ]
+    },
+    {
       "id": "chart-channel",
       "category": "charts",
       "title": "Sea chart — English Channel",
@@ -1534,6 +1826,38 @@
         {
           "url": "https://ftp.gwdg.de/pub/misc/openstreetmap/openseamap/charts/mbtiles/OSM-OpenCPN2-Channel.mbtiles",
           "filename": "OpenSeaMap - Channel.mbtiles"
+        }
+      ]
+    },
+    {
+      "id": "terrain-world",
+      "category": "imagery",
+      "title": "Terrain — the whole world (coarse heights)",
+      "description": "Ground height everywhere, about 2 km apart. Enough to know a mountain range is in the way; not enough for a day's walk. 5,461 tiles.",
+      "size": 327660000,
+      "dest": "library/maps",
+      "priority": 50,
+      "recommended": false,
+      "files": [
+        {
+          "filename": "Terrain - World.mbtiles",
+          "tileset": {
+            "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png",
+            "format": "png",
+            "bounds": [
+              -180,
+              -85,
+              180,
+              85
+            ],
+            "minZoom": 0,
+            "maxZoom": 6,
+            "name": "Terrain — World",
+            "attribution": "Mapzen/AWS Terrain Tiles: SRTM, GMTED2010, ETOPO1 and others",
+            "type": "overlay",
+            "description": "Ground height everywhere, about 2 km apart. Enough to know a mountain range is in the way; not enough for a day's walk.",
+            "encoding": "terrarium"
+          }
         }
       ]
     },

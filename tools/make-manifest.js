@@ -150,7 +150,10 @@ async function openstaxBooks(fromFile) {
   return out;
 }
 
+const { TILESETS } = require('./tilesets');
+
 async function main() {
+  items.push(...TILESETS);
   const books = await openstaxBooks(process.argv[2]);
   for (const b of books) {
     if (!b.size) continue;
@@ -174,7 +177,9 @@ async function main() {
       { id: 'education', title: 'Education' },
       { id: 'textbooks', title: 'Textbooks (OpenStax)' },
       { id: 'books', title: 'Books' },
+      { id: 'maps', title: 'Maps (offline)' },
       { id: 'charts', title: 'Sea charts' },
+      { id: 'imagery', title: 'Satellite & terrain' },
     ],
     items: items.sort((a, b) => a.priority - b.priority || a.title.localeCompare(b.title)),
   };
