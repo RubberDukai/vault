@@ -21,6 +21,7 @@ const { ContentLibrary } = require('./content/loader');
 const { MapManager } = require('./maps/manager');
 const { Elevation } = require('./maps/terrain');
 const { MediaLibrary } = require('./media');
+const { SheetLibrary, exportXlsx, exportCsv } = require('./sheets');
 const { DocumentManager } = require('./docs/manager');
 const { PackCatalog } = require('./library/packs');
 const markdown = require('./content/markdown');
@@ -59,6 +60,7 @@ class ArkServer {
     this.maps = new MapManager(options.mapsDir || path.join(this.libraryDir, 'maps'));
     this.elevation = new Elevation(this.maps);
     this.media = new MediaLibrary(options.mediaDir || path.join(this.libraryDir, 'media'));
+    this.sheets = new SheetLibrary(options.sheetsDir || path.join(this.libraryDir, 'sheets'));
     this.documents = new DocumentManager(
       options.docsDir || path.join(this.libraryDir, 'docs'),
       path.join(this.dataDir, 'docs-cache')
@@ -202,6 +204,17 @@ class ArkServer {
       'cache-control': 'no-store',
     });
     res.end(payload);
+  }
+
+  async readRawBody(req, limit = 64 * 1024 * 1024) {
+    const chunks = [];
+    let size = 0;
+    for await (const chunk of req) {
+      size += chunk.length;
+      if (size > limit) throw new Error('Upload too large');
+      chunks.push(chunk);
+    }
+    return Buffer.concat(chunks);
   }
 
   async readBody(req) {
@@ -703,6 +716,71 @@ class ArkServer {
         removed = before - d.notes.length;
       });
       return this.json(res, removed ? 200 : 404, removed ? { removed } : { error: 'No such page' });
+    }
+
+    // --- spreadsheets -----------------------------------------------------
+    if (route === 'sheets' && method === 'GET') {
+      return this.json(res, 200, await this.sheets.list());
+    }
+
+    if (route === 'sheets' && method === 'POST') {
+      const body = await this.readBody(req);
+      if (!body || !Array.isArray(body.sheets)) return this.json(res, 400, { error: 'A workbook needs sheets' });
+      const saved = await this.sheets.save({
+        id: body.id || undefined,
+        name: String(body.name || 'Untitled').slice(0, 120),
+        active: Number(body.active) || 0,
+        sheets: body.sheets.slice(0, 50).map((sh) => ({
+          name: String(sh.name || 'Sheet').slice(0, 31),
+          cells: sh.cells && typeof sh.cells === 'object' ? sh.cells : {},
+          cols: sh.cols && typeof sh.cols === 'object' ? sh.cols : {},
+          freeze: sh.freeze ? Number(sh.freeze) : 0,
+        })),
+      });
+      return this.json(res, 200, { workbook: saved });
+    }
+
+    if (route === 'sheets/import' && method === 'POST') {
+      const filename = q.get('filename') || '';
+      const file = q.get('file') || '';
+      try {
+        const saved = file
+          ? await this.sheets.import({ file })
+          : await this.sheets.import({ buffer: await this.readRawBody(req), filename });
+        return this.json(res, 200, { workbook: saved });
+      } catch (err) {
+        return this.json(res, 400, { error: `Could not import: ${err.message}` });
+      }
+    }
+
+    if (route.startsWith('sheets/') && route.endsWith('/export') && method === 'GET') {
+      const id = route.slice('sheets/'.length, -'/export'.length);
+      let workbook;
+      try { workbook = await this.sheets.get(id); } catch { return this.json(res, 404, { error: 'No such workbook' }); }
+      const format = q.get('format') === 'csv' ? 'csv' : 'xlsx';
+      const safeName = String(workbook.name || 'workbook').replace(/[^\w\- ]+/g, '').trim() || 'workbook';
+      if (format === 'csv') {
+        const sheet = workbook.sheets[Number(q.get('sheet')) || 0] || workbook.sheets[0];
+        const csv = exportCsv(sheet);
+        res.writeHead(200, { 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="${safeName} - ${sheet.name}.csv"` });
+        return res.end(csv);
+      }
+      const buf = exportXlsx(workbook);
+      res.writeHead(200, { 'content-type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'content-length': buf.length, 'content-disposition': `attachment; filename="${safeName}.xlsx"` });
+      return res.end(buf);
+    }
+
+    if (route.startsWith('sheets/') && method === 'GET') {
+      try {
+        return this.json(res, 200, { workbook: await this.sheets.get(route.slice('sheets/'.length)) });
+      } catch {
+        return this.json(res, 404, { error: 'No such workbook' });
+      }
+    }
+
+    if (route.startsWith('sheets/') && method === 'DELETE') {
+      try { await this.sheets.remove(route.slice('sheets/'.length)); return this.json(res, 200, { removed: 1 }); }
+      catch { return this.json(res, 404, { error: 'No such workbook' }); }
     }
 
     // --- media ------------------------------------------------------------

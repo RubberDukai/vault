@@ -138,7 +138,8 @@ const routes = [
   [/^\/tools$/, () => window.renderTools()],
   [/^\/music$/, () => window.renderMusic()],
   [/^\/science$/, (p) => window.renderScience(p)],
-  [/^\/notebook$/, () => window.renderNotebook()],
+  [/^\/notebook$/, (p) => window.renderNotebook(p)],
+  [/^\/sheets$/, (p) => window.renderSheets(p)],
   [/^\/media$/, (p) => window.renderMedia(p)],
   [/^\/games$/, (p) => window.renderGames(p)],
 ];
@@ -155,7 +156,7 @@ const SECTION_ROOT = {
   library: '#/library', handbook: '#/handbook', maps: '#/maps', calendar: '#/calendar',
   comms: '#/comms', languages: '#/languages', school: '#/school', tools: '#/tools',
   manual: '#/manual', setup: '#/setup', music: '#/music', science: '#/science',
-  notebook: '#/notebook', media: '#/media', games: '#/games',
+  notebook: '#/notebook', media: '#/media', games: '#/games', sheets: '#/sheets',
 };
 
 // The three folders in the sidebar fold and unfold; remembered per browser.
@@ -212,7 +213,7 @@ async function route() {
   repointNav(hash);
 
   // Wide pages get the whole screen; prose keeps its own measure.
-  view.classList.toggle('wide', /^#\/(maps|read|doc|calendar|setup|tools|music|science|media|games|notebook)/.test(hash));
+  view.classList.toggle('wide', /^#\/(maps|read|doc|calendar|setup|tools|music|science|media|games|notebook|sheets)/.test(hash));
 
   // A section in a folded folder still shows where you are: unfold it.
   const activeLink = [...tabs.querySelectorAll('a')].find((a) => new RegExp(a.dataset.match).test(hash));
@@ -269,6 +270,7 @@ const FEATURES = [
   ['Comms', '#/comms', 'Message anyone else on this network. No internet, no accounts, no company in the middle.'],
   ['Maps', '#/maps', 'Offline maps you can draw on. Measure, plan routes, mark hazards and what you found where — the world changes, your map should too.'],
   ['Notebook', '#/notebook', 'Journal, recipes and lists, per person. Written here, kept here.'],
+  ['Sheets', '#/sheets', 'A spreadsheet: formulas, formatting, sorting, several sheets a workbook. Opens and saves Excel files. No subscription.'],
   ['Media', '#/media', 'Your own music, photos and films, played from a folder. Nothing streams.'],
   ['Games', '#/games', 'Chess and draughts for two, or against the machine. Evenings are long.'],
   ['System', null, null],

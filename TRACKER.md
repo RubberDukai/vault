@@ -129,18 +129,33 @@ Everything else that was open has been decided and is done or in progress — se
 | 9.2 | Map keeps its position | **DONE** | Centre, zoom, paper/dark, base pack and overlays survive tab changes and restarts |
 | 9.3 | Calendar tab with addable events | **DONE** | Shared household calendar: events with time, notes, colour, and repeats (weekly/monthly/yearly). Every day shows sunrise, sunset, first/last light, day length and the moon for wherever the map was last looking; the month grid marks the days the moon turns. A "coming up" list for the next two months |
 | 9.4 | Measuring tool: distance and perimeter | **DONE** | Click points for distance; click the first point again (or Close shape) for perimeter and area in m²/ha/km² and acres |
-| 9.5 | Route planner with nodes, leg distances, elevation | **PARTIAL** | Click nodes; every leg listed with distance and true bearing; total and a rough walking time; Backspace/Escape to edit; saved to a layer with a name, drawn on everyone's map with legs labelled. **Elevation gain is not there** — it needs a terrain pack (hill heights), which no installed map carries. Doable later: a world terrain pack is ~1–2 GB for coarse, far more for fine |
+| 9.5 | Route planner with nodes, leg distances, elevation | **DONE** | Click nodes; every leg listed with distance and true bearing; total and a rough walking time; Backspace/Escape to edit; saved to a layer with a name, drawn on everyone's map with legs labelled. **Elevation gain is not there** — it needs a terrain pack (hill heights), which no installed map carries. Doable later: a world terrain pack is ~1–2 GB for coarse, far more for fine |
 | 9.6 | Are libraries on the map? | **ANSWERED** | Yes — public libraries are a point of interest under "Shelter & gathering", alongside town halls, schools and places of worship, at zoom 13 and above |
 | 9.7 | Where is ocean navigation? | **ANSWERED** | Inside the map: the sea charts are raster overlays (Overlays list under Base map) once downloaded — they are in the queue now. The handbook's sailing/navigation material is text; the charts give depths, buoys, lights and hazards |
-| 9.8 | Satellite view | **OPEN** | Not built. Feasible as a raster base layer: NASA Blue Marble (public domain, ~500 MB for 500 m/pixel) shows terrain, vegetation and cities; true high-resolution imagery of everywhere is terabytes and licensed. Say if you want the Blue Marble layer added to the catalogue |
+| 9.8 | Satellite view | **DONE** (see 10.7) | Not built. Feasible as a raster base layer: NASA Blue Marble (public domain, ~500 MB for 500 m/pixel) shows terrain, vegetation and cities; true high-resolution imagery of everywhere is terabytes and licensed. Say if you want the Blue Marble layer added to the catalogue |
 | 9.9 | Map bigger, full width | **DONE** | The map fills the content area and most of the window height |
 | 9.10 | Use the whole screen, everywhere | **DONE** | No more fixed page width. Reading views keep a comfortable line length; lists, maps, calendar and setup use the full width |
 | 9.11 | Sidebar instead of top tabs and search | **DONE** | Left sidebar with search, sections, appearance and profile; collapses to an icon strip (remembered); becomes a top strip on phones |
 | 9.12 | Rename Pip-Boy view to "retro" | **DONE** | "Retro terminal" |
 | 9.13 | Header on the appearance dropdown | **DONE** | "Customise view" |
-| 9.14 | Other features people would miss (music, piano?) | **PARTIAL** | Tools tab: a two-octave piano playable from the keyboard, a metronome with tap tempo and tuning pitches, a countdown timer with alarm and a stopwatch, and a unit converter. Not yet built, in rough order of usefulness: a music/audio player for your own files (and a local photo/video viewer), a notebook/journal per person, a chess/draughts board, a periodic table and star chart, a Morse trainer, a calculator, a recipe book. Say which |
+| 9.14 | Other features people would miss (music, piano?) | **DONE** (see 10.1) | Tools tab: a two-octave piano playable from the keyboard, a metronome with tap tempo and tuning pitches, a countdown timer with alarm and a stopwatch, and a unit converter. Not yet built, in rough order of usefulness: a music/audio player for your own files (and a local photo/video viewer), a notebook/journal per person, a chess/draughts board, a periodic table and star chart, a Morse trainer, a calculator, a recipe book. Say which |
 | 9.15 | Are 10-card modules adequate? Matched to real syllabuses? | **PARTIAL** | The 10 was the per-session limit on *new* cards, now a setting (5–100). Honest answer to adequacy: it was not — 455 cards was a survival core. Now 1,079: Japanese has 652 (both kana, all 110 JLPT N5 kanji, about 450 words — just over half of N5 vocabulary), Spanish 289 (about half of CEFR A1). Each language page says where its decks sit against the real level. Still to do: the rest of N5 and A1, Mandarin to HSK 1, a Devanagari deck for Hindi, and audio |
 | 9.16 | Japanese cards show only symbols | **DONE** | Pronunciation (rōmaji, pinyin, or a plain English rendering) now shows on the front of the card by default; a toggle hides it once you can read the script. Every Japanese, Mandarin and Hindi card carries a reading; the kana decks are the exception on purpose — the reading *is* the answer |
+
+## 10. Everything at once — requested 15–19 Sep
+
+| # | Request | Status | Notes |
+|---|---|---|---|
+| 10.1 | Build all the suggested features | **DONE** | Music (piano, metronome, tuning pitches, chords), Science (periodic table, night sky), Notebook (journal, recipes, lists), Media (music, photos, films), Games (chess, draughts), Tools (calculator, converter, timer, stopwatch, Morse trainer) |
+| 10.2 | Almanac: change the time as well as the date | **DONE** | A time slider; the sun's bearing, height and shadow length for that instant; the map shades the night side of the world with the subsolar point marked |
+| 10.3 | Roads drawn as thick orange lines | **DONE** | Widths and which classes show now depend on zoom: hairline trunk roads on a continent, full streets at zoom 12+ |
+| 10.4 | Sections nested in folders | **DONE** | Home; Knowledge (Library, Handbook, Languages, School, Music, Science); Life (Calendar, Comms, Maps, Notebook, Sheets, Media, Games); System (Tools, Manual, Setup). Folders fold. Piano moved out of Tools into Music |
+| 10.5 | Are routes and markings saved and deletable? | **ANSWERED / DONE** | Yes — everything drawn is saved on the server in layers. Each layer now lists its marks with go-to and delete buttons; the eraser works too. The green 7.31 km line was a leftover from my testing; removed |
+| 10.6 | Retro view: rendering pattern across the map | **DONE** | The scanlines are drawn to whole device pixels now, so the bands are even everywhere |
+| 10.7 | Satellite view | **DONE** | Setup → Satellite & terrain: NASA Blue Marble for the world (installed), Sentinel-2 for Britain, Europe or Japan. Chosen under Satellite on the map page; roads and names draw over the photo |
+| 10.8 | Elevation gain on routes | **DONE** | Terrain packs (Britain installed; world coarse available). Routes show climb, descent, highest and lowest points, a height profile and a Naismith time allowance; the map gets hill shading |
+| 10.9 | Offline maps, not just the online planet | **DONE** | Found while testing: the online map had expired (Protomaps keeps a week of builds; the vault now moves the date on itself). Setup → Maps (offline): Britain & Ireland to street level (851 MB, installed), the world (installed), Europe, Japan |
+| 10.10 | Spreadsheet — view, edit, format, sort, formulas, open Excel files | **DONE** | Sheets: a grid with a formula engine (about a hundred functions), number/date/currency/percent formats, bold/italic/colour, sort, insert/delete rows and columns, freeze, undo, several sheets, autosave. Imports and exports .xlsx and .csv. Charts and pivot tables are not there |
 
 ## 6. Known thin spots
 
@@ -154,7 +169,7 @@ Not separate requests — the places where a "done" is doing less than it should
 | 6.4 | Languages | Guides for all four. No audio. Japanese and Spanish now cover roughly half of N5 / A1 vocabulary; Mandarin and Hindi are still a survival core — see 9.15 |
 | 6.5 | School | 13 lessons. Real depth comes from imported textbooks (D7) |
 | 6.6 | Medical | Resolved — 7 chapters, incl. childbirth, mental health and long-term conditions |
-| 6.7 | Maps | Pins, lengths, perimeter/area and a route planner done. Still no offline place-name search, no elevation, no satellite, no OS style |
+| 6.7 | Maps | Pins, lengths, perimeter/area, route planner, elevation, satellite, hill shading and offline packs done. Still no offline place-name search and no OS style |
 | 6.8 | Food | Hunting, trapping and fishing now covered. Livestock still a paragraph |
 | 6.9 | Water | Resolved — wells and drought covered |
 

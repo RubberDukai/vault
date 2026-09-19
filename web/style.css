@@ -863,3 +863,48 @@ a { color: var(--link); }
 .sky-readout { position: absolute; left: 8px; bottom: 8px; font-size: 12px; background: var(--bg-raised); border: 1px solid var(--border); padding: 3px 8px; border-radius: 6px; max-width: calc(100% - 16px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sky-side { background: var(--bg-raised); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
 @media (max-width: 860px) { .sky-shell { grid-template-columns: 1fr; } }
+
+/* -------------------------------------------------------------- sheets */
+
+.sheet-app { display: flex; flex-direction: column; height: calc(100vh - 70px); min-height: 480px; }
+.sheet-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+.sheet-name { font: inherit; font-size: 16px; font-weight: 600; background: none; border: none; border-bottom: 1px solid transparent; color: var(--text); padding: 2px 4px; min-width: 200px; }
+.sheet-name:hover, .sheet-name:focus { border-bottom-color: var(--border); outline: none; }
+.sheet-tools { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; }
+.sheet-tools .btn-sm { padding: 3px 7px; font-size: 13px; min-width: 28px; }
+.sheet-sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; }
+.sheet-palette { display: inline-flex; align-items: center; gap: 2px; font-size: 12px; color: var(--text-faint); }
+.swatch-sm { width: 16px; height: 16px; border-radius: 3px; border: 1px solid var(--border); padding: 0; cursor: pointer; font-size: 10px; line-height: 1; color: var(--text-faint); }
+.swatch-sm:hover { border-color: var(--text); }
+.formula-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.cell-name { min-width: 64px; padding: 4px 8px; background: var(--bg-raised); border: 1px solid var(--border); border-radius: 6px; font-size: 13px; text-align: center; }
+.formula-input { flex: 1; padding: 5px 10px; background: var(--bg-raised); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 13px; }
+.formula-input:focus { outline: none; border-color: var(--accent); }
+.sheet-scroll { position: relative; flex: 1; overflow: auto; border: 1px solid var(--border); background: var(--bg-raised); outline: none; }
+.sheet-scroll:focus { border-color: var(--accent); }
+.sheet-grid { border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: 13px; }
+.sheet-grid th, .sheet-grid td { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); height: 24px; padding: 0 5px; white-space: nowrap; overflow: hidden; text-overflow: clip; box-sizing: border-box; }
+.sheet-grid th { background: var(--bg-sunken); color: var(--text-faint); font-weight: 500; font-size: 12px; text-align: center; position: sticky; z-index: 2; user-select: none; }
+.sheet-grid thead th { top: 0; }
+.sheet-grid th.corner { left: 0; z-index: 4; width: 44px; min-width: 44px; cursor: pointer; }
+.sheet-grid th.row-head { left: 0; width: 44px; min-width: 44px; z-index: 3; }
+.sheet-grid th.hl { color: var(--accent); background: var(--bg); }
+.sheet-grid tr.frozen td { position: sticky; top: 24px; background: var(--bg-raised); z-index: 1; }
+.sheet-grid tr.frozen th.row-head { top: 24px; z-index: 3; }
+.sheet-grid td { color: var(--text); cursor: cell; background: var(--bg-raised); }
+.sheet-grid td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.sheet-grid td.err { color: var(--bad); font-weight: 600; }
+.sheet-grid td.b { font-weight: 700; } .sheet-grid td.i { font-style: italic; } .sheet-grid td.u { text-decoration: underline; }
+.sheet-grid td.al-left { text-align: left; } .sheet-grid td.al-center { text-align: center; } .sheet-grid td.al-right { text-align: right; }
+.sheet-grid td.sel { box-shadow: inset 0 0 0 100px color-mix(in srgb, var(--accent) 16%, transparent); }
+.sheet-grid td.active { outline: 2px solid var(--accent); outline-offset: -2px; box-shadow: none; }
+.col-grip { position: absolute; right: -3px; top: 0; width: 7px; height: 100%; cursor: col-resize; }
+.sheet-grid th.col-head { position: sticky; top: 0; }
+.cell-editor { position: absolute; z-index: 5; border: 2px solid var(--accent); background: var(--bg); color: var(--text); font-size: 13px; padding: 0 4px; box-sizing: border-box; outline: none; }
+.sheet-tabs { display: flex; align-items: center; gap: 2px; border: 1px solid var(--border); border-top: none; background: var(--bg-sunken); padding: 3px 6px; overflow-x: auto; }
+.sheet-tab { background: none; border: 1px solid transparent; border-radius: 6px; padding: 3px 12px; color: var(--text-dim); font: inherit; font-size: 13px; cursor: pointer; white-space: nowrap; }
+.sheet-tab.active { background: var(--bg-raised); border-color: var(--border); color: var(--text); font-weight: 600; }
+.sheet-tab.add { font-weight: 700; }
+.sheet-files { position: absolute; z-index: 20; left: 0; top: 40px; width: min(520px, 90vw); max-height: 70vh; overflow-y: auto; background: var(--bg-raised); border: 1px solid var(--border-bright); border-radius: var(--radius); padding: 12px 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+.sheet-app { position: relative; }
+[data-theme="pipboy"] .sheet-grid td.sel { box-shadow: inset 0 0 0 100px color-mix(in srgb, var(--phosphor) 14%, transparent); }

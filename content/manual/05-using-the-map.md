@@ -111,3 +111,25 @@ Small things that are hard to do without when the phone is dead:
 - **Unit converter** — length, mass, volume, area, speed and temperature,
   including the awkward ones: pints and gallons in both UK and US sizes,
   stones, acres, nautical miles and knots.
+
+## The notebook, sheets, media and games
+
+- **Notebook** — journal pages, recipes and lists, kept per person. A page
+  ticked *shared* is visible to everyone on the network. Six recipes ship
+  with the vault; copy one into your own recipes to change it. Lists tick off.
+- **Sheets** — a spreadsheet. Type into cells; a formula starts with `=` and
+  the usual functions work (SUM, AVERAGE, IF, VLOOKUP, COUNTIF, ROUND, DATE,
+  TODAY and about ninety more). Dates are typed British-style, 19/09/2026;
+  `£12.50` and `50%` are understood and formatted. Bold, italics, alignment,
+  number formats, fill and text colours; sort by any column; insert and
+  delete rows and columns; freeze the top row; several sheets per workbook;
+  undo. **Files ▾** opens, imports and exports: `.xlsx` files from Excel,
+  LibreOffice or Google Sheets open here, and workbooks export back to
+  `.xlsx` or `.csv`. Workbooks are saved as they change, as plain JSON in
+  `library/sheets`. No subscription, no account, no expiry.
+- **Media** — your own music, photos and films, from `library/media`. Music
+  keeps playing while you read something else.
+- **Games** — chess and draughts, for two at one screen or against the
+  machine, which looks a few moves ahead.
+- **Science** — the periodic table with a line on every element, and a night
+  sky for any place, date and hour: stars, constellations, planets, the Moon.
