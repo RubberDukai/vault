@@ -20,6 +20,7 @@ const downloads = require('./library/download');
 const { ContentLibrary } = require('./content/loader');
 const { MapManager } = require('./maps/manager');
 const { Elevation } = require('./maps/terrain');
+const { PlaceIndex } = require('./maps/places');
 const { MediaLibrary } = require('./media');
 const { SheetLibrary, exportXlsx, exportCsv } = require('./sheets');
 const { DocumentManager } = require('./docs/manager');
@@ -59,6 +60,7 @@ class ArkServer {
     this.library = new LibraryManager(this.libraryDir, path.join(this.dataDir, 'title-index'));
     this.maps = new MapManager(options.mapsDir || path.join(this.libraryDir, 'maps'));
     this.elevation = new Elevation(this.maps);
+    this.places = new PlaceIndex(path.join(this.dataDir, 'places.json'), this.maps);
     this.media = new MediaLibrary(options.mediaDir || path.join(this.libraryDir, 'media'));
     this.sheets = new SheetLibrary(options.sheetsDir || path.join(this.libraryDir, 'sheets'));
     this.documents = new DocumentManager(
@@ -122,6 +124,10 @@ class ArkServer {
       this.ready.documents = true;
       await this.library.buildTitleIndexes().catch(() => {});
       this.ready.titles = true;
+      // Place names come from the map packs; index them once, unprompted.
+      if (!this.places.status().ready && this.maps.list().some((p) => p.kind === 'vector' && !p.remote)) {
+        await this.places.build().catch((err) => console.error('[vault] place index failed:', err.message));
+      }
     })();
 
     // The content catalogue. When a pack lands, fold it into the library at
@@ -134,6 +140,7 @@ class ArkServer {
           this.library.buildTitleIndexes().catch(() => {});
         } else if (item.dest === 'library/maps') {
           await this.maps.scan();
+          this.places.build().catch((err) => console.error('[vault] place index failed:', err.message));
         } else if (item.dest === 'library/docs') {
           await this.documents.scan();
         }
@@ -531,6 +538,22 @@ class ArkServer {
     if (route === 'maps/scan' && method === 'POST') {
       await this.maps.scan();
       return this.json(res, 200, { packs: this.maps.list() });
+    }
+
+    // --- place names ------------------------------------------------------
+    // Built from the names inside the installed vector packs; nothing is
+    // fetched. Until the index exists a search just says so.
+    if (route === 'maps/places' && method === 'GET') {
+      const query = (q.get('q') || '').trim();
+      const nearParts = (q.get('near') || '').split(',').map(Number);
+      const near = nearParts.length === 2 && nearParts.every(Number.isFinite) ? { lat: nearParts[0], lon: nearParts[1] } : null;
+      return this.json(res, 200, { ...this.places.status(), results: query ? this.places.search(query, Number(q.get('limit') || 12), near) : [] });
+    }
+
+    if (route === 'maps/places/build' && method === 'POST') {
+      // Long enough that the client should not wait on it; it polls the status.
+      this.places.build().catch((err) => console.error('Place index:', err.message));
+      return this.json(res, 200, this.places.status());
     }
 
     // --- terrain ----------------------------------------------------------

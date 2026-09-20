@@ -72,6 +72,7 @@ Everything else that was open has been decided and is done or in progress — se
 | 3.11 | Bulk out the handbook, especially shelter building | **DONE** | 39 chapters across 10 modules. Will keep growing, but nothing is thin now |
 | 3.12 | Rivers rendering as broken wedges | **DONE** | Rivers are lines; were being filled as polygons. Fixed |
 | 3.13 | Buildings appearing and disappearing | **ANSWERED** | Not a bug — tiles only carry buildings from about zoom 13 |
+| 3.14 | Offline place-name search | **DONE** | The Go to box takes a name as well as coordinates. The index is built from the names inside the installed vector packs (131,000 for Britain & Ireland + world, 40 seconds, automatic at first start and after a new map pack lands) and saved in data/places.json. Nearest match to the current view first, so from Britain "Lancaster" is the one on the Lune |
 
 ## 4. Look, feel and social — requested 10 Sep
 
@@ -169,7 +170,7 @@ Not separate requests — the places where a "done" is doing less than it should
 | 6.4 | Languages | Guides for all four. Spoken audio via the Windows voices (1.10). Japanese and Spanish cover roughly half of N5 / A1; Mandarin is complete to HSK 1; Hindi has the full script and a quarter of A1 — see 9.15 |
 | 6.5 | School | 13 lessons. Real depth comes from imported textbooks (D7) |
 | 6.6 | Medical | Resolved — 7 chapters, incl. childbirth, mental health and long-term conditions |
-| 6.7 | Maps | Pins, lengths, perimeter/area, route planner, elevation, satellite, hill shading and offline packs done. Still no offline place-name search and no OS style |
+| 6.7 | Maps | Pins, lengths, perimeter/area, route planner, elevation, satellite, hill shading and offline packs done. Place-name search done (3.14). Still no OS style |
 | 6.8 | Food | Hunting, trapping and fishing now covered. Livestock still a paragraph |
 | 6.9 | Water | Resolved — wells and drought covered |
 

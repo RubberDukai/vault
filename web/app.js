@@ -1105,10 +1105,11 @@ async function renderMaps() {
 
         <h3 style="margin-top:16px">Go to</h3>
         <form class="row" id="map-goto" style="gap:6px">
-          <input class="map-select" id="map-coords" placeholder="54.05, -2.80" style="flex:1">
+          <input class="map-select" id="map-coords" placeholder="a place name, or 54.05, -2.80" style="flex:1" autocomplete="off">
           <button class="btn btn-sm" type="submit">Go</button>
         </form>
-        <p class="faint" style="margin:6px 0 0">Latitude, longitude in decimal degrees.</p>
+        <div id="map-places"></div>
+        <p class="faint" id="map-places-note" style="margin:6px 0 0">A town, village or country from the installed maps, or latitude, longitude in decimal degrees.</p>
       </div>
 
       <div class="map-panel">
@@ -1304,14 +1305,73 @@ async function renderMaps() {
     MAP.draw();
   };
 
+  // One box for both: a pair of numbers is a coordinate, anything else is a
+  // place name looked up in the index built from the vector packs.
+  const placesBox = document.getElementById('map-places');
+  const placesNote = document.getElementById('map-places-note');
+  const coordsInput = document.getElementById('map-coords');
+  const PLACE_ZOOM = { country: 5, region: 8, county: 9, locality: 12, macrohood: 13, neighbourhood: 14 };
+  let placeTimer = null;
+  let placeSeq = 0;
+
+  const showPlaces = (data) => {
+    if (!data.ready) {
+      placesBox.innerHTML = data.building
+        ? '<p class="faint" style="margin:6px 0 0">Building the place index… try again in a minute.</p>'
+        : `<p class="faint" style="margin:6px 0 0">No place index yet. <a href="#" id="build-places">Build it</a> from the installed maps — under a minute, once.</p>`;
+      const build = document.getElementById('build-places');
+      if (build) build.onclick = async (e) => { e.preventDefault(); showPlaces(await api('maps/places/build', { method: 'POST' })); };
+      return;
+    }
+    if (!data.results.length) {
+      placesBox.innerHTML = '<p class="faint" style="margin:6px 0 0">Nothing by that name in the installed maps.</p>';
+      return;
+    }
+    placesBox.innerHTML = `<div class="place-results">${data.results.map((r, i) => `
+      <a href="#" class="place-result" data-i="${i}">
+        <span>${esc(r.name)}</span>
+        <span class="faint">${esc(r.kind.replace('_', ' '))} · ${r.lat.toFixed(2)}, ${r.lon.toFixed(2)}</span>
+      </a>`).join('')}</div>`;
+    for (const link of placesBox.querySelectorAll('.place-result')) {
+      link.onclick = (e) => {
+        e.preventDefault();
+        const r = data.results[Number(link.dataset.i)];
+        MAP.goTo(r.lon, r.lat, PLACE_ZOOM[r.kind] || 12);
+        MAP.setMarker(r.lon, r.lat);
+        coordsInput.value = r.name;
+        placesBox.innerHTML = '';
+      };
+    }
+  };
+
+  const lookUp = async (raw) => {
+    const parts = raw.split(/[,\s]+/).map(Number).filter((n) => Number.isFinite(n));
+    if (parts.length >= 2 && /^[-\d.,\s]+$/.test(raw)) {
+      MAP.goTo(parts[1], parts[0], Math.max(MAP.zoom, 12));
+      MAP.setMarker(parts[1], parts[0]);
+      placesBox.innerHTML = '';
+      return;
+    }
+    if (raw.length < 2) { placesBox.innerHTML = ''; return; }
+    const seq = ++placeSeq;
+    const data = await api(`maps/places?q=${encodeURIComponent(raw)}&near=${MAP.centre.lat.toFixed(3)},${MAP.centre.lon.toFixed(3)}`);
+    if (seq !== placeSeq) return; // a newer keystroke has answered
+    showPlaces(data);
+  };
+
   document.getElementById('map-goto').onsubmit = (e) => {
     e.preventDefault();
-    const raw = document.getElementById('map-coords').value.trim();
-    const parts = raw.split(/[,\s]+/).map(Number).filter((n) => Number.isFinite(n));
-    if (parts.length < 2) return;
-    MAP.goTo(parts[1], parts[0], Math.max(MAP.zoom, 12));
-    MAP.setMarker(parts[1], parts[0]);
+    clearTimeout(placeTimer);
+    lookUp(coordsInput.value.trim());
   };
+  coordsInput.oninput = () => {
+    clearTimeout(placeTimer);
+    placeTimer = setTimeout(() => lookUp(coordsInput.value.trim()), 250);
+  };
+  api('maps/places').then((data) => {
+    if (data.ready) placesNote.textContent = `${data.count.toLocaleString()} place names from the installed maps, or latitude, longitude in decimal degrees.`;
+    else showPlaces(data);
+  }).catch(() => {});
 
   const rescan = document.getElementById('map-rescan');
   if (rescan) {

@@ -18,6 +18,17 @@ screen with the map open.
 The map remembers its own position, zoom, base map and overlays between
 visits and between restarts.
 
+## Finding a place
+
+The **Go to** box under the map takes a place name or a pair of coordinates.
+Type a town, village, neighbourhood or country and pick from the list; the
+map jumps there and drops a marker. The names come from the map packs you
+have installed — nothing is looked up online — and the index is built the
+first time the vault starts with a vector map present (about 130,000 names
+for Britain, Ireland and the world; under a minute). Where several places
+share a name, the one nearest the current view is listed first. Coordinates
+are latitude, longitude in decimal degrees: `54.05, -2.80`.
+
 ## The map tools
 
 Under the map, in **Your markings**:
