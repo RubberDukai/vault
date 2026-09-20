@@ -1,0 +1,33 @@
+{
+  "title": "Devanagari — vowels and their signs",
+  "description": "The eleven vowels, each in its stand-alone form and as the sign it becomes when attached to a consonant (shown on क). Learn the pairs: short and long i, short and long u.",
+  "order": 3,
+  "cards": [
+    { "front": "अ", "reading": "a", "back": "a, as the u in cup", "note": "the inherent vowel — every consonant carries it unless another vowel sign replaces it" },
+    { "front": "आ", "reading": "ā", "back": "ā, as the a in father", "note": "long" },
+    { "front": "इ", "reading": "i", "back": "i, as in sit", "note": "short" },
+    { "front": "ई", "reading": "ī", "back": "ī, as the ee in seen", "note": "long" },
+    { "front": "उ", "reading": "u", "back": "u, as in put", "note": "short" },
+    { "front": "ऊ", "reading": "ū", "back": "ū, as the oo in moon", "note": "long" },
+    { "front": "ऋ", "reading": "ri", "back": "ri, as in ritual", "note": "rare; mostly in Sanskrit loans like ऋषि rishi" },
+    { "front": "ए", "reading": "e", "back": "e, as the a in gate" },
+    { "front": "ऐ", "reading": "ai", "back": "ai, as the a in bat" },
+    { "front": "ओ", "reading": "o", "back": "o, as in go" },
+    { "front": "औ", "reading": "au", "back": "au, as the o in hot" },
+    { "front": "क", "reading": "ka", "back": "ka — a bare consonant carries the short a", "note": "the next cards show each vowel sign on this letter" },
+    { "front": "का", "reading": "kā", "back": "ā sign: a stroke after the letter" },
+    { "front": "कि", "reading": "ki", "back": "short i sign: a hook written before the letter", "note": "written on the left but sounded after — the classic trap" },
+    { "front": "की", "reading": "kī", "back": "long ī sign: a hook after the letter" },
+    { "front": "कु", "reading": "ku", "back": "short u sign: a small curl below" },
+    { "front": "कू", "reading": "kū", "back": "long ū sign: a larger curl below" },
+    { "front": "कृ", "reading": "kri", "back": "ri sign: a small hook below" },
+    { "front": "के", "reading": "ke", "back": "e sign: one stroke above" },
+    { "front": "कै", "reading": "kai", "back": "ai sign: two strokes above" },
+    { "front": "को", "reading": "ko", "back": "o sign: ā stroke plus one stroke above" },
+    { "front": "कौ", "reading": "kau", "back": "au sign: ā stroke plus two strokes above" },
+    { "front": "क्", "reading": "k", "back": "no vowel at all: a small slash below (virama / halant)", "note": "used at the end of words and inside consonant clusters" },
+    { "front": "कं", "reading": "kaṁ", "back": "dot above (anusvara): nasalises, or stands for n/m before a consonant", "note": "हिंदी hindī" },
+    { "front": "कँ", "reading": "kãn", "back": "moon-dot above (chandrabindu): a nasal vowel, as in French bon", "note": "हाँ hã̄ yes" },
+    { "front": "कः", "reading": "kaḥ", "back": "two dots after (visarga): a light breath — rare, Sanskrit loans", "note": "दुःख duḥkh sorrow" }
+  ]
+}

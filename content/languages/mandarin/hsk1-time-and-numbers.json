@@ -1,0 +1,28 @@
+{
+  "title": "HSK 1 — time and numbers",
+  "description": "Days, times of day, dates and counting beyond ten. Chinese dates go big to small: year, month, day, hour.",
+  "order": 4,
+  "cards": [
+    { "front": "零", "reading": "líng", "back": "zero" },
+    { "front": "百", "reading": "bǎi", "back": "hundred", "note": "一百 100, 两百 200 — 两 liǎng, not 二, before measure words" },
+    { "front": "几", "reading": "jǐ", "back": "how many (expecting a small number); several", "note": "几个人？ how many people?" },
+    { "front": "多少", "reading": "duōshao", "back": "how many, how much (any size)", "note": "多少钱？ how much money?" },
+    { "front": "今天", "reading": "jīntiān", "back": "today" },
+    { "front": "明天", "reading": "míngtiān", "back": "tomorrow" },
+    { "front": "昨天", "reading": "zuótiān", "back": "yesterday" },
+    { "front": "现在", "reading": "xiànzài", "back": "now" },
+    { "front": "上午", "reading": "shàngwǔ", "back": "morning (before noon)" },
+    { "front": "中午", "reading": "zhōngwǔ", "back": "noon, midday" },
+    { "front": "下午", "reading": "xiàwǔ", "back": "afternoon" },
+    { "front": "年", "reading": "nián", "back": "year", "note": "2026年 — read the digits one by one: èr líng èr liù nián" },
+    { "front": "月", "reading": "yuè", "back": "month; moon", "note": "一月 January, 十二月 December — just number + 月" },
+    { "front": "号", "reading": "hào", "back": "day of the month; number", "note": "五月三号 3 May" },
+    { "front": "星期", "reading": "xīngqī", "back": "week", "note": "星期一 Monday … 星期六 Saturday, 星期天 Sunday" },
+    { "front": "点", "reading": "diǎn", "back": "o'clock; a dot", "note": "三点 three o'clock" },
+    { "front": "分钟", "reading": "fēnzhōng", "back": "minute (duration)", "note": "五分钟 five minutes" },
+    { "front": "时候", "reading": "shíhou", "back": "time, moment", "note": "什么时候？ when?" },
+    { "front": "岁", "reading": "suì", "back": "years of age", "note": "你几岁？ how old are you? (to a child); 我三十岁 I am thirty" },
+    { "front": "一点儿", "reading": "yìdiǎnr", "back": "a little, a bit", "note": "我会说一点儿汉语 I speak a little Chinese" },
+    { "front": "些", "reading": "xiē", "back": "some, a few", "note": "这些 these, 那些 those" }
+  ]
+}

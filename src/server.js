@@ -1052,8 +1052,9 @@ class ArkServer {
       const profileId = q.get('profile') || 'default';
       const states = this.state.get().srs[profileId] || {};
       const deckId = q.get('deck');
+      const deck = deckId ? this.content.deck(deckId) : null;
       const cards = deckId
-        ? (this.content.deck(deckId)?.cards || [])
+        ? (deck?.cards || []).map((c) => ({ ...c, deckTitle: deck.title, language: deck.language }))
         : this.content.allCards(q.get('language') || null);
       const queue = srs.buildQueue(cards, states, {
         limit: Number(q.get('limit') || 30),

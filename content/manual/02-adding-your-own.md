@@ -68,7 +68,7 @@ A JSON file in `content/languages/<language>/`, for example `content/languages/j
 }
 ```
 
-`front` is what you are shown, `back` is the answer, `reading` is pronunciation revealed with the answer, and `note` is any extra detail. New cards enter the schedule automatically.
+`front` is what you are shown, `back` is the answer, `reading` is pronunciation revealed with the answer, and `note` is any extra detail. New cards enter the schedule automatically. The Say it button on a card uses whatever voice Windows has for that language; if none is installed the button does not appear.
 
 To add a whole language, make the folder and add `language.json`:
 

@@ -827,7 +827,8 @@ async function renderLanguages() {
       <p class="faint" style="margin:10px 0 0">A session is everything due for review plus up to this many cards you have not seen yet — so the first
       session of a new deck shows ${settings.newLimit} cards, not the whole deck. ${totalCards} cards are installed across
       ${languages.length} languages. Pronunciation is written the way an English speaker would say it (rōmaji for Japanese,
-      pinyin for Mandarin) — hide it once you can read the script.</p>
+      pinyin for Mandarin) — hide it once you can read the script. Cards can also be spoken aloud (the Say it button, or P)
+      using the voices installed in Windows; that works offline, but only for languages whose voice is installed.</p>
     </div>
 
     ${languages.length === 0 ? '<div class="empty">No language decks installed.</div>' : languages.map((lang) => `
@@ -865,8 +866,37 @@ async function renderLanguages() {
 function studySettings() {
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem('vault.study') || '{}'); } catch { saved = {}; }
-  return { newLimit: 10, limit: 60, showReading: true, ...saved };
+  return { newLimit: 10, limit: 60, showReading: true, autoSpeak: false, ...saved };
 }
+
+// Spoken pronunciation comes from the browser's own speech engine, which works
+// offline as long as Windows has the language's voice installed (Settings ›
+// Time & language › Speech › Add voices). Nothing is fetched.
+const SPEECH_LANG = { japanese: 'ja', mandarin: 'zh', hindi: 'hi', spanish: 'es', english: 'en' };
+
+function speechVoice(langId) {
+  if (!('speechSynthesis' in window)) return null;
+  const code = SPEECH_LANG[langId];
+  if (!code) return null;
+  const voices = speechSynthesis.getVoices();
+  return voices.find((v) => v.lang.toLowerCase().startsWith(code) && v.localService)
+    || voices.find((v) => v.lang.toLowerCase().startsWith(code))
+    || null;
+}
+
+function speak(text, langId) {
+  const voice = speechVoice(langId);
+  if (!voice) return false;
+  speechSynthesis.cancel();
+  // Cards like "他 / 她" or "一二三四五" read better one part at a time.
+  const utter = new SpeechSynthesisUtterance(text.replace(/\s*\/\s*/g, ', ').replace(/…/g, ''));
+  utter.voice = voice;
+  utter.lang = voice.lang;
+  utter.rate = 0.85;
+  speechSynthesis.speak(utter);
+  return true;
+}
+if ('speechSynthesis' in window) speechSynthesis.getVoices(); // warms the list; Chrome fills it asynchronously
 
 function saveStudySettings(patch) {
   const next = { ...studySettings(), ...patch };
@@ -916,10 +946,15 @@ async function renderStudy(deckId, params) {
 
   const draw = () => {
     const card = queue[index];
+    const voice = speechVoice(card.language);
     view.innerHTML = `<div class="study">
       <div class="row-between" style="margin-bottom:12px">
         <span class="faint">${done} reviewed · ${queue.length - index} left</span>
-        <a class="btn btn-sm" href="#/languages">Finish</a>
+        <span>
+          ${voice ? `<button class="btn btn-sm" id="say-it" title="Say it (P)">🔊 Say it</button>
+          <button class="btn btn-sm ${settings.autoSpeak ? 'btn-primary' : ''}" id="auto-speak" title="Speak every card as it appears">Auto</button>` : ''}
+          <a class="btn btn-sm" href="#/languages">Finish</a>
+        </span>
       </div>
       <div class="progress"><div style="width:${(index / queue.length) * 100}%"></div></div>
 
@@ -930,6 +965,7 @@ async function renderStudy(deckId, params) {
         ${revealed && card.note ? `<div class="note">${esc(card.note)}</div>` : ''}
         ${!revealed ? '<div class="hint">tap, or press space, to reveal</div>' : ''}
       </div>
+      ${!voice && card.language && SPEECH_LANG[card.language] && index === 0 && !revealed ? `<p class="faint" style="text-align:center;font-size:12px">No ${esc(card.language[0].toUpperCase() + card.language.slice(1))} voice is installed, so the cards cannot be spoken. Windows: Settings › Time &amp; language › Speech › Add voices — it works offline once installed.</p>` : ''}
 
       ${revealed ? `
         <div class="grade-row">
@@ -956,6 +992,18 @@ async function renderStudy(deckId, params) {
     document.getElementById('card').onclick = () => { if (!revealed) { revealed = true; draw(); } };
     for (const btn of view.querySelectorAll('[data-grade]')) {
       btn.onclick = () => grade(Number(btn.dataset.grade));
+    }
+
+    const sayIt = document.getElementById('say-it');
+    if (sayIt) {
+      sayIt.onclick = () => speak(card.front, card.language);
+      document.getElementById('auto-speak').onclick = () => {
+        settings.autoSpeak = !settings.autoSpeak;
+        saveStudySettings({ autoSpeak: settings.autoSpeak });
+        draw();
+      };
+      // Speak once per card, when it first appears — not again on the flip.
+      if (settings.autoSpeak && !revealed) speak(card.front, card.language);
     }
   };
 
@@ -988,6 +1036,9 @@ async function renderStudy(deckId, params) {
       if (!revealed) { revealed = true; draw(); }
     } else if (revealed && ['1', '2', '3', '4'].includes(e.key)) {
       grade(Number(e.key) - 1);
+    } else if (e.key === 'p' || e.key === 'P') {
+      const card = queue[index];
+      if (card) speak(card.front, card.language);
     }
   };
 
