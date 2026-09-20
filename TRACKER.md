@@ -62,7 +62,7 @@ Everything else that was open has been decided and is done or in progress — se
 | 3.1 | Back button to the previous article in the reader | **DONE** | Back/forward over article history, Alt+arrows |
 | 3.2 | Offline Google-Maps equivalent, zoomable | **DONE** | PMTiles vector maps, canvas renderer, no library |
 | 3.3 | Layers that switch on and off | **DONE** | POI categories, place names, overlays, your own drawings — all independent |
-| 3.4 | Looks like a standard OS map | **PARTIAL** | A "paper" style, not Ordnance Survey's. OS Open Zoomstack is free and could be added as an OS-styled base |
+| 3.4 | Looks like a standard OS map | **DONE** | Two parts. An "OS style" look on the map's style button (blue motorways, green primary routes, red A roads, orange B, yellow minor, green dashed paths, brown contours), which works on any base map. And Ordnance Survey's own free national map, OS Open Zoomstack (2.85 GB, in Setup under Maps), which has contour lines every 10 m with heights on the index lines, road numbers, every named farm and wood — installed here and verified over Lancaster and Morecambe |
 | 3.5 | Points of interest: monuments, public buildings, infrastructure, farmland, water, shops with supplies | **DONE** | Nine categories chosen for usefulness |
 | 3.6 | Road layers for navigation | **DONE** | Motorway down to footpath, styled by class |
 | 3.7 | Ocean / nautical maps | **DONE** | 18 OpenSeaMap charts queued: Britain, Europe, the Mediterranean, and the whole route Japan → Britain both ways (8.1) |
@@ -164,7 +164,7 @@ Everything else that was open has been decided and is done or in progress — se
 |---|---|---|---|
 | 11.1 | Network sharing off by default, switchable in the interface, with a tutorial | **DONE** | The vault now listens on this machine only (127.0.0.1) until Setup → Share on this network is switched on; the server rebinds without a restart, the choice is kept in data/state.json, the panel shows the phone address and a five-step walkthrough plus what "on" means for safety. `--host` on the command line fixes it and greys out the switch. Tested on, off, and unreachable-from-the-LAN when off |
 | 11.2 | Why did a firewall prompt appear? | **ANSWERED** | It was the portable-copy test: Windows asks per executable path, and the test copy's own node.exe was a new path. Deleted since; the installed Node is allowed already |
-| 11.3 | Finish every requested feature and partial before rollout | **OPEN** | Remaining partials: 1.7 (see note — the app window is Edge/Chrome in app mode; Edge ships with Windows, so no download is needed; a bundled browser would mean Electron and 200 MB), 1.10/9.15 languages (target: Spanish through A2, Hindi to A1, Mandarin HSK 3; Japanese N5 is complete), 3.4 (verify OS Zoomstack on real tiles once the download lands), 4.16/D5 (your hands) |
+| 11.3 | Finish every requested feature and partial before rollout | **OPEN** | Remaining partials: 1.7 (see note — the app window is Edge/Chrome in app mode; Edge ships with Windows, so no download is needed; a bundled browser would mean Electron and 200 MB), 1.10/9.15 languages (target: Spanish through A2, Hindi to A1, Mandarin HSK 3; Japanese N5 is complete), 4.16/D5 (your hands) |
 
 ## 6. Known thin spots
 

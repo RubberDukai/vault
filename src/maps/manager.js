@@ -263,7 +263,7 @@ class MapManager {
             kind: info.encoding === 'terrarium' ? 'terrain'
               : info.tileFormat === 'pbf' || info.tileFormat === 'mvt' ? 'vector' : 'raster',
             format: 'mbtiles',
-            title: info.name || file.replace(/\.mbtiles$/i, ''),
+            title: (info.name || file.replace(/.mbtiles$/i, '')).replace(/_/g, ' '),
             size: stat.size,
             sizeHuman: humanBytes(stat.size),
             _archive: archive,

@@ -290,7 +290,7 @@ const ZS_GREEN = [['cemetery', 'cemetery'], ['allotment', 'farmland'], ['golf', 
 // The zoom a named place first shows at, by OS class.
 const ZS_PLACES = {
   country: 3, capital: 4, city: 6, town: 8, village: 10, hamlet: 12, 'suburban area': 11, 'small settlements': 13,
-  'woodland or forest': 12, landform: 11, hydrography: 11, landcover: 12, sites: 12, greenspace: 13, 'national park': 8,
+  'woodland or forest': 13, woodland: 13, landform: 12, hydrography: 12, water: 13, landcover: 13, sites: 14, greenspace: 14.5, 'national park': 8,
 };
 
 function fromZoomstack(data) {
@@ -300,7 +300,8 @@ function fromZoomstack(data) {
 
   for (const f of data.sea || []) push('water', f);
   for (const f of data.surfacewater || []) push('water', { ...f, k: 'lake' });
-  for (const f of data.waterlines || []) push('water', { ...f, k: f.k || 'river' });
+  // mhw / mlw are the tide lines along the coast; the rest are streams.
+  for (const f of data.waterlines || []) push('water', { ...f, k: f.k === 'mhw' || f.k === 'mlw' ? 'ditch' : 'stream' });
   for (const f of data.foreshore || []) push('landuse', { ...f, k: 'beach' });
   for (const f of data.urban_areas || []) push('landuse', { ...f, k: 'urban_area' });
   for (const f of data.woodland || []) push('landuse', { ...f, k: 'forest' });
@@ -1393,7 +1394,7 @@ class VaultMap {
     if (layerName === 'contours') {
       // Every line from zoom 11; index contours (each 50 m) heavier.
       if (this.zoom < 11) return null;
-      const index = feature.h !== undefined && feature.h % 50 === 0;
+      const index = feature.k === 'index';
       return { colour: this.style.layers.contour, width: index ? 1.3 : 0.6 };
     }
     if (layerName === 'landuse' && feature.k === 'national_park') {
@@ -1530,7 +1531,7 @@ class VaultMap {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       for (const feature of data.contours) {
-        if (feature.h === undefined || feature.h % 50 !== 0) continue;
+        if (feature.k !== 'index' || feature.h === undefined) continue;
         const ring = feature.g[0];
         if (!ring || ring.length < 6) continue;
         const mid = ring[Math.floor(ring.length / 2)];
