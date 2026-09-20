@@ -758,6 +758,13 @@ class ArkServer {
           cells: sh.cells && typeof sh.cells === 'object' ? sh.cells : {},
           cols: sh.cols && typeof sh.cols === 'object' ? sh.cols : {},
           freeze: sh.freeze ? Number(sh.freeze) : 0,
+          charts: Array.isArray(sh.charts) ? sh.charts.slice(0, 40).map((c) => ({
+            id: String(c.id || '').slice(0, 20),
+            type: ['bar', 'line', 'pie'].includes(c.type) ? c.type : 'bar',
+            range: String(c.range || 'A1').slice(0, 24),
+            title: String(c.title || '').slice(0, 120),
+            x: Number(c.x) || 0, y: Number(c.y) || 0, w: Number(c.w) || 420, h: Number(c.h) || 260,
+          })) : [],
         })),
       });
       return this.json(res, 200, { workbook: saved });

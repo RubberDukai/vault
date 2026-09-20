@@ -59,6 +59,7 @@ async function renderSheets(params) {
           <button class="btn btn-sm" id="sh-col-del" title="Delete this column">−Col</button>
           <span class="sheet-sep"></span>
           <button class="btn btn-sm" id="sh-freeze" title="Freeze the top row">Freeze</button>
+          <button class="btn btn-sm" id="sh-chart" title="Chart the selected cells: a header row names the series, a first column of text gives the categories">Chart</button>
           <button class="btn btn-sm" id="sh-undo" title="Undo (Ctrl+Z)">↶</button>
           <button class="btn btn-sm" id="sh-redo" title="Redo (Ctrl+Y)">↷</button>
         </div>
@@ -68,7 +69,7 @@ async function renderSheets(params) {
         <span class="faint">fx</span>
         <input class="formula-input mono" id="sh-formula" spellcheck="false" autocomplete="off">
       </div>
-      <div class="sheet-scroll" id="sh-scroll"><table class="sheet-grid" id="sh-grid"></table></div>
+      <div class="sheet-scroll" id="sh-scroll"><table class="sheet-grid" id="sh-grid"></table><div id="sh-charts"></div></div>
       <div class="sheet-tabs" id="sh-tabs"></div>
       <div class="sheet-files" id="sh-files-panel" hidden></div>
     </div>`;
@@ -185,8 +186,109 @@ async function renderSheets(params) {
     } else { td.style.background = ''; td.style.color = ''; }
     td.className = cls.trim();
   };
-  const paintCells = () => { for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) paintCell(r, c); };
+  const paintCells = () => { for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) paintCell(r, c); paintCharts(); };
   const repaintValues = () => { recalc(); paintCells(); };
+
+  // ------------------------------------------------------------- charts
+  // A chart is a range plus a picture: { id, type, range, title, x, y, w, h },
+  // kept in sheet.charts so it saves, undoes and travels with the workbook.
+  const chartsBox = document.getElementById('sh-charts');
+
+  /** Read the chart's range as categories and series, deciding what the header row and first column mean. */
+  const chartData = (chart) => {
+    const [a, b] = chart.range.split(':');
+    const p1 = F.parseAddr(a); const p2 = F.parseAddr(b || a);
+    if (!p1 || !p2) return { categories: [], series: [] };
+    const r1 = Math.min(p1.row, p2.row); const r2 = Math.max(p1.row, p2.row);
+    const c1 = Math.min(p1.col, p2.col); const c2 = Math.max(p1.col, p2.col);
+    const value = (r, c) => { const v = engine.cellValue(book.active, r, c); return F.isErr(v) ? null : v; };
+    const isText = (v) => typeof v === 'string' && v !== '';
+    const dataCols = c2 > c1 ? Array.from({ length: c2 - c1 }, (_, i) => c1 + 1 + i) : [c1];
+    const hasHeader = r2 > r1 && dataCols.every((c) => isText(value(r1, c)) || value(r1, c) === null || value(r1, c) === '');
+    const firstRow = hasHeader ? r1 + 1 : r1;
+    const firstColText = c2 > c1 && Array.from({ length: r2 - firstRow + 1 }, (_, i) => value(firstRow + i, c1)).some(isText);
+    const seriesCols = firstColText || c2 === c1 ? dataCols : Array.from({ length: c2 - c1 + 1 }, (_, i) => c1 + i);
+    const categories = [];
+    for (let r = firstRow; r <= r2; r++) {
+      const v = firstColText ? value(r, c1) : null;
+      categories.push(v === null || v === '' ? String(r + 1) : F.formatValue(v, cellAt(r, c1) && cellAt(r, c1).s));
+    }
+    const series = seriesCols.map((c) => ({
+      name: hasHeader && isText(value(r1, c)) ? String(value(r1, c)) : F.indexToCol(c),
+      values: Array.from({ length: r2 - firstRow + 1 }, (_, i) => { const v = value(firstRow + i, c); return typeof v === 'number' ? v : null; }),
+    }));
+    return { categories, series };
+  };
+
+  const paintCharts = () => {
+    const charts = sheet().charts || [];
+    const known = new Set(charts.map((c) => c.id));
+    for (const el of [...chartsBox.children]) if (!known.has(el.dataset.id)) el.remove();
+    for (const chart of charts) {
+      let el = chartsBox.querySelector(`[data-id="${chart.id}"]`);
+      if (!el) {
+        el = document.createElement('div');
+        el.className = 'sheet-chart';
+        el.dataset.id = chart.id;
+        el.innerHTML = `<div class="chart-head">
+            <input class="chart-title" placeholder="Title" title="Chart title">
+            <select class="chart-type map-select" style="width:auto;padding:1px 4px;font-size:12px">
+              <option value="bar">Bar</option><option value="line">Line</option><option value="pie">Pie</option>
+            </select>
+            <span class="mono faint chart-range"></span>
+            <button class="btn btn-sm chart-close" title="Remove this chart">×</button>
+          </div><canvas></canvas><div class="chart-resize" title="Drag to resize"></div>`;
+        chartsBox.appendChild(el);
+        wireChart(el, chart.id);
+      }
+      Object.assign(el.style, { left: `${chart.x}px`, top: `${chart.y}px`, width: `${chart.w}px`, height: `${chart.h}px` });
+      const title = el.querySelector('.chart-title');
+      if (document.activeElement !== title) title.value = chart.title || '';
+      el.querySelector('.chart-type').value = chart.type;
+      el.querySelector('.chart-range').textContent = chart.range;
+      window.vaultSheetCharts.drawChart(el.querySelector('canvas'), chart, chartData(chart));
+    }
+  };
+
+  const wireChart = (el, id) => {
+    const find = () => (sheet().charts || []).find((c) => c.id === id);
+    el.querySelector('.chart-title').oninput = (e) => { const c = find(); if (c) { c.title = e.target.value; markDirty(); paintCharts(); } };
+    el.querySelector('.chart-type').onchange = (e) => { const c = find(); if (c) { pushUndo(); c.type = e.target.value; markDirty(); paintCharts(); } };
+    el.querySelector('.chart-close').onclick = () => { pushUndo(); sheet().charts = sheet().charts.filter((c) => c.id !== id); markDirty(); paintCharts(); };
+    // Drag by the header, resize by the corner. Positions are grid pixels, so they scroll with the cells.
+    const drag = (start, apply) => (e) => {
+      if (e.target.closest('input, select, button')) return;
+      e.preventDefault();
+      const c = find(); if (!c) return;
+      const from = { x: e.clientX, y: e.clientY, ...start(c) };
+      const move = (ev) => { apply(c, from, ev.clientX - from.x, ev.clientY - from.y); paintCharts(); };
+      const up = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); markDirty(); };
+      window.addEventListener('mousemove', move); window.addEventListener('mouseup', up);
+    };
+    el.querySelector('.chart-head').onmousedown = drag((c) => ({ x0: c.x, y0: c.y }), (c, from, dx, dy) => { c.x = Math.max(0, from.x0 + dx); c.y = Math.max(0, from.y0 + dy); });
+    el.querySelector('.chart-resize').onmousedown = drag((c) => ({ w0: c.w, h0: c.h }), (c, from, dx, dy) => { c.w = Math.max(180, from.w0 + dx); c.h = Math.max(120, from.h0 + dy); });
+    el.onmousedown = () => { chartsBox.appendChild(el); }; // clicked chart comes to the front
+  };
+
+  const addChart = () => {
+    const { r1, c1, r2, c2 } = selRange();
+    if (r1 === r2 && c1 === c2) { alert('Select the cells to chart first — a column of numbers, with a heading and labels if you have them.'); return; }
+    pushUndo();
+    const s = sheet();
+    s.charts = s.charts || [];
+    const n = s.charts.length;
+    s.charts.push({
+      id: `c${Date.now().toString(36)}`,
+      type: 'bar',
+      range: `${F.addr(r1, c1)}:${F.addr(r2, c2)}`,
+      title: '',
+      x: scroll.scrollLeft + 60 + n * 24,
+      y: scroll.scrollTop + 40 + n * 24,
+      w: 420,
+      h: 260,
+    });
+    markDirty(); paintCharts();
+  };
 
   const paintSelection = () => {
     for (const td of grid.querySelectorAll('td.sel, td.active')) td.classList.remove('sel', 'active');
@@ -574,6 +676,7 @@ async function renderSheets(params) {
   document.getElementById('sh-col-ins').onclick = () => insertRowsCols('col', selRange().c1, selRange().c2 - selRange().c1 + 1);
   document.getElementById('sh-col-del').onclick = () => insertRowsCols('col', selRange().c1, -(selRange().c2 - selRange().c1 + 1));
   document.getElementById('sh-freeze').onclick = () => { sheet().freeze = sheet().freeze ? 0 : 1; paintGrid(); markDirty(); };
+  document.getElementById('sh-chart').onclick = addChart;
   document.getElementById('sh-undo').onclick = () => { if (undo.length) { redo.push(snapshot()); restore(undo.pop()); } };
   document.getElementById('sh-redo').onclick = () => { if (redo.length) { undo.push(snapshot()); restore(redo.pop()); } };
   nameInput.oninput = () => { book.name = nameInput.value; markDirty(); };

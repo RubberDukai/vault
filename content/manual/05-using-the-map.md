@@ -134,9 +134,14 @@ Small things that are hard to do without when the phone is dead:
   `£12.50` and `50%` are understood and formatted. Bold, italics, alignment,
   number formats, fill and text colours; sort by any column; insert and
   delete rows and columns; freeze the top row; several sheets per workbook;
-  undo. **Files ▾** opens, imports and exports: `.xlsx` files from Excel,
+  undo. Select a block of cells and press **Chart** for a bar, line or pie
+  chart of it: a header row names the series, a first column of text gives
+  the categories. Charts float over the grid — drag the header to move,
+  the corner to resize — and redraw as the numbers change. **Files ▾**
+  opens, imports and exports: `.xlsx` files from Excel,
   LibreOffice or Google Sheets open here, and workbooks export back to
-  `.xlsx` or `.csv`. Workbooks are saved as they change, as plain JSON in
+  `.xlsx` or `.csv` (charts stay in the vault; the exported file carries the
+  numbers). Workbooks are saved as they change, as plain JSON in
   `library/sheets`. No subscription, no account, no expiry.
 - **Media** — your own music, photos and films, from `library/media`. Music
   keeps playing while you read something else.
