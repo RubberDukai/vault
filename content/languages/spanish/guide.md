@@ -93,6 +93,49 @@ Because the ending tells you who, **the subject pronoun is usually dropped**: *H
 
 **The past**, in two flavours: the **preterite** for completed events (*comí* — I ate, *fui* — I went, *hizo* — he did) and the **imperfect** for background and habits (*comía* — I used to eat, I was eating). Learn the preterite of the irregulars above first; it is what stories and reports are made of.
 
+### The preterite — what happened
+
+Regular endings. Note that **-er** and **-ir** share one set, and that the stress falls on the ending (*hablé*, not *hable*):
+
+| | habl**ar** | com**er** / viv**ir** |
+|---|---|---|
+| yo | habl**é** | com**í** |
+| tú | habl**aste** | com**iste** |
+| él / ella / usted | habl**ó** | com**ió** |
+| nosotros | habl**amos** | com**imos** |
+| ellos / ustedes | habl**aron** | com**ieron** |
+
+The irregulars have their own stems and an unstressed ending (*-e, -iste, -o, -imos, -ieron*):
+
+- **ser** and **ir** share one past: *fui, fuiste, fue, fuimos, fueron* — I was / I went. Context tells you which.
+- **estar**: *estuve, estuviste, estuvo, estuvimos, estuvieron*
+- **tener**: *tuve, tuviste, tuvo, tuvimos, tuvieron*
+- **hacer**: *hice, hiciste, hizo, hicimos, hicieron*
+- **poder**: *pude…*, **poner**: *puse…*, **saber**: *supe…*, **querer**: *quise…*, **venir**: *vine…*, **decir**: *dije… dijeron*, **traer**: *traje… trajeron*
+- **dar**: *di, diste, dio, dimos, dieron*; **ver**: *vi, viste, vio, vimos, vieron*
+
+*Ayer fui al mercado, compré pan y volví a casa.* Yesterday I went to the market, bought bread and came home.
+
+### The imperfect — how things were
+
+Regular, with only three irregular verbs in the whole language:
+
+| | habl**ar** | com**er** / viv**ir** |
+|---|---|---|
+| yo | habl**aba** | com**ía** |
+| tú | habl**abas** | com**ías** |
+| él / ella / usted | habl**aba** | com**ía** |
+| nosotros | habl**ábamos** | com**íamos** |
+| ellos / ustedes | habl**aban** | com**ían** |
+
+Irregular: **ser** *era, eras, era, éramos, eran* · **ir** *iba, ibas, iba, íbamos, iban* · **ver** *veía, veías…*
+
+Use it for what was going on, what used to happen, descriptions, time and age in the past: *Era de noche y llovía.* It was night and it was raining. *Cuando era niño, vivía en el campo.* When I was a child I lived in the country. The two tenses sit together in one sentence: *Comía* (imperfect, background) *cuando llegó* (preterite, event) — I was eating when he arrived.
+
+### The perfect — what has happened
+
+**haber** + past participle: *he, has, ha, hemos, han* + habl**ado** / com**ido** / viv**ido**. *He comido* — I have eaten. *¿Has visto a Juan?* — Have you seen Juan? In Spain it is used for today and for recent, still-relevant events; in Latin America the preterite does that job. Irregular participles worth knowing: *hecho* (done), *dicho* (said), *visto* (seen), *puesto* (put), *escrito* (written), *abierto* (opened), *vuelto* (returned), *muerto* (died), *roto* (broken).
+
 ## Negation and questions
 
 **Negation:** *no* before the verb. *No hablo español. No tengo agua.* Double negatives are correct: *No tengo nada* — I have nothing.
