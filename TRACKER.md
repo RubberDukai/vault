@@ -39,8 +39,8 @@ Everything else that was open has been decided and is done or in progress — se
 | 1.6 | Runs as a LAN server, any device with a browser | **DONE** | Prints the addresses on start |
 | 1.7 | Runs as a desktop app | **PARTIAL** | Double-click launcher opens a chromeless app window. Not a packaged installer — no Electron. Good enough unless you want an .exe |
 | 1.8 | Windows and Linux | **DONE** | `Vault.bat` / `vault.sh` / `vault.desktop`; no platform-specific code |
-| 1.9 | Survivalist handbook framework + first chapters | **DONE** | 10 modules, 39 chapters, ~43,000 words. Every module has at least two |
-| 1.10 | Language learning: English + Japanese first, then Spanish, Mandarin, Hindi | **PARTIAL** | 1,645 cards with spaced repetition; written grammar guides for all four; cards spoken aloud with the Say it button (P) or Auto, using the voices installed in Windows — offline, but only for languages whose voice pack is installed (Settings › Time & language › Speech). Still to do: the last of N5 (about 200 words) and A2 |
+| 1.9 | Survivalist handbook framework + first chapters | **DONE** | 10 modules, 42 chapters, ~48,000 words. Every module has at least two |
+| 1.10 | Language learning: English + Japanese first, then Spanish, Mandarin, Hindi | **PARTIAL** | 1,810 cards with spaced repetition; written grammar guides for all four; cards spoken aloud with the Say it button (P) or Auto, using the voices installed in Windows — offline, but only for languages whose voice pack is installed (Settings › Time & language › Speech). Still to do: A2, N4, HSK 2 |
 | 1.11 | Unified search across everything | **DONE** | Handbook, school, decks, guides, every pack, every book — one box, ~0.3 s |
 | 1.12 | Education with per-child progress tracking | **DONE** | Profiles + 13 lessons, and the OpenStax shelf (8.6) for depth |
 | 1.13 | Suggest other areas to build out | **ANSWERED** | Twelve proposed; see section 7 for which are built |
@@ -69,7 +69,7 @@ Everything else that was open has been decided and is done or in progress — se
 | 3.8 | Does it run on Linux | **ANSWERED** | Yes — see 1.8 |
 | 3.9 | A small image collection for education | **DONE** | Vikidia, PhET, WikEM, illustrated Simple English — 3.85 GB, all verified serving images |
 | 3.10 | Bulk out languages and education with established curricula | **DONE** | Where There Is No Doctor and all 75 OpenStax textbooks queued (8.6); the first dozen are already indexed |
-| 3.11 | Bulk out the handbook, especially shelter building | **DONE** | 39 chapters across 10 modules. Will keep growing, but nothing is thin now |
+| 3.11 | Bulk out the handbook, especially shelter building | **DONE** | 42 chapters across 10 modules. Will keep growing, but nothing is thin now |
 | 3.12 | Rivers rendering as broken wedges | **DONE** | Rivers are lines; were being filled as polygons. Fixed |
 | 3.13 | Buildings appearing and disappearing | **ANSWERED** | Not a bug — tiles only carry buildings from about zoom 13 |
 | 3.14 | Offline place-name search | **DONE** | The Go to box takes a name as well as coordinates. The index is built from the names inside the installed vector packs (131,000 for Britain & Ireland + world, 40 seconds, automatic at first start and after a new map pack lands) and saved in data/places.json. Nearest match to the current view first, so from Britain "Lancaster" is the one on the Lune |
@@ -140,7 +140,7 @@ Everything else that was open has been decided and is done or in progress — se
 | 9.12 | Rename Pip-Boy view to "retro" | **DONE** | "Retro terminal" |
 | 9.13 | Header on the appearance dropdown | **DONE** | "Customise view" |
 | 9.14 | Other features people would miss (music, piano?) | **DONE** (see 10.1) | Tools tab: a two-octave piano playable from the keyboard, a metronome with tap tempo and tuning pitches, a countdown timer with alarm and a stopwatch, and a unit converter. Not yet built, in rough order of usefulness: a music/audio player for your own files (and a local photo/video viewer), a notebook/journal per person, a chess/draughts board, a periodic table and star chart, a Morse trainer, a calculator, a recipe book. Say which |
-| 9.15 | Are 10-card modules adequate? Matched to real syllabuses? | **PARTIAL** | The 10 was the per-session limit on *new* cards, now a setting (5–100). Honest answer to adequacy: it was not — 455 cards was a survival core. Now 1,079: Japanese has 652 (both kana, all 110 JLPT N5 kanji, about 450 words — just over half of N5 vocabulary), Spanish 289 (about half of CEFR A1). Each language page says where its decks sit against the real level. Now 1,645: Japanese 790 (about three-quarters of N5 vocabulary), Spanish 474 (most of A1); Mandarin covers the full HSK 1 list (150 words, 171 cards); Hindi has the whole Devanagari script (vowels and their signs, consonants, dotted letters, conjuncts) and 141 words and phrases. Audio: see 1.10. Still to do: the last of N5, A2, HSK 2 |
+| 9.15 | Are 10-card modules adequate? Matched to real syllabuses? | **PARTIAL** | The 10 was the per-session limit on *new* cards, now a setting (5–100). Honest answer to adequacy: it was not — 455 cards was a survival core. Now 1,079: Japanese has 652 (both kana, all 110 JLPT N5 kanji, about 450 words — just over half of N5 vocabulary), Spanish 289 (about half of CEFR A1). Each language page says where its decks sit against the real level. Now 1,810: Japanese 958 (the whole N5 vocabulary plus set phrases), Spanish 474 (most of A1); Mandarin covers the full HSK 1 list (150 words, 171 cards); Hindi has the whole Devanagari script (vowels and their signs, consonants, dotted letters, conjuncts) and 141 words and phrases. Audio: see 1.10. Still to do: N4, A2, HSK 2 |
 | 9.16 | Japanese cards show only symbols | **DONE** | Pronunciation (rōmaji, pinyin, or a plain English rendering) now shows on the front of the card by default; a toggle hides it once you can read the script. Every Japanese, Mandarin and Hindi card carries a reading; the kana decks are the exception on purpose — the reading *is* the answer |
 
 ## 10. Everything at once — requested 15–19 Sep
@@ -167,11 +167,11 @@ Not separate requests — the places where a "done" is doing less than it should
 | 6.1 | Fire module | Resolved — 4 chapters |
 | 6.2 | Computing module | Resolved — 3 chapters |
 | 6.3 | Comms module | Resolved — 6 chapters, incl. Meshtastic step by step and a plan template |
-| 6.4 | Languages | Guides for all four. Spoken audio via the Windows voices (1.10). Japanese covers three-quarters of N5, Spanish most of A1; Mandarin is complete to HSK 1; Hindi has the full script and a quarter of A1 — see 9.15 |
+| 6.4 | Languages | Guides for all four. Spoken audio via the Windows voices (1.10). Japanese covers all of N5, Spanish most of A1; Mandarin is complete to HSK 1; Hindi has the full script and a quarter of A1 — see 9.15 |
 | 6.5 | School | 13 lessons. Real depth comes from imported textbooks (D7) |
 | 6.6 | Medical | Resolved — 7 chapters, incl. childbirth, mental health and long-term conditions |
 | 6.7 | Maps | Pins, lengths, perimeter/area, route planner, elevation, satellite, hill shading and offline packs done. Place-name search done (3.14). Still no OS style |
-| 6.8 | Food | Hunting, trapping and fishing now covered. Livestock still a paragraph |
+| 6.8 | Food | Hunting, trapping, fishing and now livestock (Keeping animals: chickens, ducks, rabbits, goats, sheep, pigs, bees, winter feed, breeding, slaughter) — resolved |
 | 6.9 | Water | Resolved — wells and drought covered |
 
 ## 7. Proposed, not yet requested
@@ -181,7 +181,7 @@ Modules suggested on day one. Listed so they are not forgotten, not because they
 | Module | State |
 |---|---|
 | Navigation without GPS | Covered in the offline maps chapter, the map-reading lesson, and the almanac |
-| Repair & making | **Started** — a module with tools/sharpening and cloth/rope/leather. iFixit (D2) would be its depth layer |
+| Repair & making | **Done** — four chapters: tools and sharpening, cloth/rope/leather, wood/metal/glue (joints, rivets, threads, brazing, adhesives), and bicycles/plumbing/doors/windows/roof/small engines with a shed parts list. iFixit (D2) would be its depth layer |
 | Livestock & bees | A paragraph in the food chapter |
 | Weather & seasons | Covered in the Earth and weather lesson |
 | Almanac | **Done** (5.7) |

@@ -88,4 +88,4 @@ Fruit and nut trees · soft fruit bushes · rhubarb · asparagus · globe artich
 - **Goats** browse rough ground, give milk, and escape from anything you build.
 - **Bees** give honey, wax and — far more importantly — pollination for everything else you grow.
 
-Whatever you keep, you need a plan for feeding it through winter, and a plan for breeding it. An animal you cannot replace is a meal, not a livestock system.
+Whatever you keep, you need a plan for feeding it through winter, and a plan for breeding it. An animal you cannot replace is a meal, not a livestock system. Housing, feed, breeding, health and slaughter for each of these, and for ducks, sheep and pigs, are in *Keeping animals*.
