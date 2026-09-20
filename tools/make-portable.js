@@ -5,6 +5,7 @@
  *   node tools/make-portable.js <destination>              code and content only
  *   node tools/make-portable.js <destination> --with-packs also the encyclopedias
  *   node tools/make-portable.js <destination> --with-maps  also the map archives
+ *   node tools/make-portable.js <destination> --with-node  also this machine's Node.js, so nothing needs installing
  *
  * Your own progress, messages and map markings are never copied — the person
  * receiving it gets a clean Vault, not yours.
@@ -80,7 +81,8 @@ needs installing.
 
 IF IT SAYS NODE.JS IS MISSING
 -----------------------------
-Go to  https://nodejs.org , download the LTS version, install it
+If this copy has a "node" folder it needs nothing. Otherwise:
+go to  https://nodejs.org , download the LTS version, install it
 with all the default options, then start the Vault again. That is
 the only thing it needs.
 
@@ -105,10 +107,11 @@ async function main() {
   const destination = args.find((a) => !a.startsWith('--'));
   const withPacks = args.includes('--with-packs');
   const withMaps = args.includes('--with-maps');
+  const withNode = args.includes('--with-node');
 
   if (!destination) {
     console.error(`
-  Usage: node tools/make-portable.js <destination> [--with-packs] [--with-maps]
+  Usage: node tools/make-portable.js <destination> [--with-packs] [--with-maps] [--with-node]
 
   Example:
     node tools/make-portable.js E:/Vault --with-packs
@@ -155,13 +158,24 @@ async function main() {
     }
   }
 
+  // Node itself is one file. Bundling it makes the copy self-contained on
+  // this kind of machine: unzip, double-click, no installer, no internet.
+  if (withNode) {
+    const nodeDir = path.join(target, 'node');
+    await fsp.mkdir(nodeDir, { recursive: true });
+    await copyInto(process.execPath, path.join(nodeDir, path.basename(process.execPath)));
+    const licence = path.join(path.dirname(process.execPath), 'LICENSE');
+    if (fs.existsSync(licence)) await copyInto(licence, path.join(nodeDir, 'LICENSE'));
+    console.log(`\n  Bundled Node.js ${process.version} for ${process.platform}-${process.arch}: the copy runs on the same kind of machine with nothing installed.`);
+  }
+
   await fsp.writeFile(path.join(target, 'START HERE.txt'), START_HERE, 'utf8');
 
   console.log(`\r  Copied ${copiedFiles} files, ${humanBytes(copiedBytes)}.          `);
   console.log(`
   Done.
 
-  ${withPacks ? '' : 'The encyclopedias were NOT included — add --with-packs for those.\n  '}${withMaps ? '' : 'The maps were NOT included — add --with-maps for those.\n  '}
+  ${withPacks ? '' : 'The encyclopedias were NOT included — add --with-packs for those.\n  '}${withMaps ? '' : 'The maps were NOT included — add --with-maps for those.\n  '}${withNode ? '' : 'Node.js was NOT bundled — add --with-node and the copy needs no install at all.\n  '}
   Hand over the whole folder. Whoever receives it should read
   "START HERE.txt" first.
 `);

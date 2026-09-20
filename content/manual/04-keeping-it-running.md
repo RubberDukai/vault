@@ -34,6 +34,14 @@ Copy the whole folder. That is the entire procedure — there is nothing install
 
 The only requirement on the new machine is **Node.js 22.15 or newer**. Keep an installer for Windows, macOS and Linux alongside your backups; you cannot download the thing that lets you read your archive after downloading stops working.
 
+Better: make a copy that needs nothing. From the Vault folder, in a terminal:
+
+```
+node tools/make-portable.js E:\Vault --with-node
+```
+
+builds a clean copy (no progress, no messages, no map markings) with this machine's Node.js inside it, in a `node` folder. On another Windows PC it runs by double-clicking `Vault.bat`, with nothing installed. Add `--with-packs` and `--with-maps` to take the library too; that copy is tens of gigabytes and is the one to keep on a drive in a drawer. A copy made on Windows carries Windows Node; make one on a Linux machine for Linux.
+
 ## Backing it up
 
 Three parts, and they matter differently:

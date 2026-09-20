@@ -154,6 +154,19 @@ const { TILESETS } = require('./tilesets');
 
 async function main() {
   items.push(...TILESETS);
+
+  // Ordnance Survey's free national map, as ready-made vector tiles. A plain
+  // file download — no harvesting — with contours, which OpenStreetMap lacks.
+  items.push({
+    id: 'map-os-zoomstack', category: 'maps',
+    title: 'Map — Great Britain, Ordnance Survey (OS Open Zoomstack)',
+    description: 'The whole of Great Britain from Ordnance Survey, to about 1:25,000: every road and its number, railways and stations, woods, urban areas, rivers, national parks, and contour lines every 10 m. Pick "OS style" on the map for the Explorer look. Open Government Licence.',
+    size: 2852712448, dest: 'library/maps', priority: 42, recommended: false,
+    files: [{
+      url: 'https://api.os.uk/downloads/v1/products/OpenZoomstack/downloads?area=GB&format=Vector+Tiles&subformat=%28MBTiles%29&redirect',
+      filename: 'OS Open Zoomstack.mbtiles',
+    }],
+  });
   const books = await openstaxBooks(process.argv[2]);
   for (const b of books) {
     if (!b.size) continue;

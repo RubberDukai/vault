@@ -333,12 +333,19 @@ class MapManager {
         };
 
         const props = feature.properties || {};
+        // Protomaps says `kind`; OS Open Zoomstack says `type` ("A Road",
+        // "Village", "Index"). Lower-cased so the client can match either.
         if (props.kind) entry.k = props.kind;
+        else if (props.type) entry.k = String(props.type).toLowerCase();
         // Roads carry the useful distinction (motorway vs residential) in
         // kind_detail; kind alone only says "major_road".
         if (props.kind_detail) entry.d = props.kind_detail;
         if (props.name) entry.n = props.name;
+        else if (props.name1) entry.n = props.name1;
         if (props.min_zoom !== undefined) entry.z = props.min_zoom;
+        // Zoomstack extras: contour heights and road numbers.
+        if (props.height !== undefined) entry.h = Number(props.height);
+        if (props.number) entry.r = props.number;
 
         const category = categoryFor(props);
         if (category) entry.c = category;

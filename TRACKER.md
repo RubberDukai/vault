@@ -37,7 +37,7 @@ Everything else that was open has been decided and is done or in progress — se
 | 1.4 | No images, to keep the size down | **DONE** | Text-only packs; small illustrated ones added later by request (3.9) |
 | 1.5 | Size prediction | **ANSWERED** | Tiered table; app itself is under 600 KB |
 | 1.6 | Runs as a LAN server, any device with a browser | **DONE** | Prints the addresses on start |
-| 1.7 | Runs as a desktop app | **PARTIAL** | Double-click launcher opens a chromeless app window. Not a packaged installer — no Electron. Good enough unless you want an .exe |
+| 1.7 | Runs as a desktop app | **PARTIAL** | Double-click launcher opens a chromeless app window. No installer, but no longer needed: `node tools/make-portable.js <folder> --with-node` builds a copy with Node.js inside it that runs on any Windows PC by double-clicking Vault.bat, nothing installed (tested). Same on Linux when built there. A true single .exe would need Electron or a bundler — not planned unless you want it |
 | 1.8 | Windows and Linux | **DONE** | `Vault.bat` / `vault.sh` / `vault.desktop`; no platform-specific code |
 | 1.9 | Survivalist handbook framework + first chapters | **DONE** | 10 modules, 42 chapters, ~48,000 words. Every module has at least two |
 | 1.10 | Language learning: English + Japanese first, then Spanish, Mandarin, Hindi | **PARTIAL** | 1,810 cards with spaced repetition; written grammar guides for all four; cards spoken aloud with the Say it button (P) or Auto, using the voices installed in Windows — offline, but only for languages whose voice pack is installed (Settings › Time & language › Speech). Still to do: A2, N4, HSK 2 |
@@ -187,4 +187,4 @@ Modules suggested on day one. Listed so they are not forgotten, not because they
 | Almanac | **Done** (5.7) |
 | Community, records & the family vault | **Done** — a module with three chapters |
 | Print / PDF export | **Done** (5.6) |
-| Packaged desktop installer (.exe / .deb) | Nothing — see 1.7 |
+| Packaged desktop installer (.exe / .deb) | Portable copy with bundled Node instead — see 1.7 |

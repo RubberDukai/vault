@@ -8,10 +8,18 @@ setlocal
 cd /d "%~dp0"
 title Vault - Offline Knowledge Vault
 
+rem A copy made with "make-portable --with-node" carries its own Node.js.
+if exist "%~dp0node\node.exe" (
+  "%~dp0node\node.exe" bin\vault.js serve --open %*
+  goto closed
+)
+
 where node >nul 2>nul
 if errorlevel 1 goto nodemissing
 
 node bin\vault.js serve --open %*
+
+:closed
 
 echo.
 echo   The vault has closed.

@@ -148,8 +148,62 @@ const STYLES = {
         other: { colour: '#f0eee8', width: 1.1 },
       },
       boundaries: '#a08890',
+      contour: '#c9a26b',
       label: '#3a3228',
       labelHalo: '#f4efe2',
+    },
+  },
+  // The look of an Ordnance Survey Explorer sheet: blue motorways, red A
+  // roads, orange B roads, yellow minor roads, green rights of way, brown
+  // contours. Best on the OS Open Zoomstack pack, which has the contours.
+  os: {
+    background: '#ffffff',
+    earth: '#ffffff',
+    water: '#a5d0ee',
+    layers: {
+      landuse: {
+        forest: '#c6e3b3', wood: '#c6e3b3', grass: '#eef5e6', grassland: '#eef5e6',
+        park: '#dff0d0', garden: '#dff0d0', recreation_ground: '#e8f3dc', pitch: '#e8f3dc',
+        farmland: '#ffffff', farm: '#ffffff', meadow: '#eef5e6', orchard: '#dcebc8',
+        residential: '#ecd9c6', urban_area: '#ecd9c6', commercial: '#ecd9c6',
+        industrial: '#e6ddd8', military: '#f2e0e0', school: '#e9dfe9', hospital: '#f4dede',
+        cemetery: '#e2ecd8', beach: '#fbf3d5', wetland: '#dcecf2', scrub: '#e4efd8',
+        barren: '#f6f2ea', glacier: '#f0f6fa', snow: '#f0f6fa',
+        pedestrian: '#f3ede4', platform: '#e3e3e8', aerodrome: '#e3e3e8',
+      },
+      buildings: '#c7b8a6',
+      roads: {
+        motorway: { colour: '#2f7fd8', width: 4.5 },
+        motorway_link: { colour: '#5a9be0', width: 2.4 },
+        trunk: { colour: '#3c8f4e', width: 3.8 },
+        trunk_link: { colour: '#5aa36a', width: 2.2 },
+        primary: { colour: '#e8465a', width: 3.2 },
+        primary_link: { colour: '#ee7484', width: 2 },
+        secondary: { colour: '#f39a3b', width: 2.6 },
+        tertiary: { colour: '#f7e36a', width: 2.2 },
+        residential: { colour: '#ffffff', width: 1.8 },
+        unclassified: { colour: '#ffffff', width: 1.6 },
+        service: { colour: '#fafafa', width: 1.1 },
+        pedestrian: { colour: '#f3ede4', width: 1.4 },
+        footway: { colour: '#2f9e44', width: 1.2, dash: [4, 3] },
+        sidewalk: { colour: '#7fbf8a', width: 0.8, dash: [2, 3] },
+        cycleway: { colour: '#3c7fc4', width: 1.1, dash: [5, 3] },
+        bridleway: { colour: '#2f9e44', width: 1.2, dash: [8, 4] },
+        steps: { colour: '#2f9e44', width: 1.4, dash: [2, 2] },
+        track: { colour: '#7a6a58', width: 1.2, dash: [6, 3] },
+        subway: { colour: '#9a9aa8', width: 1.2, dash: [4, 4] },
+        highway: { colour: '#2f7fd8', width: 3.6 },
+        major_road: { colour: '#e8465a', width: 2.8 },
+        minor_road: { colour: '#ffffff', width: 1.6 },
+        path: { colour: '#2f9e44', width: 1.2, dash: [4, 3] },
+        rail: { colour: '#333333', width: 1.6, dash: [8, 4] },
+        ferry: { colour: '#3c7fc4', width: 1.2, dash: [5, 5] },
+        other: { colour: '#f0ede6', width: 1.1 },
+      },
+      boundaries: '#8f6aa8',
+      contour: '#c98a3c',
+      label: '#1f1a14',
+      labelHalo: '#ffffff',
     },
   },
   dark: {
@@ -197,6 +251,7 @@ const STYLES = {
         other: { colour: '#363c44', width: 1.1 },
       },
       boundaries: '#5a4a55',
+      contour: '#4a3d2c',
       label: '#d8dee6',
       labelHalo: '#0a0d12',
     },
@@ -215,7 +270,57 @@ const WATER_LINE_WIDTHS = {
 };
 
 // The order layers are painted in; anything not listed is skipped.
-const DRAW_ORDER = ['earth', 'landcover', 'landuse', 'natural', 'water', 'buildings', 'roads', 'boundaries'];
+const DRAW_ORDER = ['earth', 'landcover', 'landuse', 'natural', 'water', 'contours', 'buildings', 'roads', 'boundaries'];
+
+// ------------------------------------------------------ OS Open Zoomstack
+// Ordnance Survey's free vector map of Great Britain uses its own layer names
+// and classes. Rather than teach the renderer a second schema, each tile is
+// translated once, on arrival, into the Protomaps shape everything else
+// draws. Contours are the one thing Protomaps lacks, so they get a layer.
+
+const isZoomstack = (data) => Boolean(data.names || data.surfacewater || data.urban_areas || data.contours);
+
+const ZS_ROADS = [
+  ['motorway', 'motorway'], ['primary', 'trunk'], ['a road', 'primary'], ['b road', 'secondary'],
+  ['minor', 'tertiary'], ['local', 'residential'], ['restricted', 'service'], ['busway', 'service'],
+  ['path', 'footway'], ['foot', 'footway'], ['cycle', 'cycleway'], ['bridle', 'bridleway'],
+];
+const ZS_SITES = { 'air transport': 'aerodrome', education: 'school', 'medical care': 'hospital', 'road transport': 'platform', 'water transport': 'platform', ports: 'industrial' };
+const ZS_GREEN = [['cemetery', 'cemetery'], ['allotment', 'farmland'], ['golf', 'grass'], ['play', 'pitch'], ['sport', 'pitch'], ['park', 'park'], ['garden', 'garden'], ['wood', 'forest']];
+// The zoom a named place first shows at, by OS class.
+const ZS_PLACES = {
+  country: 3, capital: 4, city: 6, town: 8, village: 10, hamlet: 12, 'suburban area': 11, 'small settlements': 13,
+  'woodland or forest': 12, landform: 11, hydrography: 11, landcover: 12, sites: 12, greenspace: 13, 'national park': 8,
+};
+
+function fromZoomstack(data) {
+  const out = {};
+  const push = (layer, feature) => { (out[layer] = out[layer] || []).push(feature); };
+  const match = (table, k) => { for (const [needle, value] of table) if (k.includes(needle)) return value; return null; };
+
+  for (const f of data.sea || []) push('water', f);
+  for (const f of data.surfacewater || []) push('water', { ...f, k: 'lake' });
+  for (const f of data.waterlines || []) push('water', { ...f, k: f.k || 'river' });
+  for (const f of data.foreshore || []) push('landuse', { ...f, k: 'beach' });
+  for (const f of data.urban_areas || []) push('landuse', { ...f, k: 'urban_area' });
+  for (const f of data.woodland || []) push('landuse', { ...f, k: 'forest' });
+  for (const f of data.greenspaces || []) push('landuse', { ...f, k: match(ZS_GREEN, f.k || '') || 'park' });
+  for (const f of data.sites || []) push('landuse', { ...f, k: ZS_SITES[f.k] || 'commercial' });
+  for (const f of data.national_parks || []) push('landuse', { ...f, t: LINE, k: 'national_park' });
+  for (const f of data.buildings || []) push('buildings', f);
+  for (const f of data.contours || []) push('contours', f);
+  for (const f of data.rail || []) push('roads', { ...f, k: 'rail', d: 'rail' });
+  for (const f of data.roads || []) push('roads', { ...f, d: match(ZS_ROADS, f.k || '') || 'other' });
+  for (const f of data.boundaries || []) push('boundaries', f);
+  for (const f of data.names || []) {
+    const z = ZS_PLACES[f.k];
+    if (z === undefined || !f.n) continue;
+    push('places', { ...f, z, k: f.k === 'city' || f.k === 'town' || f.k === 'village' || f.k === 'hamlet' || f.k === 'capital' ? 'locality' : f.k });
+  }
+  for (const f of data.railwaystations || []) push('places', { ...f, z: 12, k: 'station' });
+  for (const f of data.airports || []) push('places', { ...f, z: 9, k: 'airport' });
+  return out;
+}
 
 // How important each road class is: 0 shows from the world view, 6 only
 // when you are practically standing on it.
@@ -487,6 +592,11 @@ class VaultMap {
     });
 
     window.addEventListener('resize', () => this.resize());
+    // The sidebar collapsing, or the page laying out late, changes the
+    // canvas size without a window resize.
+    if (window.ResizeObserver) {
+      new ResizeObserver(() => { if (Math.abs(this.canvas.clientWidth - this.width) > 1) this.resize(); }).observe(this.canvas);
+    }
   }
 
   /** Zoom keeping the point under the cursor fixed, as a map should. */
@@ -561,7 +671,8 @@ class VaultMap {
     this._pending.add(key);
     try {
       const res = await fetch(`/tile/${encodeURIComponent(this.basePack)}/${z}/${x}/${y}`);
-      this._tiles.set(key, res.ok ? await res.json() : {});
+      const data = res.ok ? await res.json() : {};
+      this._tiles.set(key, isZoomstack(data) ? fromZoomstack(data) : data);
     } catch {
       this._tiles.set(key, {});
     } finally {
@@ -1279,6 +1390,15 @@ class VaultMap {
 
   /** How should a line feature in this layer be stroked? Null means skip it. */
   _lineSpec(layerName, feature) {
+    if (layerName === 'contours') {
+      // Every line from zoom 11; index contours (each 50 m) heavier.
+      if (this.zoom < 11) return null;
+      const index = feature.h !== undefined && feature.h % 50 === 0;
+      return { colour: this.style.layers.contour, width: index ? 1.3 : 0.6 };
+    }
+    if (layerName === 'landuse' && feature.k === 'national_park') {
+      return { colour: '#5a9a3a', width: 2, dash: [10, 6] };
+    }
     if (layerName === 'water' || layerName === 'natural') {
       const base = WATER_LINE_WIDTHS[feature.k] ?? WATER_LINE_WIDTHS.other;
       return { colour: this.style.water, width: base * this._lineScale() };
@@ -1401,6 +1521,30 @@ class VaultMap {
         ctx.strokeText(feature.n, x, y);
         ctx.fillStyle = style.layers.label;
         ctx.fillText(feature.n, x, y);
+      }
+    }
+
+    // Heights on the index contours, close in, where a walker wants them.
+    if (this.showLabels && data.contours && this.zoom >= 13.5) {
+      ctx.font = '10px system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      for (const feature of data.contours) {
+        if (feature.h === undefined || feature.h % 50 !== 0) continue;
+        const ring = feature.g[0];
+        if (!ring || ring.length < 6) continue;
+        const mid = ring[Math.floor(ring.length / 2)];
+        const x = px + mid[0] * size;
+        const y = py + mid[1] * size;
+        if (x < 0 || x > this.width || y < 0 || y > this.height) continue;
+        const label = String(feature.h);
+        const width = ctx.measureText(label).width;
+        if (!this._claimLabelSpace(x, y, width + 6, 12)) continue;
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = style.layers.labelHalo;
+        ctx.strokeText(label, x, y);
+        ctx.fillStyle = style.layers.contour;
+        ctx.fillText(label, x, y);
       }
     }
 

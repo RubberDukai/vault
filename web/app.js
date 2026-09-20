@@ -1250,12 +1250,16 @@ async function renderMaps() {
   document.getElementById('map-zoom-in').onclick = () => MAP.zoomBy(1);
   document.getElementById('map-zoom-out').onclick = () => MAP.zoomBy(-1);
 
+  // Three looks, cycled: paper, dark, and an Ordnance Survey imitation.
+  const STYLE_CYCLE = { paper: 'dark', dark: 'os', os: 'paper' };
+  const STYLE_LABELS = { paper: 'Paper', dark: 'Dark', os: 'OS style' };
   const styleBtn = document.getElementById('map-style');
-  styleBtn.textContent = MAP.styleName === 'paper' ? 'Dark' : 'Paper';
+  styleBtn.title = 'Switch the map look';
+  styleBtn.textContent = STYLE_LABELS[STYLE_CYCLE[MAP.styleName] || 'paper'];
   styleBtn.onclick = () => {
-    const next = MAP.styleName === 'paper' ? 'dark' : 'paper';
+    const next = STYLE_CYCLE[MAP.styleName] || 'paper';
     MAP.setStyle(next);
-    styleBtn.textContent = next === 'paper' ? 'Dark' : 'Paper';
+    styleBtn.textContent = STYLE_LABELS[STYLE_CYCLE[next]];
     saveView();
   };
 

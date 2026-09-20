@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 # Vault - offline knowledge vault. Linux and macOS launcher.
-# Make executable once with:  chmod +x ark.sh
+# Make executable once with:  chmod +x vault.sh
 
 cd "$(dirname "$0")" || exit 1
+
+# A copy made with "make-portable --with-node" carries its own Node.js.
+if [ -x node/node ]; then
+  exec node/node bin/vault.js serve --open "$@"
+fi
 
 if ! command -v node >/dev/null 2>&1; then
   cat <<'MESSAGE'
