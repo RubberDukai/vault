@@ -158,6 +158,14 @@ Everything else that was open has been decided and is done or in progress — se
 | 10.9 | Offline maps, not just the online planet | **DONE** | Found while testing: the online map had expired (Protomaps keeps a week of builds; the vault now moves the date on itself). Setup → Maps (offline): Britain & Ireland to street level (851 MB, installed), the world (installed), Europe, Japan |
 | 10.10 | Spreadsheet — view, edit, format, sort, formulas, open Excel files | **DONE** | Sheets: a grid with a formula engine (about a hundred functions), number/date/currency/percent formats, bold/italic/colour, sort, insert/delete rows and columns, freeze, undo, several sheets, autosave. Imports and exports .xlsx and .csv. Charts: select a range, press Chart — bar, line or pie, with a title, floating over the grid, redrawn as the numbers change, saved with the workbook. Pivot tables are not there; charts are not written into the exported .xlsx |
 
+## 11. Wrapping up — requested 20–21 Sep
+
+| # | Request | Status | Notes |
+|---|---|---|---|
+| 11.1 | Network sharing off by default, switchable in the interface, with a tutorial | **DONE** | The vault now listens on this machine only (127.0.0.1) until Setup → Share on this network is switched on; the server rebinds without a restart, the choice is kept in data/state.json, the panel shows the phone address and a five-step walkthrough plus what "on" means for safety. `--host` on the command line fixes it and greys out the switch. Tested on, off, and unreachable-from-the-LAN when off |
+| 11.2 | Why did a firewall prompt appear? | **ANSWERED** | It was the portable-copy test: Windows asks per executable path, and the test copy's own node.exe was a new path. Deleted since; the installed Node is allowed already |
+| 11.3 | Finish every requested feature and partial before rollout | **OPEN** | Remaining partials: 1.7 (see note — the app window is Edge/Chrome in app mode; Edge ships with Windows, so no download is needed; a bundled browser would mean Electron and 200 MB), 1.10/9.15 languages (target: Spanish through A2, Hindi to A1, Mandarin HSK 3; Japanese N5 is complete), 3.4 (verify OS Zoomstack on real tiles once the download lands), 4.16/D5 (your hands) |
+
 ## 6. Known thin spots
 
 Not separate requests — the places where a "done" is doing less than it should.

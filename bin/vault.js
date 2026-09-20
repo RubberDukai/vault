@@ -3,7 +3,7 @@
 /**
  * Vault command line. Works the same on Windows, Linux and macOS.
  *
- *   vault serve [--port 8080] [--host 0.0.0.0]
+ *   vault serve [--port 8080] [--host 127.0.0.1 | 0.0.0.0]   (no --host: this machine only, or as set in Setup)
  *   vault library                 list every pack and when it was cloned
  *   vault check                   ask the catalogue what is newer
  *   vault info <file.zim>         inspect a pack without the server
@@ -45,7 +45,7 @@ async function cmdServe(args) {
   const { ArkServer } = require('../src/server');
   const server = new ArkServer({
     port: Number(args.port || process.env.ARK_PORT || 8080),
-    host: args.host || process.env.ARK_HOST || '0.0.0.0',
+    host: args.host || process.env.ARK_HOST || null,
     libraryDir: args.library || process.env.ARK_LIBRARY || path.join(ROOT, 'library'),
   });
 
@@ -72,6 +72,8 @@ async function cmdServe(args) {
   if (addresses.length > 1) {
     console.log('  Or from any phone or tablet on the same wifi:');
     for (const addr of addresses.slice(1)) console.log(`    ${addr}`);
+  } else if (!server.sharing()) {
+    console.log('  Sharing with other devices is off — Setup → Share on this network to turn it on.');
   }
   console.log('');
 

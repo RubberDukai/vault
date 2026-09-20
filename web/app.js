@@ -587,6 +587,9 @@ async function renderSetup() {
 
       <div id="queue-panel">${queueHtml()}</div>
 
+      <h2>Share on this network</h2>
+      <div class="card" id="network-panel"><p class="faint">Checking…</p></div>
+
       ${byCategory.map((c) => `
         <h2>${esc(c.title)} <span class="faint" style="font-weight:400;font-size:13px">${c.items.length} · ${esc(humanGb(c.items.reduce((n, i) => n + i.size, 0)))}</span></h2>
         ${c.items.map((i) => {
@@ -698,6 +701,49 @@ async function renderSetup() {
     if (cancelAll) cancelAll.onclick = async () => { if (confirm('Clear the whole queue?')) { await api('setup/cancel', { method: 'POST', body: {} }); await refresh(); } };
 
     wireCatalogSearch();
+    paintNetwork();
+  };
+
+  // The sharing switch. Off, the vault answers only this machine; on, any
+  // device on the same wifi can open it. The server rebinds without a restart.
+  const paintNetwork = async () => {
+    const panel = document.getElementById('network-panel');
+    if (!panel) return;
+    let net;
+    try { net = await api('network'); } catch { panel.innerHTML = '<p class="faint">Could not read the network state.</p>'; return; }
+    const others = net.addresses.slice(1);
+    panel.innerHTML = `
+      <div class="row-between" style="align-items:flex-start;gap:16px;flex-wrap:wrap">
+        <div style="flex:1;min-width:260px">
+          <p style="margin:0 0 6px"><strong>${net.sharing ? 'On — other devices on this wifi can open the vault.' : 'Off — only this computer can open the vault.'}</strong></p>
+          ${net.sharing
+            ? `<p style="margin:0 0 6px">On a phone, tablet or another computer on the same wifi, open a browser and type${others.length === 1 ? ' this address' : ' one of these'}:</p>
+               ${others.length ? others.map((a) => `<p class="mono" style="font-size:20px;margin:4px 0">${esc(a)}</p>`).join('') : '<p class="faint">This computer has no wifi or cable connection right now, so there is nothing to share yet.</p>'}
+               <p class="faint" style="margin:8px 0 0">Nothing installs on the other device, and nothing leaves your wifi. Anyone on the wifi can read everything and can post messages, calendar events and map markings. Switch it off when you do not need it.</p>`
+            : `<p class="faint" style="margin:0">The vault never touches the internet either way. Switching this on lets phones, tablets and other computers on your own wifi read it — useful for the household, unnecessary on a laptop used alone.</p>`}
+        </div>
+        <button class="btn ${net.sharing ? '' : 'btn-primary'}" id="share-toggle" ${net.locked ? 'disabled title="Fixed on the command line with --host"' : ''}>${net.sharing ? 'Switch off' : 'Switch on'}</button>
+      </div>
+      <details style="margin-top:12px"${net.sharing ? '' : ' open'}>
+        <summary>How it works, step by step</summary>
+        <ol style="margin:8px 0 0 18px;padding:0;line-height:1.6">
+          <li><strong>Switch on.</strong> The vault starts listening for the other devices. Nothing else changes.</li>
+          <li><strong>Windows asks once</strong> whether "Node.js JavaScript Runtime" may accept connections. Tick <em>Private networks</em>, untick <em>Public</em>, and Allow. (If you cancelled that box before, sharing will not work until you allow it: Windows Settings → Privacy &amp; security → Windows Security → Firewall &amp; network protection → Allow an app through firewall.)</li>
+          <li><strong>On the other device,</strong> make sure it is on the same wifi, open any browser, and type the address shown above — the numbers and the colon and the port, exactly.</li>
+          <li><strong>Add it to the home screen</strong> (Share → Add to Home Screen on iPhone; ⋮ → Add to Home screen on Android) and it opens like an app from then on, as long as this computer is running the vault.</li>
+          <li><strong>Switch off</strong> when you are done, or leave it on for the household: the choice is remembered across restarts.</li>
+        </ol>
+        <p class="faint" style="margin:8px 0 0">What "on" means for safety: the vault has no passwords, so anyone who can join your wifi can read it and write to the shared parts (Comms, Calendar, map markings, shared notebook pages). It is still invisible from the internet — your router does not pass inbound connections unless you set that up yourself. On a public or shared wifi, keep it off.</p>
+      </details>`;
+    const toggle = document.getElementById('share-toggle');
+    if (toggle) toggle.onclick = async () => {
+      toggle.disabled = true;
+      toggle.textContent = 'Switching…';
+      await api('network/share', { method: 'POST', body: { on: !net.sharing } });
+      // The server drops every connection while it rebinds; give it a moment.
+      await new Promise((r) => setTimeout(r, 700));
+      paintNetwork();
+    };
   };
 
   const refresh = async () => {

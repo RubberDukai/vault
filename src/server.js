@@ -51,7 +51,11 @@ const NAMESPACES = new Set(['C', 'A', 'I', 'M', 'W', 'X', '-']);
 class ArkServer {
   constructor(options = {}) {
     this.port = options.port || 8080;
-    this.host = options.host || '0.0.0.0';
+    // Where to listen. Nothing given: this machine only, unless sharing has
+    // been switched on in the interface (kept in data/state.json). An explicit
+    // --host always wins.
+    this.hostOverride = options.host || null;
+    this.host = this.hostOverride || '127.0.0.1';
     this.libraryDir = options.libraryDir || path.join(ROOT, 'library');
     this.contentDir = options.contentDir || path.join(ROOT, 'content');
     this.dataDir = options.dataDir || path.join(ROOT, 'data');
@@ -82,6 +86,9 @@ class ArkServer {
       school: {},
       bookmarks: [],
       lastUpdateCheck: null,
+      // Off by default: the vault answers only this machine until someone
+      // turns sharing on in Setup.
+      share: false,
     });
 
     // Map annotations live server-side rather than in a browser, so a route
@@ -105,6 +112,7 @@ class ArkServer {
   async init() {
     await fsp.mkdir(this.dataDir, { recursive: true });
     this.state.load();
+    if (!this.hostOverride && this.state.get().share) this.host = '0.0.0.0';
     await this.content.load();
     await this.library.scan();
     await this.maps.scan();
@@ -193,7 +201,34 @@ class ArkServer {
         if (addr.family === 'IPv4' && !addr.internal) out.push(`http://${addr.address}:${this.port}`);
       }
     }
-    return out;
+    // Only the local address is reachable while sharing is off.
+    return this.sharing() ? out : out.slice(0, 1);
+  }
+
+  /** True when other devices on the network can reach the vault. */
+  sharing() {
+    return this.host !== '127.0.0.1' && this.host !== 'localhost' && this.host !== '::1';
+  }
+
+  /**
+   * Switch sharing on or off without a restart: drop every connection, then
+   * listen again on the same port from the other address. The browser that
+   * asked is on localhost, so it reconnects either way.
+   */
+  async setSharing(on) {
+    const host = on ? '0.0.0.0' : '127.0.0.1';
+    if (host === this.host) return;
+    this.state.update((s) => { s.share = on; });
+    await new Promise((resolve) => {
+      this.server.closeAllConnections();
+      this.server.close(() => resolve());
+    });
+    this.host = host;
+    await new Promise((resolve, reject) => {
+      this.server.once('error', reject);
+      this.server.listen(this.port, this.host, () => { this.server.removeListener('error', reject); resolve(); });
+    });
+    console.log(`[vault] sharing ${on ? 'on — reachable from the network' : 'off — this machine only'}`);
   }
 
   async stop() {
@@ -479,6 +514,32 @@ class ArkServer {
     const method = req.method.toUpperCase();
 
     // --- status -----------------------------------------------------------
+    // --- sharing on the local network -------------------------------------
+    if (route === 'network' && method === 'GET') {
+      return this.json(res, 200, {
+        sharing: this.sharing(),
+        locked: Boolean(this.hostOverride),
+        port: this.port,
+        addresses: this.addresses(),
+        // Every address the machine has, so the page can say what would
+        // become reachable before the switch is flipped.
+        interfaces: Object.entries(os.networkInterfaces()).flatMap(([name, addrs]) => (addrs || [])
+          .filter((a) => a.family === 'IPv4' && !a.internal)
+          .map((a) => ({ name, address: a.address }))),
+      });
+    }
+
+    if (route === 'network/share' && method === 'POST') {
+      if (this.hostOverride) return this.json(res, 400, { error: 'The address was fixed on the command line (--host); it cannot be changed here.' });
+      const body = await this.readBody(req);
+      const on = Boolean(body.on);
+      // Answer first: switching drops every open connection, this one included.
+      res.on('finish', () => setTimeout(() => {
+        this.setSharing(on).catch((err) => console.error('[vault] sharing switch failed:', err.message));
+      }, 100));
+      return this.json(res, 200, { sharing: on, port: this.port });
+    }
+
     if (route === 'status') {
       const packs = this.library.list();
       return this.json(res, 200, {

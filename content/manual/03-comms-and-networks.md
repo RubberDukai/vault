@@ -21,7 +21,7 @@ It is a noticeboard rather than an instant messenger, and that is the right shap
 
 ## Level 1 — one building
 
-You already have this. Start the Vault, note the address it prints, and anyone on the same wifi types that address into a browser.
+You already have this, but it is **off until you switch it on**. Out of the box the Vault answers only the computer it runs on. In **Setup → Share on this network**, press *Switch on*; the page then shows the address for the other devices and walks through the steps, and the choice is remembered.
 
 ```
 Or from any phone or tablet on the same wifi:
@@ -29,6 +29,10 @@ Or from any phone or tablet on the same wifi:
 ```
 
 Nothing needs installing on the other devices. A phone, a tablet, an old laptop, an e-reader with a browser — all of them work.
+
+The first time you switch it on, Windows asks whether *Node.js JavaScript Runtime* may accept connections: allow it on **private** networks only. If that box was cancelled earlier, allow it later under Windows Security → Firewall → Allow an app through firewall.
+
+What sharing means: there are no passwords, so anyone who can join your wifi can read the Vault and write to its shared parts — Comms, the calendar, map markings, shared notebook pages. It is never reachable from the internet; a home router does not pass inbound connections unless you configure it to. On a public or shared wifi, leave it off. From the command line, `--host 127.0.0.1` or `--host 0.0.0.0` fixes the choice and greys the switch out.
 
 **Write the address on a piece of paper and stick it to the wall.** People will need it and you will not always be there to tell them.
 
