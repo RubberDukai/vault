@@ -202,12 +202,62 @@ function repointNav(currentHash) {
   }
 }
 
+// ------------------------------------------------------------ back / forward
+// The browser keeps the real history; we only need to know whether there is
+// anywhere to go, which it will not tell us. So each page visited in this
+// session gets a position in history.state, and the buttons compare it to
+// how far we have been. The article reader has its own inner history (links
+// inside the iframe), which is stepped through first.
+const NAV = { pos: 0, max: 0 };
+const navBack = document.getElementById('nav-back');
+const navFwd = document.getElementById('nav-fwd');
+const navCrumb = document.getElementById('nav-crumb');
+
+function updateNavButtons() {
+  const reader = window.vaultReader && location.hash.startsWith('#/read/') ? window.vaultReader : null;
+  navBack.disabled = !(NAV.pos > 0 || (reader && reader.canBack()));
+  navFwd.disabled = !(NAV.pos < NAV.max || (reader && reader.canForward()));
+}
+
+function navGo(delta) {
+  const reader = window.vaultReader && location.hash.startsWith('#/read/') ? window.vaultReader : null;
+  if (reader && (delta < 0 ? reader.canBack() : reader.canForward())) { reader.go(delta); return; }
+  if (delta < 0 ? NAV.pos > 0 : NAV.pos < NAV.max) history.go(delta);
+}
+navBack.onclick = () => navGo(-1);
+navFwd.onclick = () => navGo(1);
+window.addEventListener('keydown', (e) => {
+  if (!e.altKey || e.ctrlKey || e.metaKey) return;
+  if (e.key === 'ArrowLeft') { e.preventDefault(); navGo(-1); }
+  if (e.key === 'ArrowRight') { e.preventDefault(); navGo(1); }
+});
+
+function setCrumb(hash) {
+  const link = [...tabs.querySelectorAll('a')].find((a) => a.dataset.match && new RegExp(a.dataset.match).test(hash));
+  const section = link ? link.querySelector('.nav-label')?.textContent || link.textContent : '';
+  navCrumb.textContent = section.trim();
+}
+
 async function route() {
   stopPolling();
   const raw = location.hash.slice(1) || '/';
   const [pathname, queryString] = raw.split('?');
   const params = new URLSearchParams(queryString || '');
   const hash = `#${pathname}${queryString ? '?' + queryString : ''}`;
+
+  // A page we have been to keeps its number; a new one goes on the end and
+  // forgets any forward pages, exactly as a browser does.
+  if (history.state && typeof history.state.navPos === 'number') {
+    NAV.pos = history.state.navPos;
+    NAV.max = Math.max(NAV.max, NAV.pos);
+  } else {
+    if (NAV.started) NAV.pos += 1;
+    NAV.max = NAV.pos;
+    history.replaceState({ ...(history.state || {}), navPos: NAV.pos }, '', location.href);
+  }
+  NAV.started = true;
+  updateNavButtons();
+  setCrumb(hash);
 
   rememberRoute(hash);
   repointNav(hash);
@@ -239,7 +289,8 @@ async function route() {
 // hashchange event; keep the memory current from there too.
 const _replaceState = history.replaceState.bind(history);
 history.replaceState = (state, title, url) => {
-  _replaceState(state, title, url);
+  // Keep our history position when a page only rewrites its address.
+  _replaceState(state === null && history.state ? history.state : state, title, url);
   if (typeof url === 'string' && url.startsWith('#')) { rememberRoute(url); repointNav(url); }
 };
 
@@ -2234,6 +2285,7 @@ async function renderArticle(packId, articleUrl) {
   const updateButtons = () => {
     backBtn.disabled = depth <= 0;
     fwdBtn.disabled = depth >= maxDepth;
+    updateNavButtons();
   };
 
   frame.addEventListener('load', () => {
@@ -2278,11 +2330,8 @@ async function renderArticle(packId, articleUrl) {
   backBtn.onclick = () => go(-1);
   fwdBtn.onclick = () => go(1);
 
-  document.onkeydown = (e) => {
-    if (!location.hash.startsWith('#/read/')) { document.onkeydown = null; return; }
-    if (e.altKey && e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
-    if (e.altKey && e.key === 'ArrowRight') { e.preventDefault(); go(1); }
-  };
+  // The global back/forward bar steps through articles first, then pages.
+  window.vaultReader = { go, canBack: () => depth > 0, canForward: () => depth < maxDepth };
 
   updateButtons();
 }

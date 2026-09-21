@@ -925,3 +925,11 @@ a { color: var(--link); }
 .chart-range { font-size: 11px; }
 .sheet-chart canvas { flex: 1; width: 100%; min-height: 0; display: block; }
 .chart-resize { position: absolute; right: 0; bottom: 0; width: 14px; height: 14px; cursor: nwse-resize; background: linear-gradient(135deg, transparent 50%, var(--border) 50%); }
+
+/* Back and forward, like a browser, above every page. */
+.navbar { display: flex; align-items: center; gap: 6px; padding: 8px 20px 0; }
+.nav-btn { width: 30px; height: 26px; padding: 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-raised); color: var(--text); font: inherit; font-size: 12px; cursor: pointer; }
+.nav-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.nav-btn:disabled { opacity: 0.35; cursor: default; }
+.nav-crumb { margin-left: 8px; font-size: 13px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media print { .navbar { display: none; } }

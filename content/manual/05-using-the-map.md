@@ -8,7 +8,11 @@ order: 5
 
 ## Finding your way around the screen
 
-Everything is reached from the sidebar on the left. Each section remembers
+Everything is reached from the sidebar on the left, and the **◀ ▶ buttons
+at the top left** go back and forward through everything you have opened,
+like a browser — a handbook chapter back to its list, an article back to the
+one you came from, a map back to the lesson that sent you there. Alt+← and
+Alt+→ do the same from the keyboard. Each section remembers
 where you left it: open an article in the Library, go and look at the map,
 come back, and the article is still there. Clicking the section you are
 already in takes you back to its front page. The sidebar collapses to a strip
