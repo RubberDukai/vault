@@ -14,7 +14,7 @@ const path = require('node:path');
 const zlib = require('node:zlib');
 
 const BACKGROUND = [13, 17, 23];    // #0d1117, the app's ground
-const MARK = [227, 179, 65];        // #e3b341, the amber triangle
+const MARK = [227, 179, 65];        // #e3b341, amber
 const SUPERSAMPLE = 4;              // rendered large, averaged down, for clean edges
 
 // ------------------------------------------------------------------- PNG
@@ -87,44 +87,49 @@ function insideRounded(x, y, size, radius) {
   return dx * dx + dy * dy <= radius * radius;
 }
 
-const TEETH = 8;
-
 /**
- * Is this point on the cog? A vault door is a cog, which makes it the obvious
- * mark for this. The rim radius alternates between two values around the
- * circle to cut the teeth, and a hub is punched out of the middle.
+ * Is this point inside an equilateral pointed arch? The classic gothic arch:
+ * two arcs, each drawn from the opposite springer, meeting at the apex, on
+ * top of straight piers down to the floor. Width is the span, springY the
+ * line the arcs spring from, floorY the bottom of the piers.
  */
-function insideCog(px, py, centre, outer, inner, hub, spokeWidth) {
-  const dx = px - centre;
-  const dy = py - centre;
-  const distance = Math.hypot(dx, dy);
-
-  if (distance > outer) return false;
-
-  // Two sectors per tooth: one raised, one cut away.
-  const angle = Math.atan2(dy, dx) + Math.PI;
-  const sector = Math.floor((angle / (Math.PI * 2)) * TEETH * 2);
-  const rim = sector % 2 === 0 ? outer : inner;
-  if (distance > rim) return false;
-
-  // Hollow hub, held by four spokes so it still reads as a cog when tiny.
-  if (distance < hub) {
-    const onSpoke = Math.abs(dx) < spokeWidth || Math.abs(dy) < spokeWidth;
-    return onSpoke && distance > hub * 0.22;
-  }
-  return true;
+function insideArch(px, py, cx, width, springY, floorY) {
+  const half = width / 2;
+  if (py > floorY) return false;
+  if (px < cx - half || px > cx + half) return false;
+  if (py >= springY) return true; // the piers
+  // Above the spring line: inside both arcs. Each arc's centre is the
+  // opposite springer and its radius is the whole span.
+  const inLeft = Math.hypot(px - (cx - half), py - springY) <= width;
+  const inRight = Math.hypot(px - (cx + half), py - springY) <= width;
+  return inLeft && inRight;
 }
 
-/** Render one icon size: dark rounded square with the amber vault cog. */
+/**
+ * The mark: a gothic vault seen end-on — a thick pointed arch with a
+ * smaller pointed opening inside it, on a floor line. It still reads as an
+ * arch at 16 pixels, which a ribbed ceiling would not.
+ */
+function insideVault(px, py, big) {
+  const cx = big / 2;
+  const width = big * 0.62;
+  const wall = big * 0.085;
+  const springY = big * 0.52;
+  const floorY = big * 0.80;
+  const outer = insideArch(px, py, cx, width, springY, floorY);
+  if (!outer) return false;
+  const inner = insideArch(px, py, cx, width - wall * 2, springY + wall * 0.15, floorY - wall);
+  if (!inner) return true;
+  // A floor bar across the opening, and a thin central rib as the keystone line.
+  if (py > floorY - wall) return true;
+  return false;
+}
+
+/** Render one icon size: dark rounded square with the amber gothic arch. */
 function renderIcon(size) {
   const big = size * SUPERSAMPLE;
   const radius = big * 0.18;
 
-  const centre = big / 2;
-  const outer = big * 0.40;
-  const inner = big * 0.33;
-  const hub = big * 0.17;
-  const spokeWidth = big * 0.045;
 
   const accumulator = new Float64Array(size * size * 4);
 
@@ -141,7 +146,7 @@ function renderIcon(size) {
       if (insideRounded(px, py, big, radius)) {
         [r, g, b] = BACKGROUND;
         a = 255;
-        if (insideCog(px, py, centre, outer, inner, hub, spokeWidth)) {
+        if (insideVault(px, py, big)) {
           [r, g, b] = MARK;
         }
       }

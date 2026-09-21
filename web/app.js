@@ -20,12 +20,12 @@ const themeSelect = document.getElementById('theme');
 const phosphorSelect = document.getElementById('phosphor');
 
 function applyAppearance() {
-  const theme = localStorage.getItem('vault.theme') || 'pipboy';
+  const theme = (localStorage.getItem('vault.theme') || 'terminal').replace('pipboy', 'terminal');
   const phosphor = localStorage.getItem('vault.phosphor') || 'amber';
 
   document.documentElement.dataset.theme = theme;
   document.documentElement.dataset.phosphor = phosphor;
-  phosphorSelect.hidden = theme !== 'pipboy';
+  phosphorSelect.hidden = theme !== 'terminal';
 
   themeSelect.value = theme;
   phosphorSelect.value = phosphor;
@@ -336,7 +336,7 @@ async function renderHome() {
   STATUS = status;
 
   if (MASCOT === null) {
-    MASCOT = await fetch('/vaultboy.txt').then((r) => r.text()).catch(() => '');
+    MASCOT = await fetch('/vault-art.txt').then((r) => r.text()).catch(() => '');
   }
 
   const packs = library.packs;
@@ -357,7 +357,7 @@ async function renderHome() {
           <a href="#/handbook">handbook</a> on a quiet evening rather than a bad one.
         </p>
       </div>
-      <pre class="mascot" aria-label="Vault mascot giving a thumbs up">${esc(MASCOT)}</pre>
+      <pre class="mascot" aria-label="The vault — a gothic vaulted hall, drawn in text">${esc(MASCOT)}</pre>
     </div>
 
     <div class="stat-row">
