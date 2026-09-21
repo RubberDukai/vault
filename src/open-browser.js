@@ -66,12 +66,20 @@ function openWithDefault(url) {
   }
 }
 
-function openBrowser(url, { appMode = true } = {}) {
+function openBrowser(url, { appMode = true, profileDir = null } = {}) {
   if (!appMode) return openWithDefault(url);
+
+  // The vault window gets a profile of its own, kept inside the vault folder:
+  // nothing it reads ends up in the person's everyday browser history, no
+  // extensions or sync accounts reach in, and the window comes up clean.
+  const args = [`--app=${url}`, '--new-window', '--no-first-run', '--no-default-browser-check'];
+  if (profileDir) {
+    try { fs.mkdirSync(profileDir, { recursive: true }); args.push(`--user-data-dir=${profileDir}`); } catch { /* fall back to the default profile */ }
+  }
 
   for (const browser of candidates()) {
     try {
-      const child = detached(browser, [`--app=${url}`, '--new-window']);
+      const child = detached(browser, args);
       let failed = false;
       child.on('error', () => { failed = true; });
       // spawn reports ENOENT asynchronously, so give it a moment before

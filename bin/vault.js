@@ -81,7 +81,7 @@ async function cmdServe(args) {
     const { openBrowser } = require('../src/open-browser');
     console.log('  Opening the vault…');
     console.log('');
-    openBrowser(`http://localhost:${server.port}`, { appMode: !args.browser });
+    openBrowser(`http://localhost:${server.port}`, { appMode: !args.browser, profileDir: path.join(server.dataDir, 'browser-profile') });
   }
 
   console.log('  Leave this window open. Closing it stops the vault.');
@@ -92,6 +92,10 @@ async function cmdServe(args) {
     await server.stop();
     process.exit(0);
   };
+  // One bad request or one corrupt file must never take the whole library
+  // down. Log it and carry on; the request that caused it has already failed.
+  process.on('uncaughtException', (err) => console.error('[vault] recovered from:', err && err.stack || err));
+  process.on('unhandledRejection', (err) => console.error('[vault] recovered from:', err && err.stack || err));
   process.on('SIGINT', shutdown);
   process.on('SIGTERM', shutdown);
 }

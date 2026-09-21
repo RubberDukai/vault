@@ -22,7 +22,7 @@ Every request, in the order it was made, with an honest status. Updated whenever
 
 | # | Decision | Options |
 |---|---|---|
-| D5 | Rename the folder | Approved, but it cannot be done from inside this session: the desktop app holds the folder open, so the rename is refused. Three steps for you, any time: close every Vault window, rename `Documents\Ark` to `Documents\Vault` in Explorer, double-click `Create Desktop Shortcut.bat` in the renamed folder. Then reopen Claude in the new folder. Downloads carry on from where they were |
+| D5 | Rename the folder | **DONE** — you renamed `DocumentsArk` to `DocumentsVault` on 21 Sep; nothing else referred to the old path |
 | D8 | Naming, if this is ever sold | "Pip-Boy" and "Vault Boy" are Bethesda trademarks. For a commercial release the theme label needs a different name (e.g. "Terminal") and the mascot art replaced — you have already said the art will change. Say when and I will do both |
 
 Everything else that was open has been decided and is done or in progress — see section 8.
@@ -93,7 +93,7 @@ Everything else that was open has been decided and is done or in progress — se
 | 4.13 | Remove handbook links from the home page | **DONE** | |
 | 4.14 | Home as a friendly, Fallout-like welcome and guide | **DONE** | |
 | 4.15 | Logo changed to a cog | **DONE** | Generated from code, no image file |
-| 4.16 | Rebrand Ark → Vault | **PARTIAL** | Everything renamed except the folder — D5, needs your hands |
+| 4.16 | Rebrand Ark → Vault | **DONE** | Everything, including the folder (D5, 21 Sep). The class is still called ArkServer inside src/server.js — a name in code, not on screen |
 | 4.17 | Vault Boy ASCII mascot on the home page | **DONE** | Your art, exactly as supplied |
 
 ## 5. Backup, sharing, and the autonomous run — 11–13 Sep
@@ -116,7 +116,7 @@ Everything else that was open has been decided and is done or in progress — se
 | 8.2 | Wiktionary, Wikibooks, iFixit, plus Wikivoyage, Wikiversity, ArchWiki | **DONE** | Queued (18.7 GB). ArchWiki already landed and indexed |
 | 8.3 | Full English Wikipedia, text only | **DONE** | Queued last, 49 GB |
 | 8.4 | Delete the superseded pack | **DONE** | |
-| 8.5 | Rename the folder | **DECISION** | See D5 — needs your hands, the app holds the folder |
+| 8.5 | Rename the folder | **DONE** | See D5 |
 | 8.6 | All the textbooks | **DONE** | Where There Is No Doctor (25 files) and all 75 OpenStax books queued. Everything downloaded so far indexes cleanly at full scale — Biology 2e is 1,475 pages, 652,000 words |
 | 8.7 | Ship the app small; download content after install, all at once or by choice | **DONE** | The Setup tab: a catalogue of 106 items, "download everything" or a tick-list, one download at a time, resumable, remembered across restarts, each pack indexed on arrival. The app itself is under 1 MB |
 | 8.8 | Could this be sold on Steam, and for how much? | **ANSWERED** | In conversation. Short version: yes, as software; the trademarks (D8) and a packaged installer (1.7) are the two things to fix first |
@@ -164,7 +164,8 @@ Everything else that was open has been decided and is done or in progress — se
 |---|---|---|---|
 | 11.1 | Network sharing off by default, switchable in the interface, with a tutorial | **DONE** | The vault now listens on this machine only (127.0.0.1) until Setup → Share on this network is switched on; the server rebinds without a restart, the choice is kept in data/state.json, the panel shows the phone address and a five-step walkthrough plus what "on" means for safety. `--host` on the command line fixes it and greys out the switch. Tested on, off, and unreachable-from-the-LAN when off |
 | 11.2 | Why did a firewall prompt appear? | **ANSWERED** | It was the portable-copy test: Windows asks per executable path, and the test copy's own node.exe was a new path. Deleted since; the installed Node is allowed already |
-| 11.3 | Finish every requested feature and partial before rollout | **OPEN** | Remaining partials: 1.7 (see note — the app window is Edge/Chrome in app mode; Edge ships with Windows, so no download is needed; a bundled browser would mean Electron and 200 MB), 1.10/9.15 languages (target: Spanish through A2, Hindi to A1, Mandarin HSK 3; Japanese N5 is complete), 4.16/D5 (your hands) |
+| 11.4 | Audit findings (from the agents' first pass, Sept 20) | **IN PROGRESS** | Fixed: a malformed Range request on a document file could crash the server (now 416, and the process no longer dies on any uncaught error); the vault window used the person's everyday Edge/Chrome profile (now its own profile under data/browser-profile — nothing read here lands in normal browser history); the ZIM not-found page echoed the path unescaped;  keys in request bodies; bodies capped at 64 MB; nosniff / same-origin framing / no-referrer headers on every response; wounds chapter now starts with stopping the bleeding and points to First response. Still to look at from the audit: importer decompression bombs, allocation limits in the binary parsers, write durability on hard kill |
+| 11.3 | Finish every requested feature and partial before rollout | **OPEN** | Remaining partials: 1.7 (see note — the app window is Edge/Chrome in app mode; Edge ships with Windows, so no download is needed; a bundled browser would mean Electron and 200 MB), 1.10/9.15 languages (target: Spanish through A2, Hindi to A1, Mandarin HSK 3; Japanese N5 is complete) |
 
 ## 6. Known thin spots
 

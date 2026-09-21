@@ -7,6 +7,8 @@ tags: [wounds, infection, antibiotics, sepsis, cleaning]
 
 # Wounds and infection
 
+**First, stop the bleeding.** Nothing in this chapter matters until the wound has stopped bleeding: firm, direct pressure with the cleanest cloth to hand, for a full ten minutes by the clock without peeking, the limb raised; a tourniquet above the wound only for spurting blood from a limb that pressure will not stop. The full sequence is in *First response*. Come back here once the bleeding is controlled.
+
 Before antibiotics, a scratch from a rose thorn could kill a healthy adult. That world is one supply chain away. The good news is that most wound infection is prevented mechanically, not chemically — by getting the contamination physically out of the wound.
 
 ## Cleaning is the whole game

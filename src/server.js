@@ -263,8 +263,15 @@ class ArkServer {
     const chunks = [];
     for await (const chunk of req) chunks.push(chunk);
     if (chunks.length === 0) return {};
+    // Bodies are capped so a stray upload cannot fill memory, and keys that
+    // would rewrite Object.prototype are dropped as they are parsed.
+    const raw = Buffer.concat(chunks);
+    if (raw.length > 64 * 1024 * 1024) return {};
     try {
-      return JSON.parse(Buffer.concat(chunks).toString('utf8'));
+      const body = JSON.parse(raw.toString('utf8'), (key, value) => (
+        key === '__proto__' || key === 'constructor' || key === 'prototype' ? undefined : value
+      ));
+      return body && typeof body === 'object' ? body : {};
     } catch {
       return {};
     }
@@ -279,7 +286,15 @@ class ArkServer {
 
   async handle(req, res) {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-    const pathname = decodeURIComponent(url.pathname);
+    let pathname;
+    try { pathname = decodeURIComponent(url.pathname); } catch { pathname = url.pathname; }
+
+    // Belt and braces for a server that may be shared on a wifi: no sniffing
+    // of served files, no framing by other sites, and no referrer leaking
+    // article titles to anything a pack might link to.
+    res.setHeader('x-content-type-options', 'nosniff');
+    res.setHeader('x-frame-options', 'SAMEORIGIN');
+    res.setHeader('referrer-policy', 'no-referrer');
 
     if (pathname.startsWith('/api/')) return this.handleApi(req, res, url, pathname);
     if (pathname.startsWith('/z/')) return this.handleZim(req, res, pathname);
@@ -355,7 +370,7 @@ class ArkServer {
       if (!found && namespace === 'C') found = await zim.getContent('A', target);
       if (!found) {
         res.writeHead(404, { 'content-type': 'text/html; charset=utf-8' });
-        return res.end(`<!doctype html><meta charset="utf-8"><style>body{font:15px system-ui;padding:2rem;color:#8b949e;background:#0d1117}</style><p>Not in this pack: <code>${target}</code></p><p>If this is an image, remember you chose the no-pictures build.</p>`);
+        return res.end(`<!doctype html><meta charset="utf-8"><style>body{font:15px system-ui;padding:2rem;color:#8b949e;background:#0d1117}</style><p>Not in this pack: <code>${markdown.escapeHtml(target)}</code></p><p>If this is an image, remember you chose the no-pictures build.</p>`);
       }
 
       const isHtml = (found.mimeType || '').includes('html');
@@ -457,8 +472,15 @@ class ArkServer {
         // Range support lets the browser's PDF viewer jump around a big file.
         const range = req.headers.range && req.headers.range.match(/bytes=(\d*)-(\d*)/);
         if (range) {
-          const start = range[1] ? Number(range[1]) : 0;
-          const end = range[2] ? Math.min(Number(range[2]), stat.size - 1) : stat.size - 1;
+          // A suffix range (bytes=-500) means the last 500 bytes; anything
+          // outside the file is answered with 416, never handed to the stream,
+          // which would throw and take the process down with it.
+          let start = range[1] ? Number(range[1]) : (range[2] ? Math.max(0, stat.size - Number(range[2])) : 0);
+          let end = range[1] && range[2] ? Math.min(Number(range[2]), stat.size - 1) : stat.size - 1;
+          if (!Number.isFinite(start) || !Number.isFinite(end) || start > end || start >= stat.size) {
+            res.writeHead(416, { 'content-range': `bytes */${stat.size}` });
+            return res.end();
+          }
           res.writeHead(206, {
             'content-type': type,
             'content-range': `bytes ${start}-${end}/${stat.size}`,
