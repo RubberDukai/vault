@@ -294,7 +294,7 @@ class ZimFile {
         data = payload;
         break;
       case 2:
-        data = zlib.inflateSync(payload);
+        data = zlib.inflateSync(payload, { maxOutputLength: 512 * 1024 * 1024 });
         break;
       case 5:
         data = zlib.zstdDecompressSync(payload, { maxOutputLength: 512 * 1024 * 1024 });

@@ -52,7 +52,7 @@ function decodePng(buffer) {
   const channels = { 0: 1, 2: 3, 3: 1, 4: 2, 6: 4 }[colourType];
   if (!channels) throw new Error(`Unsupported PNG colour type ${colourType}`);
 
-  const raw = zlib.inflateSync(Buffer.concat(idat));
+  const raw = zlib.inflateSync(Buffer.concat(idat), { maxOutputLength: 64 * 1024 * 1024 });
   const stride = width * channels;
   const out = Buffer.alloc(stride * height);
 

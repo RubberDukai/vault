@@ -37,7 +37,15 @@ class Store {
     this._writeQueue = this._writeQueue.then(async () => {
       await fsp.mkdir(path.dirname(this.filePath), { recursive: true });
       const tmp = `${this.filePath}.${process.pid}.tmp`;
-      await fsp.writeFile(tmp, snapshot, 'utf8');
+      // Write, flush to disk, then rename: a power cut leaves either the old
+      // file or the new one, never half of either.
+      const handle = await fsp.open(tmp, 'w');
+      try {
+        await handle.writeFile(snapshot, 'utf8');
+        await handle.sync();
+      } finally {
+        await handle.close();
+      }
       await fsp.rename(tmp, this.filePath);
     }).catch((err) => {
       console.error(`[vault] could not save ${path.basename(this.filePath)}:`, err.message);

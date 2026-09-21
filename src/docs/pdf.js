@@ -392,7 +392,7 @@ class PdfDocument {
       const parm = this.resolve(params[i]) || {};
       try {
         if (filter === 'FlateDecode' || filter === 'Fl') {
-          data = zlib.inflateSync(data, { finishFlush: zlib.constants.Z_SYNC_FLUSH });
+          data = zlib.inflateSync(data, { finishFlush: zlib.constants.Z_SYNC_FLUSH, maxOutputLength: 256 * 1024 * 1024 });
           data = this._applyPredictor(data, parm);
         } else if (filter === 'ASCIIHexDecode' || filter === 'AHx') {
           const hex = data.toString('latin1').replace(/[^0-9a-fA-F]/g, '');

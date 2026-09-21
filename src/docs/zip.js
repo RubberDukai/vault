@@ -114,7 +114,7 @@ class ZipFile {
       case METHOD_STORED:
         return raw;
       case METHOD_DEFLATE:
-        return zlib.inflateRawSync(raw);
+        return zlib.inflateRawSync(raw, { maxOutputLength: 256 * 1024 * 1024 });
       default:
         throw new Error(`Unsupported ZIP compression method ${entry.method} in ${name}`);
     }
