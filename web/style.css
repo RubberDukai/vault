@@ -938,3 +938,11 @@ a { color: var(--link); }
 /* Links into the encyclopedia from the handbook. */
 a.wiki-link { text-decoration: underline dotted; text-underline-offset: 3px; }
 a.wiki-link::after { content: " ↗"; font-size: 0.75em; opacity: 0.6; }
+
+/* School: stages and folded answers. */
+.stage-heading { margin: 18px 0 8px; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
+details.answers { margin: 18px 0; border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 14px; background: var(--bg-raised); }
+details.answers > summary { cursor: pointer; font-weight: 600; }
+details.answers > summary::after { content: " — click to reveal"; font-weight: 400; color: var(--text-faint); font-size: 13px; }
+details.answers[open] > summary::after { content: ""; }
+@media print { details.answers { display: none; } }

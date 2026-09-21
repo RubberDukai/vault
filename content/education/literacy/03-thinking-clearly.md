@@ -1,7 +1,7 @@
 ---
 title: Thinking clearly
 ages: 11-16
-stage: Core
+stage: KS3
 order: 3
 summary: How to tell a good argument from a bad one, a fact from a claim, and a reason from an excuse — the skill that protects every other skill.
 ---

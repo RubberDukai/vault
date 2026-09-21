@@ -1,7 +1,7 @@
 ---
 title: Number and place value
 ages: 5-8
-stage: Foundation
+stage: KS1
 order: 1
 summary: What the digits in a number actually mean, and why that makes arithmetic possible.
 ---
@@ -43,6 +43,14 @@ We use ten as our base because we have ten fingers. Nothing deeper than that.
 3. Make the largest number you can from the digits 4, 0, 7, 2. Now the smallest. Explain why.
 4. Count out 100 dry beans. Bundle them into tens. How many bundles?
 5. A number has 4 hundreds, 0 tens and 9 ones. Write it.
+
+## Answers
+
+1. Fifty-eight (5 tens, 8 ones); two hundred and five (2 hundreds, 0 tens, 5 ones); nine hundred and forty (9 hundreds, 4 tens, 0 ones); one thousand and six (1 thousand, 0 hundreds, 0 tens, 6 ones).
+2. 6 ones; 6 tens (60); 6 hundreds (600); 6 thousands (6,000).
+3. Largest 7,420; smallest 2,047 (a number cannot start with 0, so 2 goes first and the 0 next). The biggest digit goes in the highest place for the largest, and the reverse for the smallest.
+4. 10 bundles.
+5. 409.
 
 ## Going further
 

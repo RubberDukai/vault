@@ -1,7 +1,7 @@
 ---
 title: Living things
 ages: 8-14
-stage: Core
+stage: KS2
 order: 3
 summary: Cells, plants, microbes and food chains — the biology behind why water must be boiled, why compost works, and why the garden needs bees.
 ---

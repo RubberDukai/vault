@@ -1,7 +1,7 @@
 ---
 title: Reading a map
 ages: 8-14
-stage: Core
+stage: KS2
 order: 1
 summary: Scale, symbols, grid references and contours — taught with the Maps tab and a walk outside.
 ---

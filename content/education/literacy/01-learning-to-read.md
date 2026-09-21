@@ -1,7 +1,7 @@
 ---
 title: Learning to read
 ages: 4-7
-stage: Foundation
+stage: KS1
 order: 1
 summary: A phonics sequence a parent can teach with a stick and a patch of dirt.
 ---

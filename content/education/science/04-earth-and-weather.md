@@ -1,7 +1,7 @@
 ---
 title: Earth, water and weather
 ages: 8-14
-stage: Core
+stage: KS2
 order: 4
 summary: Why it rains, where water goes, what the sky is telling you, and why the seasons happen — the science under farming, navigation and staying dry.
 ---

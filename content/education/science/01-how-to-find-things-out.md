@@ -1,7 +1,7 @@
 ---
 title: How to find things out
 ages: 8-14
-stage: Core
+stage: KS2
 order: 1
 summary: The scientific method, taught as a practical tool for a world where you cannot look up the answer.
 ---

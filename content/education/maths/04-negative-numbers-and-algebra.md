@@ -1,7 +1,7 @@
 ---
 title: Negative numbers and the start of algebra
 ages: 11-14
-stage: Core
+stage: KS3
 order: 4
 summary: Numbers below zero, and using a letter for a number you don't know yet — the two ideas that turn arithmetic into mathematics.
 ---
@@ -63,6 +63,16 @@ Brackets multiply out: 3(*n* + 2) = 3*n* + 6. Everything inside gets multiplied.
 5. Rearrange *distance* = *speed* × *time* to find *time*. If you walk at 5 km/h, how long does 12 km take?
 6. "I think of a number, subtract 4, and triple the result. I get 18." Write it as an equation and solve it.
 7. The temperature drops 3 degrees every hour from 6 °C. Write a formula for the temperature after *h* hours. When does it reach −9 °C?
+
+## Answers
+
+1. n = 5; n = 7; n = 3; n = 6; n = 12; n = 4.
+2. 7a; 6b; 2x + 10; 3y − 2.
+3. legs = 2c + 4g.
+4. days = T ÷ d; 1,000 ÷ 45 = 22 days (just over).
+5. time = distance ÷ speed; 12 ÷ 5 = 2.4 hours, that is 2 hours 24 minutes.
+6. 3(n − 4) = 18, so n − 4 = 6, so n = 10.
+7. temperature = 6 − 3h; −9 = 6 − 3h gives 3h = 15, h = 5 hours.
 
 ## Checking they have it
 

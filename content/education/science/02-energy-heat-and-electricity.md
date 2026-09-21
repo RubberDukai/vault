@@ -1,7 +1,7 @@
 ---
 title: Energy, heat and electricity
 ages: 10-15
-stage: Core
+stage: KS3
 order: 2
 summary: Where energy goes, why heat always flows one way, and the three quantities that explain every electrical system.
 ---

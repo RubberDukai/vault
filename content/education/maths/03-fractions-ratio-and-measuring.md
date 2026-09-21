@@ -1,7 +1,7 @@
 ---
 title: Fractions, ratio and measuring
 ages: 9-13
-stage: Core
+stage: KS2
 order: 3
 summary: The maths you actually use to build, cook, dose medicine, mix fuel and divide things fairly.
 ---
@@ -93,3 +93,14 @@ A cylindrical water butt 0.5 m across and 1 m tall: radius 0.25 m, so π × 0.06
 6. A water tank is 1.2 m long, 0.6 m wide and 0.8 m deep. How many litres?
 7. Convert: 6 feet to cm; 20 miles to km; 100 °F to °C.
 8. A wound needs irrigating with at least 500 ml per small wound. Your bottle holds 1.5 litres. How many small wounds can you treat?
+
+## Answers
+
+1. ¾ + ⅝ = 6/8 + 5/8 = 11/8 = 1⅜; ⅔ − ¼ = 8/12 − 3/12 = 5/12; ⅗ × ⅔ = 6/15 = ⅖; ¾ ÷ ½ = ¾ × 2 = 1½.
+2. 5 buckets of cement; with 3 of cement, 12 of sand.
+3. For 4: 300 g; for 15: 1,125 g (75 g per person).
+4. 200 ml of oil.
+5. 96 m²; 288,000 kcal; about 131 days.
+6. 1.2 × 0.6 × 0.8 = 0.576 m³ = 576 litres.
+7. About 183 cm; about 32 km; about 38 °C.
+8. Three small wounds.

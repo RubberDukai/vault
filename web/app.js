@@ -2161,6 +2161,36 @@ async function renderManualPage(slug) {
 
 // ----------------------------------------------------------------- school
 
+// Lessons are written in key stages; the page shows them in that order so a
+// parent can see the road, not just a list.
+const STAGE_ORDER = ['Guide', 'KS1', 'KS2', 'KS3', 'Core'];
+const STAGE_LABELS = { Guide: 'Start here', KS1: 'Key Stage 1 — ages 5 to 7', KS2: 'Key Stage 2 — ages 7 to 11', KS3: 'Key Stage 3 — ages 11 to 14', Core: 'Core' };
+function groupByStage(lessons) {
+  const groups = new Map();
+  for (const l of lessons) { const k = l.stage || ''; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(l); }
+  const rank = (k) => { const i = STAGE_ORDER.indexOf(k); return i < 0 ? 99 : i; };
+  return [...groups.entries()].sort((a, b) => rank(a[0]) - rank(b[0]));
+}
+
+// The Answers section of a lesson is folded away so the child works first
+// and the adult checks after.
+function foldAnswers(html) {
+  const box = document.createElement('div');
+  box.innerHTML = html;
+  for (const h of [...box.querySelectorAll('h2')]) {
+    if (!/^answers/i.test(h.textContent.trim())) continue;
+    const details = document.createElement('details');
+    details.className = 'answers';
+    const summary = document.createElement('summary');
+    summary.textContent = h.textContent;
+    details.appendChild(summary);
+    let node = h.nextSibling;
+    while (node && !(node.nodeType === 1 && /^H[12]$/.test(node.tagName))) { const next = node.nextSibling; details.appendChild(node); node = next; }
+    h.replaceWith(details);
+  }
+  return box.innerHTML;
+}
+
 async function renderSchool() {
   setBusy();
   const { subjects } = await api(`school?profile=${encodeURIComponent(PROFILE)}`);
@@ -2176,14 +2206,17 @@ async function renderSchool() {
     ${subjects.length === 0 ? '<div class="empty">No curriculum installed yet.</div>' : subjects.map((subject) => `
       <h2>${esc(subject.title)}</h2>
       ${subject.summary ? `<p class="muted" style="margin:-6px 0 12px">${esc(subject.summary)}</p>` : ''}
-      ${subject.lessons.map((lesson) => `
-        <a class="card card-link" href="#/school/${encodeURIComponent(lesson.id)}">
-          <div class="row-between">
-            <strong>${lesson.done ? '✓ ' : ''}${esc(lesson.title)}</strong>
-            ${lesson.ages ? `<span class="tag">ages ${esc(lesson.ages)}</span>` : ''}
-          </div>
-          ${lesson.summary ? `<p class="faint" style="margin:6px 0 0">${esc(lesson.summary)}</p>` : ''}
-        </a>
+      ${groupByStage(subject.lessons).map(([stage, lessons]) => `
+        ${stage ? `<h3 class="stage-heading">${esc(STAGE_LABELS[stage] || stage)}</h3>` : ''}
+        ${lessons.map((lesson) => `
+          <a class="card card-link" href="#/school/${encodeURIComponent(lesson.id)}">
+            <div class="row-between">
+              <strong>${lesson.done ? '✓ ' : ''}${esc(lesson.title)}</strong>
+              ${lesson.ages ? `<span class="tag">ages ${esc(lesson.ages)}</span>` : ''}
+            </div>
+            ${lesson.summary ? `<p class="faint" style="margin:6px 0 0">${esc(lesson.summary)}</p>` : ''}
+          </a>
+        `).join('')}
       `).join('')}
     `).join('')}
   `;
@@ -2197,7 +2230,7 @@ async function renderLesson(id) {
 
   view.innerHTML = printable(
     `<a href="#/school">School</a> · ${esc(lesson.subjectTitle)}${lesson.ages ? ` · ages ${esc(lesson.ages)}` : ''}`,
-    lesson.html,
+    foldAnswers(lesson.html),
     `School · ${lesson.subjectTitle} · ${lesson.title}`
   ) + `
     <div class="card" style="margin-top:32px">

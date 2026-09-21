@@ -1,7 +1,7 @@
 ---
 title: Chance, data and deciding
 ages: 12-16
-stage: Core
+stage: KS3
 order: 5
 summary: Averages that don't lie, probability that stops you gambling on the harvest, and how to read a number someone gives you.
 ---
@@ -72,3 +72,13 @@ Then draw it. A **bar chart** for comparing amounts. A **line graph** for someth
 5. Crop A: 300 kg guaranteed. Crop B: 80% chance of 500 kg, 20% chance of nothing. Expected value of each. Which would you plant, and what would change your mind?
 6. A neighbour says a remedy "cured three people last winter." What would you need to know before believing it works?
 7. Keep a table of the temperature at dawn for two weeks. Plot it. What is the range? Is there a trend?
+
+## Answers
+
+1. Mean 6 (48 ÷ 8); median 6.5 (the middle two are 6 and 7); mode 7; range 9.
+2. Mean 4; median 5. A zero day might be a broody or ill hen, a fox scare, or eggs missed; the median ignores the odd day and is the better guide to a normal day.
+3. 5/8; 3/8 × 3/8 = 9/64.
+4. 0.1 × 0.1 × 0.1 = 0.001, one in a thousand; at least one survives 0.999.
+5. A: 300 kg. B: 0.8 × 500 = 400 kg expected. B has the higher expected value but a one-in-five chance of nothing; if a failed harvest means hunger, plant A (or some of each). What changes your mind: stores in hand, how bad a zero would be, whether the 80% is trustworthy.
+6. How many people took it and did *not* get better; how many got better without it; whether the three would have recovered anyway; how "cured" was judged; whether the person telling you sells it.
+7. Answers vary. Range is highest minus lowest; a trend is a steady rise or fall across the fortnight rather than day-to-day wobble.

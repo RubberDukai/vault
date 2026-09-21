@@ -1,7 +1,7 @@
 ---
 title: Writing that lasts
 ages: 8-16
-stage: Core
+stage: KS2
 order: 2
 summary: How to write so that a stranger, years from now, can follow what you meant.
 ---

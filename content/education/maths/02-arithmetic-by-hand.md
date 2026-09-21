@@ -1,7 +1,7 @@
 ---
 title: Arithmetic by hand
 ages: 7-11
-stage: Core
+stage: KS2
 order: 2
 summary: Adding, subtracting, multiplying and dividing on paper — and the mental tricks that make it fast.
 ---
@@ -86,6 +86,16 @@ This habit catches almost every serious arithmetic error, and it is more useful 
 5. Estimate first, then calculate: 612 × 39
 6. Real problem: 4 people share 27 potatoes equally. How many each, and how many left over?
 7. Real problem: a bag of grain weighs 25 kg and feeds one person for 40 days. How many days does it feed a family of 5? How many bags for a year?
+
+## Answers
+
+1. 783; 2,104; 537.
+2. 327; 653; 423.
+3. 376; 3,304; 2,700.
+4. 123; 135; 125 (no remainder in any — 738 = 6 × 123, 945 = 7 × 135, 1,000 = 8 × 125).
+5. Estimate 600 × 40 = 24,000; exact 23,868.
+6. 6 each, 3 left over.
+7. 8 days (40 ÷ 5); 46 bags for a year (365 ÷ 8 = 45.6, so round up).
 
 ## Going further
 
