@@ -111,11 +111,13 @@ function insideArch(px, py, cx, width, springY, floorY) {
  * arch at 16 pixels, which a ribbed ceiling would not.
  */
 function insideVault(px, py, big) {
+  // Sized so the whole mark — apex to floor bar — sits centred in the tile
+  // with an even margin: the arc alone is 0.866 × the span tall.
   const cx = big / 2;
-  const width = big * 0.62;
-  const wall = big * 0.085;
-  const springY = big * 0.52;
+  const width = big * 0.50;
+  const wall = big * 0.075;
   const floorY = big * 0.80;
+  const springY = big * 0.20 + width * 0.866;
   const outer = insideArch(px, py, cx, width, springY, floorY);
   if (!outer) return false;
   const inner = insideArch(px, py, cx, width - wall * 2, springY + wall * 0.15, floorY - wall);

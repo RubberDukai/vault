@@ -2549,6 +2549,9 @@ searchForm.onsubmit = (e) => {
 window.addEventListener('hashchange', route);
 
 (async () => {
+  // The arch rises once as the vault opens.
+  const mark = document.querySelector('.brand-mark');
+  if (mark) { mark.classList.add('rise'); mark.addEventListener('animationend', () => mark.classList.remove('rise'), { once: true }); }
   try {
     STATUS = await api('status');
     const creditEl = document.getElementById('footer-credit-name');

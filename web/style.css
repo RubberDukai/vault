@@ -129,7 +129,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   [data-theme="terminal"] .crt-overlay { animation: none; }
-  .brand-mark { transition: none !important; }
+  .brand-mark .arch-line { animation: none !important; }
 }
 
 [data-theme="terminal"] body { text-shadow: var(--glow); }
@@ -197,8 +197,13 @@ body {
   padding: 16px 16px 12px;
   text-decoration: none; color: var(--accent);
 }
-.brand-mark { transition: transform 1.2s cubic-bezier(.2,.8,.2,1); flex-shrink: 0; }
-.brand:hover .brand-mark { transform: rotate(180deg); }
+.brand-mark { flex-shrink: 0; }
+/* The arch draws itself from the ground up, both sides at once, meeting at
+   the apex — once when the page opens, and again whenever the mark is hovered. */
+.brand-mark .arch-line { stroke-dasharray: 22; stroke-dashoffset: 0; }
+.brand:hover .brand-mark .arch-line, .brand-mark.rise .arch-line { animation: arch-rise 1.1s cubic-bezier(.3,.7,.2,1) both; }
+.brand-mark .arch-line:nth-child(2) { animation-delay: 0s; }
+@keyframes arch-rise { from { stroke-dashoffset: 22; } to { stroke-dashoffset: 0; } }
 .brand-name {
   font-family: var(--mono); font-weight: 600;
   letter-spacing: 0.22em; font-size: 15px; color: var(--text);
