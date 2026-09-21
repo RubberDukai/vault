@@ -7,6 +7,8 @@ tags: [foraging, plants, wild food, poison, mushrooms, seaweed, nuts]
 
 # Foraging without poisoning anyone
 
+This is the short chapter: the rules and the killers. The full treatment — the method, the month-by-month calendar, and identification logs for forty wild plants, the mushrooms and the trees, each linked to the encyclopedia for photographs — is the **Foraging & Wild Food** module.
+
 Foraging will not feed a family. What it does is fill the gaps — vitamins in winter, protein from nuts in autumn, greens in spring before the garden yields — and it costs nothing but knowledge. The knowledge is the whole thing. A confident forager and a poisoned one differ only in what they knew.
 
 **The rules that keep you alive:**

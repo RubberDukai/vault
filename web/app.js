@@ -906,6 +906,62 @@ async function renderChapter(id) {
     chapter.html,
     `Handbook · ${chapter.moduleTitle} · ${chapter.title}`
   );
+  resolveWikiLinksWithFallback(view);
+}
+
+// wiki:Title links in authored pages open the article in the best installed
+// encyclopedia: full English Wikipedia first, then Simple English, then any
+// Wikipedia. With none installed the link explains itself instead.
+let WIKI_PACK;
+async function wikiPack() {
+  if (WIKI_PACK !== undefined) return WIKI_PACK;
+  try {
+    const { packs } = await api('library');
+    const ok = packs.filter((p) => p.ok !== false);
+    const pick = (re) => ok.find((p) => re.test(p.id));
+    WIKI_PACK = pick(/^wikipedia-en-all/) || pick(/^wikipedia-en-simple/) || pick(/^wikipedia-en/) || pick(/^wikipedia/) || null;
+  } catch { WIKI_PACK = null; }
+  return WIKI_PACK;
+}
+async function resolveWikiLinks(root) {
+  const links = root.querySelectorAll('a.wiki-link');
+  if (!links.length) return;
+  const pack = await wikiPack();
+  for (const a of links) {
+    const title = decodeURIComponent(a.getAttribute('href').slice(5)).replace(/ /g, '_');
+    if (pack) {
+      a.href = `#/read/${encodeURIComponent(pack.id)}/${encodeURIComponent(title)}`;
+      a.title = `${title.replace(/_/g, ' ')} — ${pack.title}`;
+    } else {
+      a.href = '#/setup';
+      a.title = 'No encyclopedia installed yet — Setup → Encyclopedias';
+    }
+  }
+}
+// A link may offer alternatives — wiki:Corylus_avellana|Hazel — because the
+// Latin name is an article in the full Wikipedia but only the common name is
+// in the Simple English one. The first title the pack actually has wins.
+const WIKI_HAS = new Map();
+async function packHas(pack, title) {
+  const key = `${pack.id}/${title}`;
+  if (!WIKI_HAS.has(key)) {
+    WIKI_HAS.set(key, fetch(`/z/${encodeURIComponent(pack.id)}/C/${encodeURIComponent(title)}`, { method: 'HEAD' })
+      .then((r) => r.ok).catch(() => false));
+  }
+  return WIKI_HAS.get(key);
+}
+async function resolveWikiLinksWithFallback(root) {
+  const links = root.querySelectorAll('a.wiki-link');
+  if (!links.length) return;
+  const pack = await wikiPack();
+  if (!pack) return resolveWikiLinks(root);
+  await Promise.all([...links].map(async (a) => {
+    const options = decodeURIComponent(a.getAttribute('href').slice(5)).split('|').map((t) => t.trim().replace(/ /g, '_')).filter(Boolean);
+    let chosen = options[0];
+    for (const t of options) { if (await packHas(pack, t)) { chosen = t; break; } }
+    a.href = `#/read/${encodeURIComponent(pack.id)}/${encodeURIComponent(chosen)}`;
+    a.title = `${chosen.replace(/_/g, ' ')} — ${pack.title}`;
+  }));
 }
 
 // -------------------------------------------------------------- languages

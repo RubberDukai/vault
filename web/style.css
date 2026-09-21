@@ -934,3 +934,7 @@ a { color: var(--link); }
 .nav-btn:disabled { opacity: 0.35; cursor: default; }
 .nav-crumb { margin-left: 8px; font-size: 13px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @media print { .navbar { display: none; } }
+
+/* Links into the encyclopedia from the handbook. */
+a.wiki-link { text-decoration: underline dotted; text-underline-offset: 3px; }
+a.wiki-link::after { content: " ↗"; font-size: 0.75em; opacity: 0.6; }
