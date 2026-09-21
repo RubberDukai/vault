@@ -113,7 +113,7 @@ class UnifiedSearch {
   }
 
   /** Search authored content. Scores by tf-idf, with a bonus for title hits. */
-  searchContent(query, limit = 20) {
+  searchContent(query, limit = 20, keep = null) {
     const terms = tokenize(query);
     if (terms.length === 0) return [];
 
@@ -135,7 +135,7 @@ class UnifiedSearch {
     }
 
     const lowered = query.toLowerCase().trim();
-    const results = [...scores.entries()].map(([docIndex, score]) => {
+    const results = [...scores.entries()].filter(([docIndex]) => !keep || keep(this.docs[docIndex])).map(([docIndex, score]) => {
       const doc = this.docs[docIndex];
       const titleBonus = doc.title.toLowerCase().includes(lowered) ? 25 : 0;
       return { ...doc, score: score + titleBonus, snippet: this._snippet(doc.text, terms) };
@@ -185,22 +185,20 @@ class UnifiedSearch {
   }
 
   async searchAll(library, query, { contentLimit = 15, packLimit = 8, documentLimit = 10 } = {}) {
-    const [ranked, packs] = await Promise.all([
-      Promise.resolve(this.searchContent(query, contentLimit + documentLimit * 4)),
+    // Books have hundreds of sections each; ranked in one pool with the
+    // handbook they crowd it out entirely, and the concise chapter that
+    // answers "child bleeding" never surfaces. So the authored content —
+    // handbook, lessons, manual — is searched in its own pool and always
+    // gets its slots, and books are ranked separately with a cap per book.
+    const [content, ranked, packs] = await Promise.all([
+      Promise.resolve(this.searchContent(query, contentLimit, (d) => d.kind !== 'document')),
+      Promise.resolve(this.searchContent(query, documentLimit * 4, (d) => d.kind === 'document')),
       this.searchPacks(library, query, packLimit),
     ]);
 
-    // Books have hundreds of sections each, so left in one list they crowd
-    // out a single handbook chapter that answers the question better. Split
-    // them off, and cap how many sections any one book can contribute.
-    const content = [];
     const documents = [];
     const perBook = new Map();
     for (const hit of ranked) {
-      if (hit.kind !== 'document') {
-        if (content.length < contentLimit) content.push(hit);
-        continue;
-      }
       const book = hit.id.split('/')[0];
       const seen = perBook.get(book) || 0;
       if (seen >= 3 || documents.length >= documentLimit) continue;

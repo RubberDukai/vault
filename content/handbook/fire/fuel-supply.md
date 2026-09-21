@@ -47,7 +47,7 @@ Roughly a hectare of well-managed coppice heats a house. This was how Britain fu
 
 ## Charcoal
 
-Charcoal is wood with the water and volatiles driven off. What remains is nearly pure carbon: it burns **hotter** (hot enough to melt copper and forge iron), **cleaner** (almost no smoke — the only fuel to burn indoors with any margin, and even then only with a flue), and **lighter** to carry. You lose about 75% of the weight and keep most of the energy.
+Charcoal is wood with the water and volatiles driven off. What remains is nearly pure carbon: it burns **hotter** (hot enough to melt copper and forge iron), **cleaner** (almost no smoke — which is exactly what makes it the deadliest fuel indoors: it gives off carbon monoxide with no smoke to warn you. **Never burn charcoal indoors, in a tent, or in a closed garage, flue or no flue.** Cook with it outside), and **lighter** to carry. You lose about 75% of the weight and keep most of the energy.
 
 **The retort method** — the one to use:
 

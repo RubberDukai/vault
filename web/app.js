@@ -80,7 +80,7 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => (
 
 async function api(path, options) {
   const res = await fetch(`/api/${path}`, {
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', 'x-vault-client': '1' },
     ...options,
     body: options?.body ? JSON.stringify(options.body) : undefined,
   });
@@ -641,6 +641,16 @@ async function renderSetup() {
       <h2>Share on this network</h2>
       <div class="card" id="network-panel"><p class="faint">Checking…</p></div>
 
+      <h2>Whose vault</h2>
+      <div class="card">
+        <div class="row" style="gap:8px;align-items:center;flex-wrap:wrap">
+          <label for="credit-name">Name shown in the footer</label>
+          <input id="credit-name" class="map-select" style="flex:1;min-width:200px" maxlength="120" placeholder="e.g. the Watkins family" value="${esc(STATUS?.credit || '')}">
+          <button class="btn btn-sm" id="credit-save">Save</button>
+        </div>
+        <p class="faint" style="margin:8px 0 0">Optional. A copy made for someone else starts blank, so your name does not travel with it.</p>
+      </div>
+
       ${byCategory.map((c) => `
         <h2>${esc(c.title)} <span class="faint" style="font-weight:400;font-size:13px">${c.items.length} · ${esc(humanGb(c.items.reduce((n, i) => n + i.size, 0)))}</span></h2>
         ${c.items.map((i) => {
@@ -753,6 +763,15 @@ async function renderSetup() {
 
     wireCatalogSearch();
     paintNetwork();
+    const creditSave = document.getElementById('credit-save');
+    if (creditSave) creditSave.onclick = async () => {
+      const { credit } = await api('settings', { method: 'POST', body: { credit: document.getElementById('credit-name').value } });
+      if (STATUS) STATUS.credit = credit;
+      const el = document.getElementById('footer-credit-name');
+      if (el) el.innerHTML = credit ? `Prepared by <strong>${esc(credit)}</strong>.` : '';
+      creditSave.textContent = 'Saved';
+      setTimeout(() => { creditSave.textContent = 'Save'; }, 1500);
+    };
   };
 
   // The sharing switch. Off, the vault answers only this machine; on, any
@@ -2147,8 +2166,14 @@ async function renderDocument(docId, unitStr) {
   let current = unitStr !== undefined ? Number(unitStr) : 0;
   if (!Number.isInteger(current) || current < 0) current = 0;
 
+  // A PDF can be shown two ways: the browser's own viewer (the real pages,
+  // but it needs the whole file and phones cannot do it inline) or the text
+  // of one page at a time. Text is the default wherever inline PDF is not
+  // available, and a toggle switches at will.
+  const canShowPdf = doc.type !== 'pdf' || navigator.pdfViewerEnabled !== false;
+  let textMode = doc.type === 'pdf' && (!canShowPdf || localStorage.getItem('vault.pdfText') === '1');
   const frameSrc = (index) => (doc.type === 'pdf'
-    ? `/doc/${encodeURIComponent(docId)}/file#page=${index + 1}`
+    ? (textMode ? `/doc/${encodeURIComponent(docId)}/page/${index}` : `/doc/${encodeURIComponent(docId)}/file#page=${index + 1}`)
     : `/doc/${encodeURIComponent(docId)}/chapter/${index}`);
 
   view.innerHTML = `
@@ -2158,6 +2183,7 @@ async function renderDocument(docId, unitStr) {
       <span class="reader-title" id="doc-title"></span>
       <span class="spacer"></span>
       <button class="btn btn-sm" id="doc-toc">Contents</button>
+      ${doc.type === 'pdf' && canShowPdf ? `<button class="btn btn-sm" id="doc-mode" title="Switch between the page as printed and its text">${textMode ? 'Show pages' : 'Show text'}</button>` : ''}
       <a class="btn btn-sm" href="#/library">Library</a>
       <a class="btn btn-sm" href="/doc/${encodeURIComponent(docId)}/file" target="_blank" rel="noreferrer">Open file</a>
     </div>
@@ -2178,10 +2204,18 @@ async function renderDocument(docId, unitStr) {
   const outline = document.getElementById('doc-outline');
   const titleEl = document.getElementById('doc-title');
 
+  // The browser's PDF viewer will not run inside a sandbox; HTML pages
+  // (EPUB chapters, page text) are sandboxed so nothing in them can run.
+  const applySandbox = () => {
+    if (doc.type === 'pdf' && !textMode) frame.removeAttribute('sandbox');
+    else frame.setAttribute('sandbox', 'allow-same-origin allow-popups');
+  };
+
   const show = (index) => {
     current = Math.max(0, Math.min(doc.units.length - 1, index));
     const unit = doc.units[current];
     titleEl.textContent = doc.units.length > 1 ? `${unit.title}  ·  ${current + 1} / ${doc.units.length}` : doc.title;
+    applySandbox();
     frame.src = frameSrc(current);
     history.replaceState(null, '', `#/doc/${encodeURIComponent(docId)}/${current}`);
     for (const item of outline.querySelectorAll('.doc-outline-item')) {
@@ -2194,6 +2228,13 @@ async function renderDocument(docId, unitStr) {
   document.getElementById('doc-prev').onclick = () => show(current - 1);
   document.getElementById('doc-next').onclick = () => show(current + 1);
   document.getElementById('doc-toc').onclick = () => { outline.hidden = !outline.hidden; };
+  const modeBtn = document.getElementById('doc-mode');
+  if (modeBtn) modeBtn.onclick = () => {
+    textMode = !textMode;
+    try { localStorage.setItem('vault.pdfText', textMode ? '1' : '0'); } catch { /* fine */ }
+    modeBtn.textContent = textMode ? 'Show pages' : 'Show text';
+    show(current);
+  };
   for (const item of outline.querySelectorAll('.doc-outline-item')) {
     item.onclick = (e) => { e.preventDefault(); show(Number(item.dataset.index)); outline.hidden = true; };
   }
@@ -2267,7 +2308,7 @@ async function renderArticle(packId, articleUrl) {
       <a class="btn btn-sm" href="#/read/${encodeURIComponent(packId)}">Search</a>
       <a class="btn btn-sm" href="${src}" target="_blank" rel="noreferrer">Full page</a>
     </div>
-    <iframe class="reader-frame" id="art-frame" src="${src}" title="Article"></iframe>
+    <iframe class="reader-frame" id="art-frame" src="${src}" title="Article" sandbox="allow-same-origin allow-popups"></iframe>
   `;
 
   const frame = document.getElementById('art-frame');
@@ -2421,6 +2462,8 @@ window.addEventListener('hashchange', route);
 (async () => {
   try {
     STATUS = await api('status');
+    const creditEl = document.getElementById('footer-credit-name');
+    if (creditEl && STATUS.credit) { creditEl.innerHTML = `Prepared by <strong>${esc(STATUS.credit)}</strong>.`; }
     await loadProfiles();
   } catch {
     footerStatus.textContent = 'Could not reach the Vault server.';

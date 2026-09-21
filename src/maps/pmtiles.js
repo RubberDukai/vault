@@ -36,8 +36,8 @@ function readVarint(buf, state) {
 function decompress(buffer, compression) {
   switch (compression) {
     case 1: return buffer;
-    case 2: return zlib.gunzipSync(buffer);
-    case 3: return zlib.brotliDecompressSync(buffer);
+    case 2: return zlib.gunzipSync(buffer, { maxOutputLength: 64 * 1024 * 1024 });
+    case 3: return zlib.brotliDecompressSync(buffer, { maxOutputLength: 64 * 1024 * 1024 });
     case 4: return zlib.zstdDecompressSync(buffer, { maxOutputLength: 256 * 1024 * 1024 });
     default: return buffer;
   }
@@ -86,6 +86,9 @@ function zxyToTileId(z, x, y) {
 function deserializeDirectory(buffer) {
   const state = { pos: 0 };
   const count = readVarint(buffer, state);
+  // Four varints per entry, at least a byte each: a count the buffer could
+  // not possibly hold is a corrupt directory, not a reason to allocate.
+  if (count < 0 || count > buffer.length) throw new Error('Corrupt PMTiles directory');
   const entries = new Array(count);
 
   let tileId = 0;

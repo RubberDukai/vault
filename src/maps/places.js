@@ -99,7 +99,7 @@ class PlaceIndex {
       let count = 0;
 
       for await (const [z, x, y, raw] of this._tiles(pack, zoom)) {
-        const bytes = raw.length > 2 && raw[0] === 0x1f && raw[1] === 0x8b ? zlib.gunzipSync(raw) : raw;
+        const bytes = raw.length > 2 && raw[0] === 0x1f && raw[1] === 0x8b ? zlib.gunzipSync(raw, { maxOutputLength: 64 * 1024 * 1024 }) : raw;
         let layers;
         try { layers = decodeTile(bytes); } catch { continue; }
         const layer = layers.places;

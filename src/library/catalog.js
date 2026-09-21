@@ -86,7 +86,7 @@ async function fetchXml(url, timeout = DEFAULT_TIMEOUT) {
   try {
     const res = await fetch(url, {
       signal: controller.signal,
-      headers: { 'user-agent': 'Vault/0.1 (offline knowledge vault)' },
+      headers: { 'user-agent': 'Mozilla/5.0 (compatible)' },
     });
     if (!res.ok) throw new Error(`Catalogue returned HTTP ${res.status}`);
     return await res.text();

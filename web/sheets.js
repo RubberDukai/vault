@@ -734,7 +734,7 @@ async function renderSheets(params) {
       const file = e.target.files[0];
       if (!file) return;
       status.textContent = 'Importing…';
-      const res = await fetch(`/api/sheets/import?filename=${encodeURIComponent(file.name)}`, { method: 'POST', body: file });
+      const res = await fetch(`/api/sheets/import?filename=${encodeURIComponent(file.name)}`, { method: 'POST', body: file, headers: { 'x-vault-client': '1' } });
       const data = await res.json();
       if (!res.ok) { alert(data.error || 'Import failed'); return; }
       openBook(data.workbook); filesPanel.hidden = true;

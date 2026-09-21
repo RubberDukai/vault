@@ -19,10 +19,25 @@ class Store {
 
   load() {
     if (this.data) return this.data;
+    let raw = null;
     try {
-      const raw = fs.readFileSync(this.filePath, 'utf8');
-      this.data = { ...structuredClone(this.defaults), ...JSON.parse(raw) };
+      raw = fs.readFileSync(this.filePath, 'utf8');
     } catch {
+      raw = null; // no file yet: start from the defaults
+    }
+    if (raw === null) {
+      this.data = structuredClone(this.defaults);
+      return this.data;
+    }
+    try {
+      this.data = { ...structuredClone(this.defaults), ...JSON.parse(raw) };
+    } catch (err) {
+      // A file that exists but will not parse is set aside, never overwritten:
+      // whatever is in it may be recoverable by hand, and the defaults that
+      // replace it are started fresh rather than saved over the top.
+      const quarantine = `${this.filePath}.corrupt-${new Date().toISOString().replace(/[:.]/g, '-')}`;
+      try { fs.renameSync(this.filePath, quarantine); } catch { /* leave it where it is */ }
+      console.error(`[vault] ${path.basename(this.filePath)} could not be read (${err.message}); kept as ${path.basename(quarantine)} and starting afresh`);
       this.data = structuredClone(this.defaults);
     }
     return this.data;
@@ -33,6 +48,21 @@ class Store {
   }
 
   save() {
+    // Many updates in quick succession become one write of the latest state,
+    // so the queue cannot grow without bound under a burst of reviews.
+    // Callers still get a promise that settles only once *their* state is on
+    // disk: while a write is in flight, everyone joins one follow-up write.
+    if (this._pendingWrite) {
+      if (!this._followUp) {
+        this._followUp = this._pendingWrite.then(() => { this._followUp = null; return this.save(); });
+      }
+      return this._followUp;
+    }
+    this._pendingWrite = this._writeOnce().finally(() => { this._pendingWrite = null; });
+    return this._pendingWrite;
+  }
+
+  _writeOnce() {
     const snapshot = JSON.stringify(this.load(), null, 2);
     this._writeQueue = this._writeQueue.then(async () => {
       await fsp.mkdir(path.dirname(this.filePath), { recursive: true });
@@ -48,6 +78,9 @@ class Store {
       }
       await fsp.rename(tmp, this.filePath);
     }).catch((err) => {
+      // Logged and remembered: the status page can say the disk is failing
+      // instead of the app silently pretending everything was kept.
+      this.lastError = { at: new Date().toISOString(), message: err.message };
       console.error(`[vault] could not save ${path.basename(this.filePath)}:`, err.message);
     });
     return this._writeQueue;

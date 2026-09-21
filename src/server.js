@@ -48,6 +48,9 @@ const MIME = {
 
 const NAMESPACES = new Set(['C', 'A', 'I', 'M', 'W', 'X', '-']);
 
+// What a page taken from a pack or an imported book may do: show itself.
+const PACK_CSP = "default-src 'self'; script-src 'none'; object-src 'none'; img-src 'self' data:; media-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; frame-ancestors 'self'; form-action 'none'";
+
 class ArkServer {
   constructor(options = {}) {
     this.port = options.port || 8080;
@@ -89,6 +92,9 @@ class ArkServer {
       // Off by default: the vault answers only this machine until someone
       // turns sharing on in Setup.
       share: false,
+      // Whose vault this is, for the footer. Empty in a fresh copy, so a
+      // vault handed on does not carry the previous owner's name.
+      credit: '',
     });
 
     // Map annotations live server-side rather than in a browser, so a route
@@ -205,6 +211,49 @@ class ArkServer {
     return this.sharing() ? out : out.slice(0, 1);
   }
 
+  /** Did this request come from the machine the vault runs on? */
+  isLocal(req) {
+    const a = req.socket && req.socket.remoteAddress;
+    return a === '127.0.0.1' || a === '::1' || a === '::ffff:127.0.0.1';
+  }
+
+  /** A full path for this machine's own browser; a folder name for everyone else. */
+  pathFor(req, absolute) {
+    if (this.isLocal(req)) return absolute;
+    const rel = path.relative(ROOT, absolute);
+    return rel && !rel.startsWith('..') ? rel.split(path.sep).join('/') : path.basename(absolute);
+  }
+
+  /** The Host header must name this machine: localhost or a bare IP address. */
+  hostAllowed(host) {
+    if (!host) return false;
+    const name = host.replace(/:\d+$/, '').replace(/^\[|\]$/g, '').toLowerCase();
+    if (name === 'localhost' || name === '127.0.0.1' || name === '::1') return true;
+    if (/^\d{1,3}(\.\d{1,3}){3}$/.test(name)) return true;
+    if (name.includes(':') && /^[0-9a-f:]+$/.test(name)) return true;
+    return false;
+  }
+
+  /**
+   * A state-changing request must come from the vault's own pages. The
+   * client always sends x-vault-client (a cross-site form cannot; a
+   * cross-site fetch would need a CORS preflight, which is never granted),
+   * and browsers that label the request must label it same-origin.
+   */
+  sameOrigin(req) {
+    if (!req.headers['x-vault-client']) return false;
+    const site = req.headers['sec-fetch-site'];
+    if (site && site !== 'same-origin' && site !== 'none') return false;
+    const origin = req.headers.origin;
+    if (origin) {
+      try {
+        const o = new URL(origin);
+        if (!this.hostAllowed(o.host)) return false;
+      } catch { return false; }
+    }
+    return true;
+  }
+
   /** True when other devices on the network can reach the vault. */
   sharing() {
     return this.host !== '127.0.0.1' && this.host !== 'localhost' && this.host !== '::1';
@@ -277,6 +326,16 @@ class ArkServer {
     }
   }
 
+  /**
+   * Ids that become object keys. Anything that could reach Object.prototype
+   * (__proto__, constructor, prototype) or is not a plain string is refused.
+   */
+  safeKey(value, fallback = null) {
+    if (typeof value !== 'string' || !value || value.length > 200) return fallback;
+    if (value === '__proto__' || value === 'constructor' || value === 'prototype') return fallback;
+    return value;
+  }
+
   profileFor(id) {
     const data = this.state.get();
     return data.profiles.find((p) => p.id === id) || data.profiles[0];
@@ -295,6 +354,17 @@ class ArkServer {
     res.setHeader('x-content-type-options', 'nosniff');
     res.setHeader('x-frame-options', 'SAMEORIGIN');
     res.setHeader('referrer-policy', 'no-referrer');
+
+    // Two doors a web page you happen to visit could otherwise use to reach
+    // this server through your own browser: DNS rebinding (its hostname
+    // pointed at 127.0.0.1 — the Host header gives it away) and cross-site
+    // requests (a form or fetch aimed at /api/… — the browser labels those).
+    if (pathname.startsWith('/api/')) {
+      if (!this.hostAllowed(req.headers.host)) return this.json(res, 403, { error: 'That name does not belong to this vault' });
+      if (req.method !== 'GET' && req.method !== 'HEAD' && !this.sameOrigin(req)) {
+        return this.json(res, 403, { error: 'Changes are only accepted from the vault itself' });
+      }
+    }
 
     if (pathname.startsWith('/api/')) return this.handleApi(req, res, url, pathname);
     if (pathname.startsWith('/z/')) return this.handleZim(req, res, pathname);
@@ -389,11 +459,15 @@ class ArkServer {
         );
       }
 
-      res.writeHead(200, {
+      const headers = {
         'content-type': found.mimeType || 'application/octet-stream',
         'content-length': body.length,
         'cache-control': 'public, max-age=86400',
-      });
+      };
+      // Pack HTML is someone else's code: no scripts, nothing fetched from
+      // outside this server, never framed by another site.
+      if (isHtml) headers['content-security-policy'] = PACK_CSP;
+      res.writeHead(200, headers);
       res.end(body);
     } catch (err) {
       this.json(res, 500, { error: err.message });
@@ -499,6 +573,24 @@ class ArkServer {
         return fs.createReadStream(filePath).pipe(res);
       }
 
+      // The text of one page, as a light page of its own. Phones cannot show a
+      // PDF inline and would otherwise download the whole book to read a page.
+      if (action === 'page') {
+        const unit = this.documents.unitText(docId, Number(rest[0]));
+        if (!unit) return this.json(res, 404, { error: 'No such page' });
+        const paragraphs = String(unit.text || '').split(/\n{2,}/).map((p) => p.trim()).filter(Boolean)
+          .map((p) => `<p>${markdown.escapeHtml(p).replace(/\n/g, '<br>')}</p>`).join('');
+        const page = `<!doctype html><html><head><meta charset="utf-8">` +
+          `<meta name="viewport" content="width=device-width, initial-scale=1">` +
+          `<style>body{max-width:44rem;margin:0 auto;padding:1.5rem 1.25rem 4rem;font:17px/1.7 Georgia,serif;color:#1a1a1a;background:#fbf8f2}` +
+          `p{margin:0 0 1em}.faint{color:#777;font-size:13px}</style>` +
+          `<title>${markdown.escapeHtml(unit.title || doc.title)}</title></head><body>` +
+          `<p class="faint">${markdown.escapeHtml(doc.title)} · ${markdown.escapeHtml(unit.title || '')} · text only; figures and tables are in the PDF</p>` +
+          (paragraphs || '<p class="faint">This page has no text — it is probably a figure or a blank.</p>') + `</body></html>`;
+        res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'content-security-policy': PACK_CSP });
+        return res.end(page);
+      }
+
       if (action === 'chapter') {
         const chapter = await this.documents.chapterHtml(docId, Number(rest[0]));
         if (!chapter) return this.json(res, 404, { error: 'No such chapter' });
@@ -508,7 +600,7 @@ class ArkServer {
           `<style>body{max-width:44rem;margin:0 auto;padding:1.5rem 1.25rem 4rem;font:17px/1.7 Georgia,serif;color:#1a1a1a;background:#fbf8f2}` +
           `img{max-width:100%;height:auto}h1,h2,h3{line-height:1.25}</style>` +
           `<title>${markdown.escapeHtml(chapter.title || doc.title)}</title></head><body>${chapter.html}</body></html>`;
-        res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' });
+        res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'content-security-policy': PACK_CSP });
         return res.end(page);
       }
 
@@ -551,6 +643,12 @@ class ArkServer {
       });
     }
 
+    if (route === 'settings' && method === 'POST') {
+      const body = await this.readBody(req);
+      if (typeof body.credit === 'string') this.state.update((s) => { s.credit = body.credit.trim().slice(0, 120); });
+      return this.json(res, 200, { credit: this.state.get().credit || '' });
+    }
+
     if (route === 'network/share' && method === 'POST') {
       if (this.hostOverride) return this.json(res, 400, { error: 'The address was fixed on the command line (--host); it cannot be changed here.' });
       const body = await this.readBody(req);
@@ -567,10 +665,13 @@ class ArkServer {
       return this.json(res, 200, {
         name: 'Vault',
         version: require('../package.json').version,
-        node: process.version,
-        platform: `${os.type()} ${os.release()}`,
+        // Machine details and folder paths stay on the machine: a phone on the
+        // wifi gets a name to look for, not this computer's username.
+        node: this.isLocal(req) ? process.version : null,
+        platform: this.isLocal(req) ? `${os.type()} ${os.release()}` : null,
         addresses: this.addresses(),
-        libraryDir: this.libraryDir,
+        libraryDir: this.pathFor(req, this.libraryDir),
+        credit: this.state.get().credit || '',
         packs: packs.length,
         packsOk: packs.filter((p) => p.ok).length,
         librarySize: humanBytes(packs.reduce((n, p) => n + (p.size || 0), 0)),
@@ -614,7 +715,7 @@ class ArkServer {
       return this.json(res, 200, {
         packs: this.maps.list(),
         categories: this.maps.categories(),
-        mapsDir: this.maps.mapsDir,
+        mapsDir: this.pathFor(req, this.maps.mapsDir),
       });
     }
 
@@ -779,7 +880,7 @@ class ArkServer {
 
     // --- notebook ---------------------------------------------------------
     if (route === 'notebook' && method === 'GET') {
-      const profileId = q.get('profile') || 'default';
+      const profileId = this.safeKey(q.get('profile'), 'default');
       const notes = this.notebook.get().notes.filter((n) => n.profile === profileId || n.shared);
       return this.json(res, 200, {
         notes,
@@ -919,7 +1020,7 @@ class ArkServer {
       const text = String(body.text || '').trim();
       if (!text) return this.json(res, 400, { error: 'Empty message' });
 
-      const channel = (body.channel || 'general').toLowerCase().replace(/[^a-z0-9-]/g, '') || 'general';
+      const channel = this.safeKey((body.channel || 'general').toLowerCase().replace(/[^a-z0-9-]/g, ''), 'general') || 'general';
       const message = {
         id: `m${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
         author: String(body.author || 'anonymous').slice(0, 40),
@@ -940,7 +1041,7 @@ class ArkServer {
 
     if (route === 'comms/channels' && method === 'POST') {
       const body = await this.readBody(req);
-      const name = String(body.name || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
+      const name = this.safeKey(String(body.name || '').toLowerCase().replace(/[^a-z0-9-]/g, ''), '');
       if (!name) return this.json(res, 400, { error: 'Bad channel name' });
       this.messages.update((d) => { if (!d.channels[name]) d.channels[name] = []; });
       return this.json(res, 200, { channels: Object.keys(this.messages.get().channels) });
@@ -950,7 +1051,7 @@ class ArkServer {
     if (route === 'docs' && method === 'GET') {
       return this.json(res, 200, {
         docs: this.documents.list(),
-        docsDir: this.documents.docsDir,
+        docsDir: this.pathFor(req, this.documents.docsDir),
         indexing: this.ready ? !this.ready.documents : false,
       });
     }
@@ -1016,11 +1117,16 @@ class ArkServer {
     if (route === 'downloads' && method === 'POST') {
       const body = await this.readBody(req);
       if (!body.url) return this.json(res, 400, { error: 'A url is required' });
+      // Only the catalogue's own hosts, only https, and only a plain .zim
+      // filename that stays inside the library folder.
+      if (!downloads.allowedUrl(body.url)) return this.json(res, 400, { error: 'Downloads are only accepted from the Kiwix library' });
+      const filename = path.basename(String(body.filename || body.url.split('/').pop() || ''));
+      if (!/^[\w][\w .()+-]*\.zim$/i.test(filename) || filename.includes('..')) return this.json(res, 400, { error: 'That is not a pack filename' });
       const job = downloads.start({
         url: body.url,
         destDir: this.libraryDir,
-        filename: body.filename,
-        id: body.id,
+        filename,
+        id: typeof body.id === 'string' ? body.id.slice(0, 120) : undefined,
       });
       return this.json(res, 200, { job });
     }
@@ -1094,7 +1200,7 @@ class ArkServer {
 
     // --- school -----------------------------------------------------------
     if (route === 'school') {
-      const profileId = q.get('profile') || 'default';
+      const profileId = this.safeKey(q.get('profile'), 'default');
       const progress = this.state.get().school[profileId] || {};
       return this.json(res, 200, {
         profileId,
@@ -1110,10 +1216,12 @@ class ArkServer {
 
     if (route === 'school/progress' && method === 'POST') {
       const body = await this.readBody(req);
-      const profileId = body.profile || 'default';
+      const profileId = this.safeKey(body.profile, 'default');
+      const lessonId = this.safeKey(body.lessonId);
+      if (!lessonId) return this.json(res, 400, { error: 'A lesson id is needed' });
       this.state.update((d) => {
         d.school[profileId] = d.school[profileId] || {};
-        d.school[profileId][body.lessonId] = {
+        d.school[profileId][lessonId] = {
           completed: Boolean(body.completed),
           at: new Date().toISOString(),
         };
@@ -1141,7 +1249,7 @@ class ArkServer {
     }
 
     if (route === 'languages') {
-      const profileId = q.get('profile') || 'default';
+      const profileId = this.safeKey(q.get('profile'), 'default');
       const states = this.state.get().srs[profileId] || {};
       return this.json(res, 200, {
         profileId,
@@ -1162,7 +1270,7 @@ class ArkServer {
     }
 
     if (route === 'srs/queue') {
-      const profileId = q.get('profile') || 'default';
+      const profileId = this.safeKey(q.get('profile'), 'default');
       const states = this.state.get().srs[profileId] || {};
       const deckId = q.get('deck');
       const deck = deckId ? this.content.deck(deckId) : null;
@@ -1182,14 +1290,16 @@ class ArkServer {
 
     if (route === 'srs/review' && method === 'POST') {
       const body = await this.readBody(req);
-      const profileId = body.profile || 'default';
+      const profileId = this.safeKey(body.profile, 'default');
+      const cardId = this.safeKey(body.cardId);
+      if (!cardId) return this.json(res, 400, { error: 'A card id is needed' });
       let next;
       this.state.update((d) => {
         d.srs[profileId] = d.srs[profileId] || {};
-        next = srs.review(d.srs[profileId][body.cardId], body.grade);
-        d.srs[profileId][body.cardId] = next;
+        next = srs.review(d.srs[profileId][cardId], body.grade);
+        d.srs[profileId][cardId] = next;
       });
-      return this.json(res, 200, { cardId: body.cardId, state: next });
+      return this.json(res, 200, { cardId, state: next });
     }
 
     // --- profiles ---------------------------------------------------------

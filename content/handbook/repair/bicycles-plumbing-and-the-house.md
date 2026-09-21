@@ -67,7 +67,7 @@ A petrol engine needs three things: **fuel, spark, air**. When it will not start
 
 Change the oil every 25 hours or every season; an engine run low on oil is scrap. Store for winter with the fuel drained or with stabiliser in it, and pull the cord until the piston is at the top of its stroke to keep the valves shut. Diesel engines are simpler — no spark — but hate air in the fuel line: bleed it at the injector pump after running dry.
 
-A generator is a small engine turning an alternator; the engine side is above, and the electrical side fails mostly at the brushes and the capacitor, both replaceable.
+A generator is a small engine turning an alternator. Run it outside, well away from windows, never in a garage — its exhaust is carbon monoxide — and never feed it into a wall socket, which sends current back up the street and kills line workers (see *Solar and batteries*). the engine side is above, and the electrical side fails mostly at the brushes and the capacitor, both replaceable.
 
 Keep: spark plugs, air filters, oil, fuel stabiliser, a plug spanner, a small can of carburettor cleaner, a feeler gauge.
 

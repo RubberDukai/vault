@@ -116,6 +116,8 @@ function decodeGeometry(commands, extent) {
     const commandInteger = commands[i++];
     const id = commandInteger & 0x7;
     const count = commandInteger >> 3;
+    // A repeat count beyond the command stream is garbage; stop here.
+    if (count < 0 || (id !== CMD_CLOSE_PATH && i + count * 2 > commands.length)) break;
 
     if (id === CMD_MOVE_TO) {
       for (let n = 0; n < count; n++) {

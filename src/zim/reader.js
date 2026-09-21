@@ -94,6 +94,11 @@ class ZimFile {
 
   async _read(offset, length) {
     if (length <= 0) return Buffer.alloc(0);
+    // A tampered header can ask for gigabytes; a read past the end of the
+    // file is a corrupt archive, not something to allocate for.
+    if (!Number.isFinite(offset) || !Number.isFinite(length) || offset < 0 || offset + length > this.fileSize) {
+      throw new Error(`Corrupt ZIM: read of ${length} bytes at ${offset} is outside the file (${this.fileSize} bytes)`);
+    }
     const buf = Buffer.allocUnsafe(length);
     const { bytesRead } = await this.fh.read(buf, 0, length, offset);
     return bytesRead === length ? buf : buf.subarray(0, bytesRead);

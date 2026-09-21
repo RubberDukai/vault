@@ -152,6 +152,9 @@ async function main() {
     const mapsDir = path.join(libraryDir, 'maps');
     if (fs.existsSync(mapsDir)) {
       for (const file of await fsp.readdir(mapsDir)) {
+        // Online-map pointers and half-finished downloads stay behind: the
+        // copy must be silent and complete.
+        if (/\.(url|part)$/i.test(file)) continue;
         console.log(`\n  Copying map ${file}…`);
         await copyInto(path.join(mapsDir, file), path.join(target, 'library', 'maps', file));
       }

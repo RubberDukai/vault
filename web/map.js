@@ -1276,9 +1276,21 @@ class VaultMap {
           continue;
         }
 
+        // Distance to each segment, not just its ends: a straight line has
+        // only two vertices, and dragging across its middle must erase it.
+        const reach = radius + (mark.width || 3);
+        let prev = null;
         for (const [lon, lat] of mark.points) {
           const { x, y } = this.lonLatToPixel(lon, lat);
-          if (Math.hypot(x - px, y - py) <= radius + (mark.width || 3)) {
+          let d = Math.hypot(x - px, y - py);
+          if (prev) {
+            const dx = x - prev.x; const dy = y - prev.y;
+            const len2 = dx * dx + dy * dy;
+            const t = len2 ? Math.max(0, Math.min(1, ((px - prev.x) * dx + (py - prev.y) * dy) / len2)) : 0;
+            d = Math.min(d, Math.hypot(prev.x + t * dx - px, prev.y + t * dy - py));
+          }
+          prev = { x, y };
+          if (d <= reach) {
             this._erasedIds.add(mark.id);
             break;
           }

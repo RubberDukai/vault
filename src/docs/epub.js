@@ -56,7 +56,15 @@ function toPlainText(html) {
 /** Just the body, for embedding in our own page. */
 function bodyOf(html) {
   const m = String(html).match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-  return m ? m[1] : String(html);
+  const body = m ? m[1] : String(html);
+  // A book is prose. Scripts, event handlers and javascript: links have no
+  // business in it, and a tampered file must not get them past the reader.
+  return body
+    .replace(/<script\b[\s\S]*?<\/script\s*>/gi, '')
+    .replace(/<(iframe|object|embed)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, '')
+    .replace(/<(iframe|object|embed)\b[^>]*\/?>/gi, '')
+    .replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+    .replace(/(href|src)\s*=\s*(["']?)\s*javascript:[^"'\s>]*\2/gi, '$1="#"');
 }
 
 class Epub {

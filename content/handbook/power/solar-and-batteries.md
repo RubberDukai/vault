@@ -79,7 +79,7 @@ Between panel and battery. Never connect them directly.
 
 - **Micro-hydro** is the best off-grid source there is if you have running water with any head at all. It runs day and night, all year, and a stream that drops a few metres can outproduce a large solar array continuously.
 - **Wind** is site-specific and mechanically demanding. It complements solar well in temperate winters — windy when it is dark and cloudy — but it needs maintenance and it is hard on bearings.
-- **A generator** is for surges, not for baseload. Fuel storage is the limit: petrol degrades in months without stabiliser, diesel keeps a year or two and grows algae, propane keeps effectively forever. If you buy one, buy propane or a multi-fuel and store propane.
+- **A generator** is for surges, not for baseload. Two ways it kills: **exhaust** — run it outdoors only, at least 6 m from any window, door or vent, never in a garage even with the door open (carbon monoxide has killed whole families that way after storms); and **backfeed** — never plug a generator into a wall socket to power the house. The current runs back out through the meter into the street and electrocutes the line worker fixing the fault. Plug appliances into the generator directly, or fit a proper transfer switch that disconnects the mains first. Fuel storage is the limit: petrol degrades in months without stabiliser, diesel keeps a year or two and grows algae, propane keeps effectively forever. If you buy one, buy propane or a multi-fuel and store propane.
 - **Human power** — a bicycle generator gives perhaps 50–100 W from someone working hard, which is one laptop and a great deal of respect for how much energy electricity actually represents.
 
 ## What to have before you need it

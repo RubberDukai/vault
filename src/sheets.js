@@ -82,7 +82,10 @@ function parseCsv(text) {
 }
 
 function csvCell(v) {
-  const s = v === null || v === undefined ? '' : String(v);
+  let s = v === null || v === undefined ? '' : String(v);
+  // Text that another spreadsheet would read as a live formula (=, +, -, @,
+  // tab, CR) is neutralised with a leading apostrophe, as Excel itself does.
+  if (typeof v === 'string' && /^[=+\-@\t\r]/.test(s)) s = `'${s}`;
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 

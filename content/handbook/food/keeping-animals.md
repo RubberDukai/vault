@@ -47,7 +47,7 @@ A goat in milk gives two to four litres a day for most of the year from browse �
 
 **Housing.** A dry shed with a raised sleeping bench; goats hate rain and wet ground. Hay and a mineral lick. They need company — keep two.
 
-**Milking.** Twice a day, twelve hours apart, from about a month after kidding for up to ten months. Clean hands, clean udder, a clean bucket, strain through cloth, cool at once. A doe must kid to come into milk, so you need a billy (which stinks and is dangerous when in rut) or access to one. Gestation 150 days; twins are usual.
+**Milking.** Twice a day, twelve hours apart, from about a month after kidding for up to ten months. Clean hands, clean udder, a clean bucket, strain through cloth, cool at once. **Pasteurise it**: raw milk carries brucellosis, TB, listeria and campylobacter, and with no antibiotics to fall back on those are not risks worth running for the taste. Heat to 72 °C for 15 seconds (or 63 °C for 30 minutes), then cool fast. A thermometer makes this easy; without one, heat until it is just too hot to keep a finger in for more than a second, and hold it there. A doe must kid to come into milk, so you need a billy (which stinks and is dangerous when in rut) or access to one. Gestation 150 days; twins are usual.
 
 **Sheep** give wool, milk and meat and thrive on grass alone; they need more land, good fencing rather than tall fencing, shearing every summer, foot-trimming, and watching at lambing (spring, five months after tupping). Ewes lamb outdoors in most British weather; the losses are to foxes, crows and cold wet nights.
 

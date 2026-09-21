@@ -54,13 +54,16 @@ All freshwater fish and crustaceans must be **cooked** — many carry parasites.
 
 Whatever the weapon: **a clean kill or no shot.** A wounded animal that escapes is meat lost and an animal suffering.
 
+**The four rules, for anything that fires a projectile — air rifle, catapult, bow, gun — and for every child who will ever be near one:** treat every weapon as loaded, always; never point it at anything you are not willing to destroy, which includes your own foot; finger off the trigger until the sights are on the target; and know what is *behind* the target — a pellet or arrow that misses keeps going, and a hedge does not stop it. Unload before crossing a fence or entering a house. Store weapons and ammunition separately and locked. Most shooting deaths in a household are not the animal's.
+
 ## Butchery, briefly
 
 - **Bleed it** at once — a cut to the throat with the animal head-down. Meat from an unbled animal spoils faster.
-- **Gut it** within the hour: a shallow cut along the belly from ribs to vent, careful not to pierce the gut, and everything pulled out and away. Keep the **liver, heart and kidneys** — the most nutritious parts.
+- **Look before you gut.** An animal that was slow, thin, staggering or easy to catch was probably ill; do not eat it. Wear gloves (or bags over the hands) for skinning and gutting rabbits and hares especially — **tularaemia** passes through cuts in the skin from an infected carcass, and any animal's blood can carry something. Wash hands and knives after, and keep a knife for butchery that never touches cooked food.
+- **Gut it** within the hour: a shallow cut along the belly from ribs to vent, careful not to pierce the gut, and everything pulled out and away. Keep the **liver, heart and kidneys** — the most nutritious parts. A liver with white spots, a gut full of pus, or a smell that is wrong: burn the carcass.
 - **Skin it** while warm; it comes off far more easily.
 - **Hang it** somewhere cool and fly-proof — a day for small game, several for deer — before jointing. Hanging tenderises and improves it.
-- **Cook thoroughly.** Wild meat carries parasites; pink game is a risk, not a treat.
+- **Cook thoroughly.** Wild meat carries parasites (trichinella in wild boar and bear, tapeworm in deer and rabbit); pink game is a risk, not a treat. Cook every part to 75 °C right through — juices clear, no pink at the bone — and never taste raw meat while butchering.
 
 Nothing is waste. Bones for stock, fat rendered for cooking and candles, skins tanned, sinew for cord, feathers for insulation, guts cleaned for casings, and the rest to the compost or the dogs.
 

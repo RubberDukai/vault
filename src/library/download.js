@@ -18,7 +18,35 @@ const tileset = require('./tileset');
 
 const jobs = new Map();
 
-const USER_AGENT = 'Vault/0.1 (offline knowledge vault)';
+// Nothing about the person or the app: a plain browser-style string.
+const USER_AGENT = 'Mozilla/5.0 (compatible)';
+
+/** Hosts the Setup page may be pointed at by a browser request. */
+const DOWNLOAD_HOSTS = new Set(['download.kiwix.org', 'library.kiwix.org', 'mirror.download.kiwix.org']);
+
+function allowedUrl(url) {
+  try {
+    const u = new URL(url);
+    return u.protocol === 'https:' && DOWNLOAD_HOSTS.has(u.hostname.toLowerCase());
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Never follow a download onto this machine or the local network: a public
+ * redirect to 127.0.0.1 or 192.168.x.x is how a server-side fetch gets
+ * turned into a probe of things only this machine can reach.
+ */
+function privateHost(hostname) {
+  const h = hostname.replace(/^\[|\]$/g, '').toLowerCase();
+  if (h === 'localhost' || h.endsWith('.local') || !h.includes('.') && !h.includes(':')) return true;
+  if (h === '::1' || h.startsWith('fe80:') || h.startsWith('fc') || h.startsWith('fd')) return true;
+  const m = h.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
+  if (!m) return false;
+  const [a, b] = [Number(m[1]), Number(m[2])];
+  return a === 10 || a === 127 || a === 0 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || a >= 224;
+}
 
 /**
  * Open a streaming GET, following redirects. Plain node:https rather than
@@ -28,6 +56,10 @@ const USER_AGENT = 'Vault/0.1 (offline knowledge vault)';
 function openStream(url, headers, signal, hops = 0) {
   return new Promise((resolve, reject) => {
     if (hops > 8) return reject(new Error('Too many redirects'));
+    let parsed;
+    try { parsed = new URL(url); } catch { return reject(new Error('Not a valid address')); }
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return reject(new Error('Only http(s) downloads'));
+    if (privateHost(parsed.hostname)) return reject(new Error('Refusing to download from a local address'));
     const client = url.startsWith('https:') ? https : http;
     const req = client.get(url, { headers: { 'user-agent': USER_AGENT, ...headers }, signal }, (res) => {
       const status = res.statusCode || 0;
@@ -95,7 +127,8 @@ function cancel(id) {
  * it left off.
  */
 function start({ url, tileset: tilesetSpec, destDir, filename, id }) {
-  const name = filename || (url ? url.split('/').pop() : 'tiles.mbtiles');
+  // Whatever the caller says, the file lands inside destDir and nowhere else.
+  const name = path.basename(filename || (url ? url.split('/').pop() : 'tiles.mbtiles')).replace(/^\.+/, '') || 'download';
   const jobId = id || name;
 
   const existing = jobs.get(jobId);
@@ -203,4 +236,4 @@ async function run(job) {
   job.status = 'complete';
 }
 
-module.exports = { start, get, list, cancel, wait, prune, humanBytes };
+module.exports = { start, get, list, cancel, wait, prune, humanBytes, allowedUrl, privateHost };

@@ -194,32 +194,19 @@ class MapManager {
       const id = slugify(file.replace(/\.url$/i, ''));
       if (this.packs.has(id)) continue;
 
+      // Nothing is fetched now. An online map is only opened — and its
+      // address only refreshed — the first time someone actually picks it, so
+      // starting the vault never touches the network.
       try {
-        let url = (await fsp.readFile(path.join(this.mapsDir, file), 'utf8')).trim();
+        const url = (await fsp.readFile(path.join(this.mapsDir, file), 'utf8')).trim();
         if (!/^https?:\/\//i.test(url)) throw new Error('Not an http(s) URL');
-
-        // Protomaps keeps a week of daily builds; a stale date is moved on.
-        if (/build\.protomaps\.com\/\d{8}\.pmtiles$/.test(url)) {
-          try {
-            const fresh = await resolveProtomapsUrl(url);
-            if (fresh !== url) { url = fresh; await fsp.writeFile(path.join(this.mapsDir, file), url + '\n'); }
-          } catch { /* offline, or none found: try the one we have */ }
-        }
-
-        const archive = await PMTiles.openRemote(url);
-        const info = archive.describe();
         this.packs.set(id, {
-          ...info,
-          id,
-          file,
-          remote: true,
-          url,
-          kind: info.tileType === 'mvt' ? 'vector' : 'raster',
-          format: 'pmtiles',
-          title: `${info.name || id} (online)`,
-          size: 0,
-          sizeHuman: 'remote',
-          _archive: archive,
+          id, file, remote: true, lazy: true, url,
+          kind: 'vector', format: 'pmtiles',
+          title: `${file.replace(/\.url$/i, '')} (online — needs the internet)`,
+          minZoom: 0, maxZoom: 15, bounds: [-180, -85.0511287, 180, 85.0511287], center: [0, 0], centerZoom: 0,
+          size: 0, sizeHuman: 'remote',
+          _archive: null,
         });
       } catch (err) {
         this.packs.set(id, {
@@ -281,7 +268,7 @@ class MapManager {
   }
 
   list() {
-    return [...this.packs.values()].map(({ _archive, ...rest }) => ({ ok: true, ...rest }));
+    return [...this.packs.values()].map(({ _archive, _opening, ...rest }) => ({ ok: true, ...rest }));
   }
 
   get(id) {
@@ -289,9 +276,31 @@ class MapManager {
   }
 
   /** Raw tile bytes — used directly for raster overlays. */
+  /** Open an online map on first use; a failure (offline) just yields no tiles. */
+  async _openLazy(pack) {
+    if (pack._archive) return null;
+    if (pack._opening) return pack._opening;
+    pack._opening = (async () => {
+      let url = pack.url;
+      // Protomaps keeps a week of daily builds; a stale date is moved on.
+      if (/build\.protomaps\.com\/\d{8}\.pmtiles$/.test(url)) {
+        try {
+          const fresh = await resolveProtomapsUrl(url);
+          if (fresh !== url) { url = fresh; pack.url = url; await fsp.writeFile(path.join(this.mapsDir, pack.file), url + '\n'); }
+        } catch { /* offline, or none found: try the one we have */ }
+      }
+      const archive = await PMTiles.openRemote(url);
+      const info = archive.describe();
+      Object.assign(pack, info, { kind: info.tileType === 'mvt' ? 'vector' : 'raster', _archive: archive });
+    })().catch((err) => { pack.error = err.message; }).finally(() => { pack._opening = null; });
+    return pack._opening;
+  }
+
   async rawTile(id, z, x, y) {
     const pack = this.packs.get(id);
-    if (!pack || !pack._archive) return null;
+    if (!pack) return null;
+    if (pack.lazy && !pack._archive) await this._openLazy(pack);
+    if (!pack._archive) return null;
     return pack.format === 'pmtiles'
       ? pack._archive.getTile(z, x, y)
       : pack._archive.getTile(z, x, y);
@@ -313,7 +322,7 @@ class MapManager {
     }
 
     // MBTiles vector tiles are gzipped by convention; PMTiles ones arrive decompressed.
-    const bytes = raw.length > 2 && raw[0] === 0x1f && raw[1] === 0x8b ? zlib.gunzipSync(raw) : raw;
+    const bytes = raw.length > 2 && raw[0] === 0x1f && raw[1] === 0x8b ? zlib.gunzipSync(raw, { maxOutputLength: 64 * 1024 * 1024 }) : raw;
     const layers = decodeTile(bytes);
     const output = {};
 
