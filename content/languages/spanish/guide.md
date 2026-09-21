@@ -136,6 +136,28 @@ Use it for what was going on, what used to happen, descriptions, time and age in
 
 **haber** + past participle: *he, has, ha, hemos, han* + habl**ado** / com**ido** / viv**ido**. *He comido* — I have eaten. *¿Has visto a Juan?* — Have you seen Juan? In Spain it is used for today and for recent, still-relevant events; in Latin America the preterite does that job. Irregular participles worth knowing: *hecho* (done), *dicho* (said), *visto* (seen), *puesto* (put), *escrito* (written), *abierto* (opened), *vuelto* (returned), *muerto* (died), *roto* (broken).
 
+### The future and the conditional — what will and what would
+
+Both are built on the **whole infinitive**, so there is one set of endings for all three families:
+
+| | future | conditional |
+|---|---|---|
+| yo | hablar**é** | hablar**ía** |
+| tú | hablar**ás** | hablar**ías** |
+| él / ella / usted | hablar**á** | hablar**ía** |
+| nosotros | hablar**emos** | hablar**íamos** |
+| ellos / ustedes | hablar**án** | hablar**ían** |
+
+A dozen verbs shorten the stem, the same dozen for both tenses: **tener** → tendr-, **poner** → pondr-, **venir** → vendr-, **salir** → saldr-, **poder** → podr-, **saber** → sabr-, **haber** → habr-, **querer** → querr-, **hacer** → har-, **decir** → dir-. *Mañana lloverá* — it will rain tomorrow. *Me gustaría ir* — I would like to go. In speech, *ir a* + verb does most of the future's work; the future tense itself is also used for guessing: *Serán las diez* — it must be about ten.
+
+### Telling people what to do — the imperative
+
+For **tú**, the command is the *él* form of the present: *¡Habla! ¡Come! ¡Abre!* Eight irregulars: *di* (say), *haz* (do), *ve* (go), *pon* (put), *sal* (leave), *sé* (be), *ten* (have), *ven* (come). For **usted**, swap the vowel: -ar verbs take **-e** (*hable*), -er and -ir verbs take **-a** (*coma, abra*); plural ustedes adds -n (*hablen, coman*). Negative commands use the usted form for everyone, with *no*: *no hables, no comas*. Object pronouns hang on the end of a positive command — *dímelo* (tell me it), *siéntese* (sit down) — and go in front of a negative one: *no me lo digas*.
+
+### Comparing
+
+*más … que* (more than), *menos … que* (less than), *tan … como* (as … as): *Este pozo es más profundo que el otro.* Superlative with the article: *el más alto* — the tallest. Irregulars: *mejor* (better), *peor* (worse), *mayor* (older, bigger), *menor* (younger, smaller).
+
 ## Negation and questions
 
 **Negation:** *no* before the verb. *No hablo español. No tengo agua.* Double negatives are correct: *No tengo nada* — I have nothing.
