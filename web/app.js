@@ -1044,7 +1044,7 @@ function studySettings() {
 // Spoken pronunciation comes from the browser's own speech engine, which works
 // offline as long as Windows has the language's voice installed (Settings ›
 // Time & language › Speech › Add voices). Nothing is fetched.
-const SPEECH_LANG = { japanese: 'ja', mandarin: 'zh', hindi: 'hi', spanish: 'es', english: 'en' };
+const SPEECH_LANG = { japanese: 'ja', mandarin: 'zh', hindi: 'hi', spanish: 'es', german: 'de', english: 'en' };
 
 function speechVoice(langId) {
   if (!('speechSynthesis' in window)) return null;
