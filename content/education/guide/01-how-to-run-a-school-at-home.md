@@ -76,7 +76,7 @@ Once a month, take a lesson from a few weeks back and set three of its exercises
 
 The full sequence, subject by subject, as the lessons stand and as they are meant to grow. A lesson in *italics* is not written yet — the Library textbooks cover the ground until it is.
 
-**Mathematics.** KS1: counting and place value → number bonds and adding/subtracting to 20 → adding and subtracting to 100 → times tables 2, 5, 10 and sharing → shapes, measures, time and money → halves and quarters. KS2: arithmetic by hand → fractions, ratio and measuring → decimals and percentages → area, perimeter, angles and shape → graphs, tables and keeping records. KS3: negative numbers and algebra → chance and data → *equations and formulae* → *geometry with proof* → *ratio, proportion and rates*.
+**Mathematics.** KS1: counting and place value → number bonds and adding/subtracting to 20 → adding and subtracting to 100 → times tables 2, 5, 10 and sharing → shapes, measures, time and money → halves and quarters. KS2: arithmetic by hand → fractions, ratio and measuring → decimals and percentages → area, perimeter, angles and shape → graphs, tables and keeping records. KS3: negative numbers and algebra → chance and data → equations and formulae → geometry with proof → ratio, proportion and rates.
 
 **English.** KS1: learning to read → handwriting and spelling → sentences and stories. KS2: writing that lasts → grammar and punctuation → reading for meaning → poetry. KS3: thinking clearly → the essay → the report and the letter → speaking and debate.
 
