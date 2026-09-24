@@ -87,14 +87,14 @@ Three **Reading shelf** packs are on the Setup page — public-domain books from
 **Ages 7–11 (26 books).** The core of KS2. A rough order of difficulty, easiest first:
 
 1. *The Wind in the Willows* — [Kenneth Grahame](wiki:Kenneth_Grahame). Character and comedy; Toad is unforgettable, and every child can tell you what kind of creature he is.
-2. *The Railway Children* and *Five Children and It* — [E. Nesbit](wiki:E._Nesbit). Ordinary children, clear prose, good for inferring what the grown-ups are not saying.
+2. *The Railway Children* and *Five Children and It* — [E. Nesbit](wiki:E._Nesbit|Edith_Nesbit). Ordinary children, clear prose, good for inferring what the grown-ups are not saying.
 3. *Black Beauty* — [Anna Sewell](wiki:Anna_Sewell). Told by the horse: a first lesson in point of view, and in a book written to change people's minds.
 4. *The Secret Garden* — [Frances Hodgson Burnett](wiki:Frances_Hodgson_Burnett). Character change across a whole book — Mary at the start and Mary at the end.
 5. *Heidi*, *The Story of Doctor Dolittle*, *Peter Pan*, *Little Lord Fauntleroy*, *The Water-Babies*.
 6. *The Jungle Book* — [Rudyard Kipling](wiki:Rudyard_Kipling). Harder language; an excellent read-aloud.
-7. *Tales from Shakespeare* — [Charles and Mary Lamb](wiki:Tales_from_Shakespeare). The plots in prose, so that the plays are not strangers later.
+7. *Tales from Shakespeare* — [Charles and Mary Lamb](wiki:Tales_from_Shakespeare|Charles_Lamb|William_Shakespeare). The plots in prose, so that the plays are not strangers later.
 8. *The Arabian Nights*, *Tanglewood Tales* and *A Wonder Book* — the [Greek myths](wiki:Greek_mythology) and the story within a story.
-9. *Treasure Island* and *Kidnapped* — [Robert Louis Stevenson](wiki:Robert_Louis_Stevenson); *The Merry Adventures of Robin Hood* — [Howard Pyle](wiki:Howard_Pyle); *The Coral Island*; *Swiss Family Robinson*.
+9. *Treasure Island* and *Kidnapped* — [Robert Louis Stevenson](wiki:Robert_Louis_Stevenson); *The Merry Adventures of Robin Hood* — [Howard Pyle](wiki:Howard_Pyle|Robin_Hood); *The Coral Island*; *Swiss Family Robinson*.
 10. *Tom Sawyer*, *Anne of Green Gables*, *Little Women*, *Through the Looking-Glass*, *The Call of the Wild*, *Around the World in Eighty Days*.
 
 **Ages 11 and up (25 books).** Waiting for KS3 — Dickens, the Brontës, Austen, Verne, Wells, Sherlock Holmes, Homer, the complete Shakespeare. A strong reader can start on *A Christmas Carol*, *The Adventures of Sherlock Holmes* or *The Time Machine* at the top of KS2.

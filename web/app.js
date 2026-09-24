@@ -2242,6 +2242,8 @@ async function renderLesson(id) {
     </div>
   `;
 
+  resolveWikiLinksWithFallback(view);
+
   document.getElementById('lesson-done').onchange = (e) => api('school/progress', {
     method: 'POST',
     body: { profile: PROFILE, lessonId: lesson.id, completed: e.target.checked },
