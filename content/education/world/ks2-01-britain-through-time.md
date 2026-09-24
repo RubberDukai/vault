@@ -18,35 +18,35 @@ History is not a list of dates. It is the answer to *why is it like this?* — w
 
 | Roughly when | Who and what | The change that mattered |
 |---|---|---|
-| before 10,000 BC | **Old Stone Age** hunters | ice; people follow the animals; Britain joined to Europe |
+| before 10,000 BC | **[Old Stone Age](wiki:Paleolithic\|Stone_Age)** hunters | ice; people follow the animals; Britain joined to Europe |
 | 4000–2500 BC | **New Stone Age** — [farming arrives](wiki:Neolithic_British_Isles) | food is grown, so people stay put: villages, clearance, [Stonehenge](wiki:Stonehenge), long barrows |
-| 2500–800 BC | **Bronze Age** | metal: better tools and weapons, and trade to get tin and copper — round barrows, field systems |
-| 800 BC–AD 43 | **Iron Age** [Celts](wiki:Iron_Age_Britain\|Celts) | iron is common, so everyone can have good tools; hillforts, tribes, the first coins |
+| 2500–800 BC | **[Bronze Age](wiki:Bronze_Age_Britain\|Bronze_Age)** | metal: better tools and weapons, and trade to get tin and copper — round barrows, field systems |
+| 800 BC–AD 43 | **[Iron Age](wiki:Iron_Age)** [Celts](wiki:Celts) | iron is common, so everyone can have good tools; hillforts, tribes, the first coins |
 | AD 43–410 | **[Romans](wiki:Roman_Britain)** | roads, towns, writing, stone building, law, money — then they leave |
 | 410–1066 | **[Anglo-Saxons](wiki:Anglo-Saxons)** and **[Vikings](wiki:Viking_Age)** | English begins; villages and shires; Christianity; raids and settlement |
 | 1066 | **[The Norman Conquest](wiki:Norman_Conquest)** | castles, French in the language, the Domesday survey, everything owned by somebody |
-| 1066–1485 | **Middle Ages** | cathedrals, Magna Carta (1215), the [Black Death](wiki:Black_Death) (1348) which killed a third of everyone |
+| 1066–1485 | **[Middle Ages](wiki:Middle_Ages)** | cathedrals, [Magna Carta](wiki:Magna_Carta) (1215), the [Black Death](wiki:Black_Death) (1348) which killed a third of everyone |
 | 1485–1603 | **[Tudors](wiki:Tudor_period)** | the break with Rome, printing, ships and the first voyages, Shakespeare |
 | 1642–1660 | **[Civil War](wiki:English_Civil_War)** and after | a king executed; Parliament settles it that the Crown is not absolute |
 | 1750–1900 | **[Industrial Revolution](wiki:Industrial_Revolution)** | coal, steam, iron, mills, railways; people move to towns; [the Empire](wiki:British_Empire) |
-| 1914–1945 | **Two world wars** | vast loss; women's work and the vote; the end of the old order |
-| since 1945 | **Modern Britain** | the health service, the end of empire, electricity and the motor car everywhere, computers |
+| 1914–1945 | **[First](wiki:World_War_I) and [Second World Wars](wiki:World_War_II)** | vast loss; women's work and the vote; the end of the old order |
+| since 1945 | **Modern Britain** | the [health service](wiki:National_Health_Service\|Health_care), the end of empire, electricity and the motor car everywhere, computers |
 
 Learn that column of dates in order. Eight or nine anchors are enough — 4000 BC, 43, 410, 1066, 1348, 1485, 1642, 1750, 1914 — and everything else can be placed between them.
 
 ## Six things worth more than the rest
 
-**Farming changed everything (about 4000 BC).** Before it, everyone moved and nobody owned much. After it, food could be stored — so there was surplus, so there could be people who did not farm: priests, soldiers, smiths, rulers. Every other change in the table follows from that one. Ask the child *what could you do, once there was more food than you needed this week?* and let them work out the rest themselves.
+**[Farming](wiki:Agriculture) changed everything (about 4000 BC).** Before it, everyone moved and nobody owned much. After it, food could be stored — so there was surplus, so there could be people who did not farm: priests, soldiers, smiths, rulers. Every other change in the table follows from that one. Ask the child *what could you do, once there was more food than you needed this week?* and let them work out the rest themselves.
 
-**The Romans brought writing, and then it stopped.** Roman Britain had towns, straight roads, baths, coins and written records. After 410 much of it fell out of use — not instantly, but within a couple of generations. It is the clearest example in our own island of how much can be lost and how fast, and worth sitting with. Their roads, though, are still under half the A-roads in the country.
+**The [Romans](wiki:Ancient_Rome) brought writing, and then it stopped.** Roman Britain had towns, straight roads, baths, coins and written records. After 410 much of it fell out of use — not instantly, but within a couple of generations. It is the clearest example in our own island of how much can be lost and how fast, and worth sitting with. Their roads, though, are still under half the A-roads in the country.
 
-**1066 is the hinge.** The Normans took the land and gave it to their own, built castles to hold it, and wrote down who had what in the Domesday Book — which is why we know so much about 1086 and so little about 1050. Half the everyday words in English are Saxon and half the grand ones are French, which is why we *eat* **pork** (French) from a **pig** (Saxon), and **beef** from a **cow**.
+**1066 is the hinge.** The Normans took the land and gave it to their own, built castles to hold it, and wrote down who had what in the [Domesday Book](wiki:Domesday_Book) — which is why we know so much about 1086 and so little about 1050. Half the everyday words in English are Saxon and half the grand ones are French, which is why we *eat* **pork** (French) from a **pig** (Saxon), and **beef** from a **cow**.
 
 **The Black Death (1348).** A third to a half of the people died in about two years. With so few left to work, those who survived could demand wages and move — so the old bonded system broke. A catastrophe changed the balance of power more than any law had.
 
-**Steam and coal (from about 1750).** For the whole of history before it, work meant muscle, wind or water. Steam meant power anywhere, at any hour, all year. Towns grew around it, half of Britain moved off the land in a century, and the air and the rivers paid for it. The cost and the gain belong in the same lesson.
+**[Steam](wiki:Steam_engine) and coal (from about 1750).** For the whole of history before it, work meant muscle, wind or water. Steam meant power anywhere, at any hour, all year. Towns grew around it, half of Britain moved off the land in a century, and the air and the rivers paid for it. The cost and the gain belong in the same lesson.
 
-**Rights were argued for, not given.** Magna Carta 1215, Parliament against the King in 1642, the vote widening through the 1800s, women voting in 1918 and 1928. Teach it as a long argument that is still going, not as a gift that arrived.
+**Rights were argued for, not given.** [Magna Carta](wiki:Magna_Carta) 1215, Parliament against the King in 1642, the vote widening through the 1800s, women voting in 1918 and 1928. Teach it as a long argument that is still going, not as a gift that arrived.
 
 ## How to find the evidence in your own parish
 
