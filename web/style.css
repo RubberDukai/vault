@@ -1015,3 +1015,78 @@ details.answers[open] > summary::after { content: ""; }
    it is there: knowing you are pressing F# matters more than the fact that
    the computer calls it "R". */
 .piano-key.black .piano-note { font-size: 9px; letter-spacing: -0.3px; padding-bottom: 2px; }
+
+/* --- othello ------------------------------------------------------------ */
+.sq.felt { background: #1f6b43; border-color: #175333; }
+.sq.felt:hover { background: #247d4e; }
+.disc { display: block; width: 78%; height: 78%; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,.45); }
+.disc.black { background: radial-gradient(circle at 35% 30%, #4a4a4a, #0b0b0b 70%); }
+.disc.white { background: radial-gradient(circle at 35% 30%, #ffffff, #cfcabb 70%); }
+/* Where you may play, on a board with nothing to pick up first. */
+.sq.felt.movable::after { content: ""; width: 26%; height: 26%; border-radius: 50%; background: rgba(255,255,255,.3); }
+.sq.felt.movable:hover::after { background: rgba(255,255,255,.55); }
+
+/* --- cards, blackjack and roulette -------------------------------------- */
+.card {
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+  width: 46px; height: 64px; border-radius: 6px; background: #f6f3ec; color: #1a1a1a;
+  border: 1px solid #b9b2a3; box-shadow: 0 1px 2px rgba(0,0,0,.35); font-family: var(--sans);
+  line-height: 1; user-select: none; flex-shrink: 0;
+}
+.card.red { color: #b3261e; }
+.card.black { color: #16181c; }
+.card-rank { font-size: 17px; font-weight: 700; }
+.card-suit { font-size: 16px; }
+/* The back: a pattern, so a face-down card reads as a card and not a gap. */
+.card.down { background: repeating-linear-gradient(45deg, #2f4a7a 0 5px, #24395e 5px 10px); border-color: #16233c; }
+.card.empty { background: transparent; border-style: dashed; border-color: var(--border); color: var(--text-faint); font-size: 20px; }
+.card.picked { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* patience */
+.klondike { display: flex; flex-direction: column; gap: 14px; }
+.k-row { display: flex; gap: 8px; align-items: flex-start; }
+.k-gap { flex: 1 1 auto; min-width: 8px; }
+.k-slot { position: relative; background: none; border: 0; padding: 0; cursor: pointer; }
+.k-slot .card { margin: 0; }
+.k-slot.waste .card.under { margin-right: -30px; opacity: .8; }
+.k-count { position: absolute; bottom: -16px; left: 0; right: 0; text-align: center; font-size: 11px; color: var(--text-faint); font-family: var(--mono); }
+.card.recycle { display: inline-flex; align-items: center; justify-content: center; }
+.k-row.tableau { gap: 8px; align-items: flex-start; }
+.k-col { position: relative; min-height: 64px; width: 46px; cursor: pointer; }
+.k-card { position: absolute; left: 0; top: calc(var(--i) * 20px); cursor: pointer; }
+/* The column has to be as tall as its cards, which are absolutely placed. */
+.k-col { padding-bottom: 0; }
+.k-row.tableau .k-col { height: auto; min-height: 380px; }
+
+/* blackjack */
+.bj-table { display: flex; flex-direction: column; gap: 18px; padding: 16px; border-radius: var(--radius); background: #1f6b43; border: 1px solid #175333; margin-bottom: 12px; }
+.bj-hand { display: flex; flex-direction: column; gap: 6px; }
+.bj-hand > .faint { color: #d8e8dd; }
+.bj-cards { display: flex; gap: 6px; flex-wrap: wrap; min-height: 64px; }
+
+/* roulette */
+.rl-result { font-family: var(--mono); font-size: 40px; font-weight: 700; text-align: center; padding: 8px; border-radius: var(--radius); background: var(--bg-raised); border: 1px solid var(--border); }
+.rl-result.red { color: #e5484d; } .rl-result.black { color: var(--text); } .rl-result.green { color: #3fb950; }
+.rl-table { display: flex; gap: 4px; align-items: stretch; margin-bottom: 6px; }
+.rl-grid { display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-flow: column; grid-template-rows: repeat(3, 1fr); gap: 3px; flex: 1; }
+.rl-cols { display: flex; flex-direction: column; gap: 3px; }
+.rl-num, .rl-out {
+  position: relative; border: 1px solid var(--border); border-radius: 4px; cursor: pointer;
+  font-family: var(--mono); font-size: 13px; padding: 6px 4px; color: #fff; background: #333;
+}
+.rl-num.red { background: #a3282c; } .rl-num.black { background: #1b1d22; } .rl-num.green { background: #1f6b43; }
+.rl-num.zero { writing-mode: vertical-rl; transform: rotate(180deg); padding: 4px; }
+.rl-num.hit { outline: 2px solid var(--accent); }
+.rl-num:hover, .rl-out:hover { filter: brightness(1.35); }
+.rl-out { background: var(--bg-raised); color: var(--text); flex: 1; }
+.rl-outside { display: flex; gap: 3px; margin-bottom: 4px; }
+.rl-chip { position: absolute; top: -6px; right: -6px; background: var(--accent); color: var(--accent-ink); border-radius: 999px; font-size: 10px; padding: 1px 5px; font-weight: 700; }
+.rl-recent { display: inline-block; min-width: 20px; text-align: center; padding: 1px 3px; margin-right: 3px; border-radius: 3px; font-family: var(--mono); font-size: 11px; color: #fff; }
+.rl-recent.red { background: #a3282c; } .rl-recent.black { background: #1b1d22; } .rl-recent.green { background: #1f6b43; }
+
+@media (max-width: 760px) {
+  .card { width: 38px; height: 54px; }
+  .k-card { top: calc(var(--i) * 16px); }
+  .k-col { width: 38px; }
+  .rl-num, .rl-out { font-size: 11px; padding: 4px 2px; }
+}

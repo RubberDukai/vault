@@ -422,17 +422,228 @@ class Draughts {
   }
 }
 
+// =================================================================== othello
+
+/**
+ * Othello, also called Reversi.
+ *
+ * Two minutes to learn: place a disc so that it traps a line of the other
+ * colour between it and one of yours, and every trapped disc turns over.
+ * Years to play well, because the board can swing entirely on the last move —
+ * which is what makes it a good game against a machine that is not very deep.
+ */
+const OTHELLO_DIRS = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+
+// Corners cannot be flipped, so they are worth more than anything else; the
+// squares next to them hand a corner over and are worth less than nothing.
+const OTHELLO_WEIGHTS = [
+  120, -20, 20, 5, 5, 20, -20, 120,
+  -20, -40, -5, -5, -5, -5, -40, -20,
+  20, -5, 15, 3, 3, 15, -5, 20,
+  5, -5, 3, 3, 3, 3, -5, 5,
+  5, -5, 3, 3, 3, 3, -5, 5,
+  20, -5, 15, 3, 3, 15, -5, 20,
+  -20, -40, -5, -5, -5, -5, -40, -20,
+  120, -20, 20, 5, 5, 20, -20, 120,
+];
+
+class Othello {
+  constructor(state) {
+    if (state) { Object.assign(this, state); return; }
+    this.board = new Array(64).fill(null);
+    this.board[27] = 'wD'; this.board[36] = 'wD';
+    this.board[28] = 'bD'; this.board[35] = 'bD';
+    this.turn = 'b';         // black always opens
+    this.history = [];
+    this.snapshots = [];
+    this.mustContinue = null;
+    this.passed = false;     // the previous player had to pass
+  }
+
+  /** A click on an empty square is the whole move, so there is no "from". */
+  static placeOnly = true;
+
+  snapshot() {
+    return { board: this.board.slice(), turn: this.turn, history: this.history.slice(), passed: this.passed };
+  }
+
+  /** Which discs would turn over if `colour` played `at`? Empty means illegal. */
+  flips(at, colour) {
+    if (this.board[at]) return [];
+    const enemy = colour === 'w' ? 'b' : 'w';
+    const file = at % 8;
+    const rank = Math.floor(at / 8);
+    const out = [];
+    for (const [dr, df] of OTHELLO_DIRS) {
+      const line = [];
+      let r = rank + dr;
+      let f = file + df;
+      while (r >= 0 && r < 8 && f >= 0 && f < 8) {
+        const square = this.board[r * 8 + f];
+        if (!square) break;
+        if (square[0] === enemy) { line.push(r * 8 + f); r += dr; f += df; continue; }
+        // Reached our own disc: everything between is trapped.
+        if (line.length) out.push(...line);
+        break;
+      }
+    }
+    return out;
+  }
+
+  legalMoves(colour) {
+    const moves = [];
+    for (let i = 0; i < 64; i++) {
+      if (this.board[i]) continue;
+      const flipped = this.flips(i, colour);
+      if (flipped.length) moves.push({ from: i, to: i, flips: flipped });
+    }
+    return moves;
+  }
+
+  score() {
+    let b = 0; let w = 0;
+    for (const square of this.board) {
+      if (!square) continue;
+      if (square[0] === 'b') b++; else w++;
+    }
+    return { b, w };
+  }
+
+  status() {
+    const moves = this.legalMoves(this.turn);
+    if (moves.length) return { over: false, moves, score: this.score() };
+
+    // No move: pass. If neither side can move, the game is finished.
+    const other = this.turn === 'w' ? 'b' : 'w';
+    const theirs = this.legalMoves(other);
+    const score = this.score();
+    if (!theirs.length) {
+      const result = score.b === score.w ? 'draw' : (score.b > score.w ? 'b' : 'w');
+      return { over: true, result, reason: `${score.b}–${score.w}`, score };
+    }
+    return { over: false, moves: [], mustPass: true, score };
+  }
+
+  pass() {
+    this.snapshots.push(this.snapshot());
+    this.turn = this.turn === 'w' ? 'b' : 'w';
+    this.passed = true;
+  }
+
+  apply(move, quiet = false) {
+    if (!quiet) this.snapshots.push(this.snapshot());
+    const colour = this.turn;
+    const flipped = move.flips && move.flips.length ? move.flips : this.flips(move.to, colour);
+    this.board[move.to] = `${colour}D`;
+    for (const i of flipped) this.board[i] = `${colour}D`;
+    this.history.push({ from: move.to, to: move.to, colour, flipped: flipped.length, san: Othello.name(move.to) });
+    this.turn = colour === 'w' ? 'b' : 'w';
+    this.passed = false;
+    // The other side may have nothing to play; hand it straight back.
+    if (!this.legalMoves(this.turn).length && this.legalMoves(colour).length) {
+      this.turn = colour;
+      this.passed = true;
+    }
+  }
+
+  static name(i) { return 'abcdefgh'[i % 8] + (8 - Math.floor(i / 8)); }
+
+  undo() {
+    const snap = this.snapshots.pop();
+    if (snap) Object.assign(this, snap);
+  }
+
+  /**
+   * Position, not discs. Counting discs in the opening is the classic
+   * beginner's mistake — the player with the most discs in the middlegame is
+   * usually the one about to lose them all.
+   */
+  evaluate() {
+    let score = 0;
+    let mine = 0;
+    for (let i = 0; i < 64; i++) {
+      const square = this.board[i];
+      if (!square) continue;
+      mine++;
+      score += square[0] === 'w' ? OTHELLO_WEIGHTS[i] : -OTHELLO_WEIGHTS[i];
+    }
+    // Late on, the discs themselves are what count.
+    if (mine > 52) {
+      const { b, w } = this.score();
+      score += (w - b) * 15;
+    }
+    // Having somewhere to go is worth a great deal in this game.
+    score += (this.legalMoves('w').length - this.legalMoves('b').length) * 8;
+    return score;
+  }
+
+  bestMove(depth = 3) {
+    const me = this.turn;
+    const search = (d, alpha, beta) => {
+      const colour = this.turn;
+      const moves = this.legalMoves(colour);
+      if (d === 0) return this.evaluate() * (colour === 'w' ? 1 : -1);
+      if (!moves.length) {
+        const other = colour === 'w' ? 'b' : 'w';
+        if (!this.legalMoves(other).length) {
+          const { b, w } = this.score();
+          const diff = (w - b) * (colour === 'w' ? 1 : -1);
+          return diff * 1000;
+        }
+        const snap = this.snapshot();
+        this.turn = other;
+        const score = -search(d - 1, -beta, -alpha);
+        Object.assign(this, snap);
+        return score;
+      }
+      let best = -Infinity;
+      for (const move of moves) {
+        const snap = this.snapshot();
+        this.apply(move, true);
+        const score = this.turn === colour ? search(d - 1, alpha, beta) : -search(d - 1, -beta, -alpha);
+        Object.assign(this, snap);
+        if (score > best) best = score;
+        if (best > alpha) alpha = best;
+        if (alpha >= beta) break;
+      }
+      return best;
+    };
+
+    const moves = this.legalMoves(me).sort(() => Math.random() - 0.5);
+    let best = null;
+    let bestScore = -Infinity;
+    for (const move of moves) {
+      const snap = this.snapshot();
+      this.apply(move, true);
+      const score = this.turn === me ? search(depth - 1, -Infinity, Infinity) : -search(depth - 1, -Infinity, Infinity);
+      Object.assign(this, snap);
+      if (score > bestScore) { bestScore = score; best = move; }
+    }
+    return best;
+  }
+}
+
 // ====================================================================== ui
 
 let GAMES_STATE = null;
 try { GAMES_STATE = JSON.parse(localStorage.getItem('vault.games') || 'null'); } catch { GAMES_STATE = null; }
-if (!GAMES_STATE) GAMES_STATE = { game: 'chess', chess: null, draughts: null, opponent: 'human', side: 'w', flip: false };
+if (!GAMES_STATE) GAMES_STATE = { game: 'chess', chess: null, draughts: null, othello: null, opponent: 'human', side: 'w', flip: false };
 const saveGames = () => { try { localStorage.setItem('vault.games', JSON.stringify(GAMES_STATE)); } catch { /* fine */ } };
+
+const BOARD_GAMES = { chess: Chess, draughts: Draughts, othello: Othello };
+
+// Cards and the wheel are laid out quite differently from a chequered board,
+// so they draw themselves rather than borrowing the board.
+const CARD_GAMES = {
+  klondike: (root) => window.vaultCards.renderKlondike(root),
+  blackjack: (root) => window.vaultCards.renderBlackjack(root),
+  roulette: (root) => window.vaultCards.renderRoulette(root),
+};
 
 function loadGame(kind) {
   const saved = GAMES_STATE[kind];
-  if (kind === 'chess') return saved ? new Chess({ ...saved, snapshots: saved.snapshots || [] }) : new Chess();
-  return saved ? new Draughts({ ...saved, snapshots: saved.snapshots || [] }) : new Draughts();
+  const Game = BOARD_GAMES[kind] || Chess;
+  return saved ? new Game({ ...saved, snapshots: saved.snapshots || [] }) : new Game();
 }
 function storeGame(kind, game) {
   const { snapshots, ...rest } = game;
@@ -442,7 +653,9 @@ function storeGame(kind, game) {
 
 async function renderGames(params) {
   const gameParam = params && params.get('game');
-  if (gameParam === 'chess' || gameParam === 'draughts') GAMES_STATE.game = gameParam;
+  if (BOARD_GAMES[gameParam] || CARD_GAMES[gameParam]) GAMES_STATE.game = gameParam;
+
+  const cardGame = CARD_GAMES[GAMES_STATE.game];
 
   view.innerHTML = `
     <div class="row-between" style="flex-wrap:wrap;gap:10px;margin-bottom:12px">
@@ -450,17 +663,25 @@ async function renderGames(params) {
       <div class="row" style="gap:6px">
         <button class="btn btn-sm game-tab" data-game="chess">Chess</button>
         <button class="btn btn-sm game-tab" data-game="draughts">Draughts</button>
+        <button class="btn btn-sm game-tab" data-game="othello">Othello</button>
+        <button class="btn btn-sm game-tab" data-game="klondike">Patience</button>
+        <button class="btn btn-sm game-tab" data-game="blackjack">Blackjack</button>
+        <button class="btn btn-sm game-tab" data-game="roulette">Roulette</button>
       </div>
     </div>
-    <div class="game-shell">
+    ${cardGame
+      ? '<div id="card-table"></div>'
+      : `<div class="game-shell">
       <div class="board-wrap"><div class="board" id="board"></div></div>
       <aside class="game-side" id="game-side"></aside>
-    </div>`;
+    </div>`}`;
 
   for (const t of view.querySelectorAll('.game-tab')) {
     t.classList.toggle('btn-active', t.dataset.game === GAMES_STATE.game);
     t.onclick = () => { GAMES_STATE.game = t.dataset.game; saveGames(); renderGames(); };
   }
+
+  if (cardGame) { cardGame(document.getElementById('card-table')); return; }
 
   const kind = GAMES_STATE.game;
   let game = loadGame(kind);
@@ -484,7 +705,7 @@ async function renderGames(params) {
       const f = i % 8;
       const dark = (r + f) % 2 === 1;
       const piece = game.board[i];
-      const classes = ['sq', dark ? 'dark' : 'light'];
+      const classes = ['sq', kind === 'othello' ? 'felt' : (dark ? 'dark' : 'light')];
       if (selected === i) classes.push('selected');
       if (targets.includes(i)) classes.push('target');
       if (lastMove && (lastMove.from === i || lastMove.to === i)) classes.push('last');
@@ -493,6 +714,7 @@ async function renderGames(params) {
       let glyph = '';
       if (piece) {
         glyph = kind === 'chess' ? `<span class="piece ${piece[0]}">${PIECE_GLYPHS[piece]}</span>`
+          : kind === 'othello' ? `<span class="disc ${piece[0] === 'w' ? 'white' : 'black'}"></span>`
           : `<span class="man ${piece[0] === 'w' ? 'white' : 'black'}${piece[1] === 'K' ? ' king' : ''}">${piece[1] === 'K' ? '♛' : ''}</span>`;
       }
       const coord = f === 0 ? `<span class="coord rank">${8 - r}</span>` : '';
@@ -510,7 +732,12 @@ async function renderGames(params) {
     if (status.over) {
       line = status.result === 'draw' ? `Draw — ${status.reason}.` : `${status.result === 'w' ? 'White' : 'Black'} wins — ${status.reason}.`;
     } else if (thinking) line = 'The machine is thinking…';
+    else if (status.mustPass) line = `${turnName} cannot move — pass`;
     else line = `${turnName} to move${status.check ? ' — check!' : ''}${game.mustContinue != null ? ' — keep jumping' : ''}`;
+    if (kind === 'othello' && status.score) {
+      const me = GAMES_STATE.opponent === 'human' ? '' : '';
+      line += ` · black ${status.score.b}, white ${status.score.w}${me}`;
+    }
 
     const moves = kind === 'chess'
       ? game.history.map((h, i) => (i % 2 === 0 ? `<span class="mv-no">${i / 2 + 1}.</span> ` : '') + `<span class="mv">${esc(h.san)}</span> `).join('')
@@ -519,6 +746,7 @@ async function renderGames(params) {
     side.innerHTML = `
       <p class="game-status ${status.over ? 'over' : ''}">${line}</p>
       <div class="row" style="gap:6px;flex-wrap:wrap;margin-bottom:10px">
+        ${status.mustPass ? '<button class="btn btn-sm btn-primary" id="g-pass">Pass</button>' : ''}
         <button class="btn btn-sm" id="g-undo" ${game.snapshots.length ? '' : 'disabled'}>Undo</button>
         <button class="btn btn-sm" id="g-flip">Flip board</button>
         <button class="btn btn-sm" id="g-new">New game</button>
@@ -540,8 +768,19 @@ async function renderGames(params) {
       <div class="move-list mono">${moves || '<span class="faint">None yet.</span>'}</div>
       <details style="margin-top:12px"><summary class="faint">How to play</summary>
         ${kind === 'chess' ? `<p class="faint">Click a piece, then a square. Castling: move the king two squares. Pawns promote to queens. En passant works. The machine looks a few moves ahead; "takes its time" looks further and may pause a second or two.</p>`
+        : kind === 'othello' ? `<p class="faint">Black goes first. Place a disc so that a straight line of the other colour — across, down or diagonally — is trapped between it and a disc of yours: every disc in that line turns over. If you cannot trap anything you must pass. When neither side can move, whoever has more discs wins.</p>
+          <p class="faint">The corners can never be turned over, so they are worth more than everything else on the board; the squares beside a corner hand one to your opponent. Do not chase discs early — the player with most discs in the middle of the game is usually the one about to lose them.</p>`
         : `<p class="faint">Men move one square diagonally forward. Jump an enemy piece to capture it — you must capture when you can, and keep jumping while you can. Reach the far side to be crowned a king, which moves both ways. Win by leaving the other side no moves.</p>`}
       </details>`;
+
+    const passButton = document.getElementById('g-pass');
+    if (passButton) passButton.onclick = () => {
+      game.pass();
+      storeGame(kind, game);
+      selected = null;
+      paintBoard();
+      maybeMachine();
+    };
 
     document.getElementById('g-undo').onclick = () => {
       game.undo();
@@ -564,7 +803,10 @@ async function renderGames(params) {
     if (thinking || !humanTurn()) return;
     const status = game.status();
     if (status.over) return;
-    const move = status.moves.find((m) => m.from === selected && m.to === i);
+    // In Othello you place a disc: there is nothing to pick up first.
+    const move = BOARD_GAMES[kind].placeOnly
+      ? status.moves.find((m) => m.to === i)
+      : status.moves.find((m) => m.from === selected && m.to === i);
     if (move) {
       if (kind === 'chess' && move.promote) {
         const choice = (prompt('Promote to: Q (queen), R (rook), B (bishop) or N (knight)', 'Q') || 'Q').toUpperCase()[0];
@@ -590,11 +832,18 @@ async function renderGames(params) {
     paintSide(game.status());
     const depth = kind === 'chess'
       ? { easy: 1, normal: 3, hard: 4 }[GAMES_STATE.opponent]
-      : { easy: 2, normal: 6, hard: 9 }[GAMES_STATE.opponent];
+      : kind === 'othello'
+        ? { easy: 1, normal: 3, hard: 5 }[GAMES_STATE.opponent]
+        : { easy: 2, normal: 6, hard: 9 }[GAMES_STATE.opponent];
     setTimeout(() => {
       const move = game.bestMove(depth);
       thinking = false;
-      if (!move) { paintBoard(); return; }
+      if (!move) {
+        // Nothing legal: in Othello that means passing, not stopping.
+        if (game.pass && game.status().mustPass) { game.pass(); storeGame(kind, game); paintBoard(); maybeMachine(); return; }
+        paintBoard();
+        return;
+      }
       game.apply(move);
       lastMove = { from: move.from, to: move.to };
       storeGame(kind, game);
@@ -608,4 +857,4 @@ async function renderGames(params) {
 }
 
 window.renderGames = renderGames;
-window.vaultGames = { Chess, Draughts };
+window.vaultGames = { Chess, Draughts, Othello };
