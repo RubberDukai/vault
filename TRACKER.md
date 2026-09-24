@@ -23,7 +23,7 @@ Every request, in the order it was made, with an honest status. Updated whenever
 | # | Decision | Options |
 |---|---|---|
 | D5 | Rename the folder | **DONE** — you renamed `DocumentsArk` to `DocumentsVault` on 21 Sep; nothing else referred to the old path |
-| D8 | Naming, if this is ever sold | "Pip-Boy" and "Vault Boy" are Bethesda trademarks. For a commercial release the theme label needs a different name (e.g. "Terminal") and the mascot art replaced — you have already said the art will change. Say when and I will do both |
+| D8 | Naming, if this is ever sold | **RESOLVED (24 Sep)** — "Pip-Boy" and "Vault Boy" are Bethesda trademarks, so both are gone: the theme id and label are now **Terminal**, the mascot is your own gothic vault art (web/vault-art.txt), and the cog icon is the arch. Nothing in the build carries anyone else's trademark; the packs are Kiwix/Gutenberg/OpenStax/Wikimedia, all freely licensed |
 
 Everything else that was open has been decided and is done or in progress — see section 8.
 
@@ -185,8 +185,8 @@ Not separate requests — the places where a "done" is doing less than it should
 | 6.1 | Fire module | Resolved — 4 chapters |
 | 6.2 | Computing module | Resolved — 3 chapters |
 | 6.3 | Comms module | Resolved — 6 chapters, incl. Meshtastic step by step and a plan template |
-| 6.4 | Languages | Guides for all four. Spoken audio via the Windows voices (1.10). Japanese covers all of N5, Spanish all of A1 and A2; Mandarin is complete to HSK 3; Hindi has the full script and a quarter of A1 — see 9.15 |
-| 6.5 | School | 13 lessons. Real depth comes from imported textbooks (D7) |
+| 6.4 | Languages | Five languages with a written guide each. Japanese covers all of N5, Spanish all of A1 and A2, Mandarin to HSK 3, German A1 (375 cards), Hindi the full script and a quarter of A1 — see 9.15. **Listening comprehension added (11.9):** 17 spoken passages with transcripts, translations and questions, played by the offline Windows voice |
+| 6.5 | School | **46 lessons**, KS1 to KS3, across maths, English, science, the world and a teaching guide — the whole road map is written (11.7), each lesson with exercises and a folded answer key. Three Reading shelf packs add 61 Project Gutenberg books. Depth beyond KS3 comes from the imported textbooks (D7) |
 | 6.6 | Medical | Resolved — 7 chapters, incl. childbirth, mental health and long-term conditions |
 | 6.7 | Maps | Pins, lengths, perimeter/area, route planner, elevation, satellite, hill shading and offline packs done. Place-name search done (3.14). Still no OS style |
 | 6.8 | Food | Hunting, trapping, fishing and now livestock (Keeping animals: chickens, ducks, rabbits, goats, sheep, pigs, bees, winter feed, breeding, slaughter) — resolved |
