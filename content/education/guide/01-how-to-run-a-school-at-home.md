@@ -80,7 +80,7 @@ The full sequence, subject by subject, as the lessons stand and as they are mean
 
 **English.** KS1: learning to read → handwriting and spelling → sentences and stories. KS2: writing that lasts → grammar and punctuation → reading for meaning → poetry. KS3: thinking clearly → the essay → the report and the letter → speaking and debate.
 
-**Science.** KS1: living things and their needs → materials → seasons, weather and the sky. KS2: how to find things out → living things → earth and weather → forces, light and sound → the human body. KS3: energy, heat and electricity → *matter and chemical reactions* → *cells, genes and evolution* → *the Earth in space*.
+**Science.** KS1: living things and their needs → materials → seasons, weather and the sky. KS2: how to find things out → living things → earth and weather → forces, light and sound → the human body. KS3: energy, heat and electricity → matter and chemical reactions → cells, genes and evolution → the Earth in space.
 
 **The world (history and geography).** KS2: reading a map → Britain from the Stone Age to now → the ancient world → the continents and the climate. KS3: *the modern world and how it was made* → *how societies are run*.
 
