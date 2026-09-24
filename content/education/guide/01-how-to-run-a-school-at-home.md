@@ -74,7 +74,7 @@ Once a month, take a lesson from a few weeks back and set three of its exercises
 
 ## The road map
 
-The full sequence, subject by subject, as the lessons stand and as they are meant to grow. A lesson in *italics* is not written yet — the Library textbooks cover the ground until it is.
+The full sequence, subject by subject. Every lesson below is written: take them in order within a stage, and a child who works through all of them has covered the ground an English school covers from five to fourteen. Where you or they want to go deeper, the OpenStax textbooks, Wikibooks and Wikipedia on the Library shelf carry on from the end of each one.
 
 **Mathematics.** KS1: counting and place value → number bonds and adding/subtracting to 20 → adding and subtracting to 100 → times tables 2, 5, 10 and sharing → shapes, measures, time and money → halves and quarters. KS2: arithmetic by hand → fractions, ratio and measuring → decimals and percentages → area, perimeter, angles and shape → graphs, tables and keeping records. KS3: negative numbers and algebra → chance and data → equations and formulae → geometry with proof → ratio, proportion and rates.
 
@@ -82,7 +82,7 @@ The full sequence, subject by subject, as the lessons stand and as they are mean
 
 **Science.** KS1: living things and their needs → materials → seasons, weather and the sky. KS2: how to find things out → living things → earth and weather → forces, light and sound → the human body. KS3: energy, heat and electricity → matter and chemical reactions → cells, genes and evolution → the Earth in space.
 
-**The world (history and geography).** KS2: reading a map → Britain from the Stone Age to now → the ancient world → the continents and the climate. KS3: *the modern world and how it was made* → *how societies are run*.
+**The world (history and geography).** KS2: reading a map → Britain from the Stone Age to now → the ancient world → the continents and the climate. KS3: the modern world and how it was made → how societies are run.
 
 **Books.** Three **Reading shelf** packs on the Setup page hold sixty-one public-domain books from Project Gutenberg, graded by age: ten first books for ages 4–7, twenty-six for 7–11, twenty-five classics for 11 and up. Install at least the first two — they are small, and *Reading for meaning* is built on them.
 
