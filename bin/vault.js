@@ -47,6 +47,9 @@ async function cmdServe(args) {
     port: Number(args.port || process.env.ARK_PORT || 8080),
     host: args.host || process.env.ARK_HOST || null,
     libraryDir: args.library || process.env.ARK_LIBRARY || path.join(ROOT, 'library'),
+    // Useful for a portable copy that keeps its settings somewhere else, and
+    // for running a second vault without touching the first one's state.
+    dataDir: args.data || process.env.ARK_DATA || undefined,
   });
 
   process.stdout.write('Loading vault…\n');
@@ -77,19 +80,46 @@ async function cmdServe(args) {
   }
   console.log('');
 
+  // The vault window's own profile is wiped at both ends: now, in case the
+  // last run ended in a power cut, and again on the way out. Only the app's
+  // own settings survive it — see src/browser-profile.js.
+  const { wipeProfile } = require('../src/browser-profile');
+  const profileDir = path.join(server.dataDir, 'browser-profile');
+  const wipeAll = () => {
+    for (const family of ['chrome', 'brave', 'msedge']) wipeProfile(`${profileDir}-${family}`);
+    wipeProfile(profileDir); // a profile left by an older version
+  };
+  if (server.wipeBrowserProfile()) wipeAll();
+
   if (args.open) {
     const { openBrowser } = require('../src/open-browser');
     console.log('  Opening the vault…');
     console.log('');
-    openBrowser(`http://localhost:${server.port}`, { appMode: !args.browser, profileDir: path.join(server.dataDir, 'browser-profile') });
+    openBrowser(`http://localhost:${server.port}`, { appMode: !args.browser, profileDir });
   }
 
   console.log('  Leave this window open. Closing it stops the vault.');
   console.log('');
 
+  // Wiping on the way out is best-effort and cannot be otherwise: a power cut,
+  // a hard kill or a crash never gets to run anything. So it is attempted at
+  // every exit that can be caught — and the wipe at startup above is the one
+  // that actually guarantees nothing survives to be read by the next person.
+  process.on('exit', () => {
+    if (server.wipeBrowserProfile()) wipeAll();
+  });
+
   const shutdown = async () => {
     console.log('\nClosing the vault.');
     await server.stop();
+    if (server.wipeBrowserProfile()) {
+      // Close our own window first: Windows will not delete a file the
+      // browser still has open, and anything missed is caught next startup.
+      try { require('../src/open-browser').closeBrowser(); } catch { /* nothing to close */ }
+      await new Promise((r) => setTimeout(r, 600));
+      wipeAll();
+      console.log('Browsing history from the vault window has been wiped.');
+    }
     process.exit(0);
   };
   // One bad request or one corrupt file must never take the whole library
@@ -98,6 +128,10 @@ async function cmdServe(args) {
   process.on('unhandledRejection', (err) => console.error('[vault] recovered from:', err && err.stack || err));
   process.on('SIGINT', shutdown);
   process.on('SIGTERM', shutdown);
+  // Closing the console window — how most people will stop the vault on
+  // Windows — arrives as SIGHUP, and Windows allows only a few seconds
+  // before killing the process, so this path has to be quick.
+  process.on('SIGHUP', shutdown);
 }
 
 async function cmdLibrary(args) {

@@ -95,6 +95,11 @@ class ArkServer {
       // Whose vault this is, for the footer. Empty in a fresh copy, so a
       // vault handed on does not carry the previous owner's name.
       credit: '',
+      // The vault window's browsing history, cache and session are wiped when
+      // the vault closes. On by default: a machine may be shared, lost or
+      // searched, and nothing here is worth leaving behind. The app's own
+      // settings survive it.
+      wipeBrowser: true,
     });
 
     // Map annotations live server-side rather than in a browser, so a route
@@ -257,6 +262,11 @@ class ArkServer {
   /** True when other devices on the network can reach the vault. */
   sharing() {
     return this.host !== '127.0.0.1' && this.host !== 'localhost' && this.host !== '::1';
+  }
+
+  /** Whether the launcher should wipe the vault window's profile. Default on. */
+  wipeBrowserProfile() {
+    return this.state.get().wipeBrowser !== false;
   }
 
   /**
@@ -646,7 +656,8 @@ class ArkServer {
     if (route === 'settings' && method === 'POST') {
       const body = await this.readBody(req);
       if (typeof body.credit === 'string') this.state.update((s) => { s.credit = body.credit.trim().slice(0, 120); });
-      return this.json(res, 200, { credit: this.state.get().credit || '' });
+      if (typeof body.wipeBrowser === 'boolean') this.state.update((s) => { s.wipeBrowser = body.wipeBrowser; });
+      return this.json(res, 200, { credit: this.state.get().credit || '', wipeBrowser: this.wipeBrowserProfile() });
     }
 
     if (route === 'network/share' && method === 'POST') {
@@ -672,6 +683,7 @@ class ArkServer {
         addresses: this.addresses(),
         libraryDir: this.pathFor(req, this.libraryDir),
         credit: this.state.get().credit || '',
+        wipeBrowser: this.wipeBrowserProfile(),
         packs: packs.length,
         packsOk: packs.filter((p) => p.ok).length,
         librarySize: humanBytes(packs.reduce((n, p) => n + (p.size || 0), 0)),

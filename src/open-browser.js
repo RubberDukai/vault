@@ -52,6 +52,9 @@ function candidates() {
   return ['google-chrome', 'chromium', 'chromium-browser', 'brave-browser', 'microsoft-edge'];
 }
 
+/** Browser windows this process started, so only those are ever closed. */
+const LAUNCHED = [];
+
 function detached(command, args) {
   const child = spawn(command, args, { detached: true, stdio: 'ignore' });
   child.unref();
@@ -88,6 +91,7 @@ function openBrowser(url, { appMode = true, profileDir = null } = {}) {
     '--disable-features=OptimizationHints,Translate,MediaRouter,InterestFeedContentSuggestions,'
       + 'msImplicitSignin,msEdgeImplicitSignIn,msIdentityWebSignIn,SyncPromo,SigninInterceptBubble',
   ];
+  LAUNCHED.length = 0;
   for (const browser of candidates()) {
     const args = [...base];
     if (profileDir) {
@@ -104,7 +108,7 @@ function openBrowser(url, { appMode = true, profileDir = null } = {}) {
       child.on('error', () => { failed = true; });
       // spawn reports ENOENT asynchronously, so give it a moment before
       // deciding this browser worked.
-      if (!failed) return child;
+      if (!failed) { LAUNCHED.push(child); return child; }
     } catch {
       // try the next candidate
     }
@@ -113,4 +117,16 @@ function openBrowser(url, { appMode = true, profileDir = null } = {}) {
   return openWithDefault(url);
 }
 
-module.exports = { openBrowser };
+/**
+ * Close the window this vault opened, so its profile can be wiped before the
+ * process exits. Only windows this process launched are touched: the person's
+ * own browser, with their own tabs in it, is never a target.
+ */
+function closeBrowser() {
+  for (const child of LAUNCHED) {
+    try { process.kill(child.pid); } catch { /* already gone */ }
+  }
+  LAUNCHED.length = 0;
+}
+
+module.exports = { openBrowser, closeBrowser };

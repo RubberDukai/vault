@@ -652,6 +652,18 @@ async function renderSetup() {
         <p class="faint" style="margin:8px 0 0">Optional. A copy made for someone else starts blank, so your name does not travel with it.</p>
       </div>
 
+      <h2>Privacy</h2>
+      <div class="card">
+        <label class="checkbox-row">
+          <input type="checkbox" id="wipe-browser" ${STATUS?.wipeBrowser !== false ? 'checked' : ''}>
+          <span>Wipe the vault window's browsing history when the vault closes</span>
+        </label>
+        <p class="faint" style="margin:8px 0 0">The vault opens in a browser window with a profile of its own, kept inside the vault folder — nothing you read
+        here ever reaches your everyday browser. With this on, that profile's history, cache and session are deleted when the vault closes,
+        and again when it next starts in case the power went out. What you read, searched for and looked at on the map leaves no trace on the disk.
+        Your own settings — the theme, the colour, which person is selected, where the map was left — are kept, so nothing has to be chosen again.</p>
+      </div>
+
       ${byCategory.map((c) => `
         <h2>${esc(c.title)} <span class="faint" style="font-weight:400;font-size:13px">${c.items.length} · ${esc(humanGb(c.items.reduce((n, i) => n + i.size, 0)))}</span></h2>
         ${c.items.map((i) => {
@@ -765,6 +777,12 @@ async function renderSetup() {
 
     wireCatalogSearch();
     paintNetwork();
+    const wipeToggle = document.getElementById('wipe-browser');
+    if (wipeToggle) wipeToggle.onchange = async (e) => {
+      const { wipeBrowser } = await api('settings', { method: 'POST', body: { wipeBrowser: e.target.checked } });
+      if (STATUS) STATUS.wipeBrowser = wipeBrowser;
+    };
+
     const creditSave = document.getElementById('credit-save');
     if (creditSave) creditSave.onclick = async () => {
       const { credit } = await api('settings', { method: 'POST', body: { credit: document.getElementById('credit-name').value } });
