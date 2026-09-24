@@ -652,6 +652,21 @@ async function renderSetup() {
         <p class="faint" style="margin:8px 0 0">Optional. A copy made for someone else starts blank, so your name does not travel with it.</p>
       </div>
 
+      <h2>Where you are</h2>
+      <div class="card">
+        <div class="row" style="gap:8px;align-items:center;flex-wrap:wrap">
+          <input class="map-select" id="home-search" style="flex:1;min-width:220px" autocomplete="off"
+                 placeholder="a town or city, or -33.87, 151.21">
+          <button class="btn btn-sm" id="home-here">Use the map's centre</button>
+        </div>
+        <div id="home-results"></div>
+        <p class="faint" style="margin:8px 0 0" id="home-current"></p>
+        <p class="faint" style="margin:8px 0 0">Everything that depends on where you are stands on this: which stars are overhead and which way they turn,
+        when the sun rises and sets, how long the day is, when to expect the frosts, and where the map opens. A vault in Chile or New Zealand
+        needs this as much as one in Cheshire — in the southern hemisphere the sun is due north at noon, the seasons are reversed, and there
+        is no pole star. Set it once and it is remembered on the server, so every phone and laptop in the house agrees.</p>
+      </div>
+
       <h2>Privacy</h2>
       <div class="card">
         <label class="checkbox-row">
@@ -777,6 +792,8 @@ async function renderSetup() {
 
     wireCatalogSearch();
     paintNetwork();
+    setUpHomeSetting();
+
     const wipeToggle = document.getElementById('wipe-browser');
     if (wipeToggle) wipeToggle.onchange = async (e) => {
       const { wipeBrowser } = await api('settings', { method: 'POST', body: { wipeBrowser: e.target.checked } });
@@ -1630,11 +1647,15 @@ async function renderMaps(params) {
     }
   }
 
+  // With no saved view, open where the person said they live rather than in
+  // the middle of Britain.
+  const home = STATUS?.home;
+
   MAP = new VaultMap(canvas, {
     categories: colours,
-    lon: goTo?.lon ?? savedView?.lon,
-    lat: goTo?.lat ?? savedView?.lat,
-    zoom: goTo?.zoom ?? savedView?.zoom,
+    lon: goTo?.lon ?? savedView?.lon ?? home?.lon,
+    lat: goTo?.lat ?? savedView?.lat ?? home?.lat,
+    zoom: goTo?.zoom ?? savedView?.zoom ?? (home ? 11 : undefined),
     style: savedView?.style === 'dark' ? 'dark' : 'paper',
   });
   if (goTo) MAP.setMarker(goTo.lon, goTo.lat);
@@ -1850,7 +1871,11 @@ function setUpAlmanac() {
     const [y, m, d] = dateInput.value.split('-').map(Number);
     if (!y) return;
     const date = new Date(y, m - 1, d);
-    const { lat, lon } = MAP.centre;
+    // Sun and moon times are for where you are, not for wherever the map
+    // happens to be scrolled to — unless no home has been set, in which case
+    // the map is the best guess available.
+    const here = window.homePosition ? window.homePosition() : null;
+    const { lat, lon } = here && here.source === 'set' ? here : MAP.centre;
     const sun = A.sunTimes(date, lat, lon);
     const moon = A.moonPhase(date);
 
@@ -2729,6 +2754,92 @@ async function renderArticle(packId, articleUrl) {
 }
 
 // ----------------------------------------------------------------- search
+
+/**
+ * Setting where you live. A place name if the map packs know it, or plain
+ * coordinates, which is the only thing that always works — a vault taken
+ * somewhere the installed maps do not cover still has to be able to say
+ * where it is.
+ */
+function setUpHomeSetting() {
+  const input = document.getElementById('home-search');
+  const results = document.getElementById('home-results');
+  const current = document.getElementById('home-current');
+  const useMap = document.getElementById('home-here');
+  if (!input) return;
+
+  const show = () => {
+    const home = STATUS?.home;
+    current.innerHTML = home
+      ? `Now set to <strong>${esc(home.name || `${home.lat.toFixed(3)}, ${home.lon.toFixed(3)}`)}</strong>
+         — ${home.lat.toFixed(4)}, ${home.lon.toFixed(4)} (${home.lat >= 0 ? 'northern' : 'southern'} hemisphere).
+         <a href="#" id="home-clear">Clear</a>`
+      : 'Not set. Sun, moon and star times are being worked out for the middle of Britain until you set it.';
+    const clear = document.getElementById('home-clear');
+    if (clear) clear.onclick = async (e) => {
+      e.preventDefault();
+      const { home: saved } = await api('settings', { method: 'POST', body: { home: null } });
+      if (STATUS) STATUS.home = saved;
+      show();
+    };
+  };
+
+  const save = async (lat, lon, name) => {
+    const { home: saved } = await api('settings', { method: 'POST', body: { home: { lat, lon, name } } });
+    if (STATUS) STATUS.home = saved;
+    results.innerHTML = '';
+    input.value = '';
+    show();
+  };
+
+  let timer = null;
+  input.oninput = () => {
+    clearTimeout(timer);
+    const query = input.value.trim();
+    if (!query) { results.innerHTML = ''; return; }
+
+    // Coordinates typed straight in, which works anywhere on Earth.
+    const pair = query.match(/^\s*(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)\s*$/);
+    if (pair) {
+      const lat = Number(pair[1]);
+      const lon = Number(pair[2]);
+      const valid = lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180;
+      results.innerHTML = valid
+        ? `<p style="margin:8px 0 0"><a href="#" id="home-coords">Use ${lat}, ${lon}</a> — ${lat >= 0 ? 'northern' : 'southern'} hemisphere</p>`
+        : '<p class="faint" style="margin:8px 0 0">Latitude must be between −90 and 90, longitude between −180 and 180.</p>';
+      const link = document.getElementById('home-coords');
+      if (link) link.onclick = (e) => { e.preventDefault(); save(lat, lon, ''); };
+      return;
+    }
+
+    timer = setTimeout(async () => {
+      const data = await api(`maps/places?q=${encodeURIComponent(query)}&limit=8`);
+      if (!data.ready) {
+        results.innerHTML = '<p class="faint" style="margin:8px 0 0">No place index yet — type coordinates instead, or open the Maps page once to build it.</p>';
+        return;
+      }
+      results.innerHTML = (data.results || []).length
+        ? `<div class="row" style="gap:6px;flex-wrap:wrap;margin-top:8px">${data.results.map((r, i) =>
+            `<button class="btn btn-sm home-pick" data-i="${i}">${esc(r.name)}<span class="faint"> · ${esc(r.kind || '')}</span></button>`).join('')}</div>`
+        : '<p class="faint" style="margin:8px 0 0">No match in the installed maps. Type coordinates instead.</p>';
+      for (const button of results.querySelectorAll('.home-pick')) {
+        button.onclick = () => {
+          const place = data.results[Number(button.dataset.i)];
+          save(place.lat, place.lon, place.name);
+        };
+      }
+    }, 200);
+  };
+
+  if (useMap) useMap.onclick = () => {
+    let view = null;
+    try { view = JSON.parse(localStorage.getItem('vault.mapView') || 'null'); } catch { view = null; }
+    if (view && Number.isFinite(view.lat)) save(view.lat, view.lon, '');
+    else results.innerHTML = '<p class="faint" style="margin:8px 0 0">Open the Maps page and move it to your home first.</p>';
+  };
+
+  show();
+}
 
 async function renderSearch(params) {
   const query = params.get('q') || '';

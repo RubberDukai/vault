@@ -27,13 +27,39 @@ function eventOn(event, day) {
   }
 }
 
-/** Where "here" is: the last place the map was looking, or the middle of Britain. */
+/**
+ * Where "here" is.
+ *
+ * Everything that depends on where you are stands on this: which stars are
+ * above you, when the sun rises, which way is north at noon, when the frosts
+ * come. It is set once in Setup and kept on the server, so every device in
+ * the house agrees and a wiped browser does not lose it.
+ *
+ * Failing that, wherever the map was last left — which is at least somewhere
+ * the person has actually been looking — and failing that the middle of
+ * Britain, because a copy has to start somewhere. The last one is the only
+ * part that assumes anything, and Setup says so.
+ */
 function homePosition() {
+  const home = (typeof STATUS !== 'undefined' && STATUS && STATUS.home) || null;
+  if (home && Number.isFinite(home.lat) && Number.isFinite(home.lon)) {
+    return { lat: home.lat, lon: home.lon, name: home.name || '', source: 'set' };
+  }
   try {
     const v = JSON.parse(localStorage.getItem('vault.mapView') || 'null');
-    if (v && Number.isFinite(v.lat) && Number.isFinite(v.lon)) return { lat: v.lat, lon: v.lon, fromMap: true };
+    if (v && Number.isFinite(v.lat) && Number.isFinite(v.lon)) {
+      return { lat: v.lat, lon: v.lon, name: '', source: 'map', fromMap: true };
+    }
   } catch { /* fall through */ }
-  return { lat: 54.0, lon: -2.0, fromMap: false };
+  return { lat: 54.0, lon: -2.0, name: '', source: 'default', fromMap: false };
+}
+
+/** How to say where these times are worked out for, and whether to trust it. */
+function describeHome(home) {
+  const coords = `${home.lat.toFixed(2)}, ${home.lon.toFixed(2)}`;
+  if (home.source === 'set') return home.name ? `${home.name} (${coords})` : coords;
+  if (home.source === 'map') return `${coords} — where the map was left. Set where you live in Setup › Where you are.`;
+  return 'the middle of Britain, because nowhere has been set. Setup › Where you are.';
 }
 
 let CAL = null;
@@ -69,9 +95,7 @@ async function renderCalendar() {
   const title = document.getElementById('cal-title');
   const where = document.getElementById('cal-where');
   const home = homePosition();
-  where.textContent = home.fromMap
-    ? `${home.lat.toFixed(2)}, ${home.lon.toFixed(2)} (where the map was left)`
-    : 'the middle of Britain — move the map to your home and this follows';
+  where.textContent = describeHome(home);
 
   const today = new Date();
 
@@ -1002,3 +1026,5 @@ window.renderMusic = renderMusic;
 window.renderTools = renderTools;
 window.vaultAudio = { ensureAudio, playNote, beep, click };
 window.vaultCalc = { calculate };
+window.homePosition = homePosition;
+window.describeHome = describeHome;

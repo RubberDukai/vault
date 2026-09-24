@@ -100,6 +100,11 @@ class ArkServer {
       // searched, and nothing here is worth leaving behind. The app's own
       // settings survive it.
       wipeBrowser: true,
+      // Where this vault is. Everything that depends on where you are stands
+      // on this: the night sky, sunrise and sunset, the seasons, the compass
+      // and where the map opens. Null until it is set, and a vault set up in
+      // Chile must work as well as one in Cheshire.
+      home: null, // { lat, lon, name }
     });
 
     // Map annotations live server-side rather than in a browser, so a route
@@ -284,6 +289,24 @@ class ArkServer {
     } catch (err) {
       console.error('[vault] place vocabulary failed:', err.message);
     }
+  }
+
+  /**
+   * A home position, or null. Kept on the server rather than in a browser so
+   * that every device in the house agrees where "here" is, and so it survives
+   * the browser profile being wiped.
+   */
+  validHome(home) {
+    if (!home || typeof home !== 'object') return null;
+    const lat = Number(home.lat);
+    const lon = Number(home.lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+    if (lat < -90 || lat > 90 || lon < -180 || lon > 180) return null;
+    return {
+      lat: Math.round(lat * 1e5) / 1e5,
+      lon: Math.round(lon * 1e5) / 1e5,
+      name: typeof home.name === 'string' ? home.name.trim().slice(0, 80) : '',
+    };
   }
 
   /** Whether the launcher should wipe the vault window's profile. Default on. */
@@ -679,7 +702,16 @@ class ArkServer {
       const body = await this.readBody(req);
       if (typeof body.credit === 'string') this.state.update((s) => { s.credit = body.credit.trim().slice(0, 120); });
       if (typeof body.wipeBrowser === 'boolean') this.state.update((s) => { s.wipeBrowser = body.wipeBrowser; });
-      return this.json(res, 200, { credit: this.state.get().credit || '', wipeBrowser: this.wipeBrowserProfile() });
+      if (body.home !== undefined) {
+        const home = this.validHome(body.home);
+        if (body.home !== null && !home) return this.json(res, 400, { error: 'A latitude between -90 and 90 and a longitude between -180 and 180 are needed.' });
+        this.state.update((s) => { s.home = home; });
+      }
+      return this.json(res, 200, {
+        credit: this.state.get().credit || '',
+        wipeBrowser: this.wipeBrowserProfile(),
+        home: this.state.get().home || null,
+      });
     }
 
     if (route === 'network/share' && method === 'POST') {
@@ -706,6 +738,7 @@ class ArkServer {
         libraryDir: this.pathFor(req, this.libraryDir),
         credit: this.state.get().credit || '',
         wipeBrowser: this.wipeBrowserProfile(),
+        home: this.state.get().home || null,
         packs: packs.length,
         packsOk: packs.filter((p) => p.ok).length,
         librarySize: humanBytes(packs.reduce((n, p) => n + (p.size || 0), 0)),

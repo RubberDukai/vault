@@ -231,7 +231,9 @@ function renderSky(root) {
         </div>
         <label class="checkbox-row" style="font-size:13px"><input type="checkbox" id="sky-lines" ${SCI_STATE.lines ? 'checked' : ''}><span>Constellation lines</span></label>
         <label class="checkbox-row" style="font-size:13px;margin-bottom:8px"><input type="checkbox" id="sky-names" ${SCI_STATE.names ? 'checked' : ''}><span>Names</span></label>
-        <p class="faint" style="margin:0 0 10px">For ${home.lat.toFixed(2)}, ${home.lon.toFixed(2)}${home.fromMap ? ' — where the map was left' : ' — move the map to your home and this follows'}. Hold it over your head: north at the top, east on the left, as the sky is when you look up.</p>
+        <p class="faint" style="margin:0 0 10px">The sky over ${esc(window.describeHome ? window.describeHome(home) : `${home.lat.toFixed(2)}, ${home.lon.toFixed(2)}`)}
+        ${home.lat < 0 ? ' — southern hemisphere, so the sky turns the other way and the Cross replaces the Plough' : ''}.
+        Hold it over your head: north at the top, east on the left, as the sky is when you look up.</p>
         <div id="sky-list"></div>
         <details style="margin-top:10px"><summary class="faint">Finding your way by it</summary>
           <p class="faint">Polaris sits almost exactly over the north pole: its bearing is north and its height above the horizon is your latitude. Find it from the Plough — the two stars at the end of the bowl point to it. In the south there is no pole star: the long axis of the Southern Cross, extended four and a half times, marks the pole. Orion's belt rises due east and sets due west everywhere on Earth. Positions here are good to about half a degree.</p>
