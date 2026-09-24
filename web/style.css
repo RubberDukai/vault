@@ -3,6 +3,9 @@
    scanlines, glow and a slow flicker, with a switchable screen colour. */
 
 :root {
+  /* Tells the browser to draw its own widgets dark, which matters for
+     form controls and for the scrollbar before ours takes over. */
+  color-scheme: dark;
   --radius: 10px;
   --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -35,6 +38,7 @@
 /* ----------------------------------------------------------------- light */
 
 [data-theme="light"] {
+  color-scheme: light;
   --bg: #f6f3ec;
   --bg-raised: #fffdf8;
   --bg-sunken: #ebe6db;
@@ -986,3 +990,28 @@ details.answers[open] > summary::after { content: ""; }
 .result-best-kind { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-faint); margin-bottom: 2px; }
 .result-best strong { display: block; font-size: 19px; margin-bottom: 2px; }
 .did-you-mean { margin: -6px 0 14px; font-size: 15px; }
+
+/* --- scrollbars ---------------------------------------------------------
+   Left alone, every scrollbar is the operating system's own — a white bar
+   down the side of a black phosphor terminal, which breaks the illusion
+   more than anything else on the page. These follow the theme instead. */
+* { scrollbar-color: var(--border-bright) transparent; scrollbar-width: thin; }
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--bg-sunken); }
+::-webkit-scrollbar-thumb {
+  background: var(--border-bright);
+  border-radius: 6px;
+  /* An inset border keeps the thumb clear of the track edges. */
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); background-clip: content-box; }
+::-webkit-scrollbar-corner { background: var(--bg-sunken); }
+/* The phosphor themes get a glowing thumb, like everything else there. */
+[data-theme="terminal"] ::-webkit-scrollbar-thumb { background: var(--phosphor-faint); background-clip: content-box; }
+[data-theme="terminal"] ::-webkit-scrollbar-thumb:hover { background: var(--phosphor); background-clip: content-box; }
+
+/* A black key is narrow, so its note name is set smaller and tighter — but
+   it is there: knowing you are pressing F# matters more than the fact that
+   the computer calls it "R". */
+.piano-key.black .piano-note { font-size: 9px; letter-spacing: -0.3px; padding-bottom: 2px; }

@@ -113,7 +113,8 @@ window.vaultSky = { altAz, planetPosition, moonPosition, gmst };
 
 let SCI_STATE = null;
 try { SCI_STATE = JSON.parse(localStorage.getItem('vault.science') || 'null'); } catch { SCI_STATE = null; }
-if (!SCI_STATE) SCI_STATE = { tab: 'sky', lines: true, names: true, element: 26 };
+if (!SCI_STATE) SCI_STATE = { tab: 'sky', lines: true, names: true, constellations: true, element: 26 };
+if (SCI_STATE.constellations === undefined) SCI_STATE.constellations = true;
 const saveSci = () => { try { localStorage.setItem('vault.science', JSON.stringify(SCI_STATE)); } catch { /* fine */ } };
 
 async function renderScience(params) {
@@ -230,7 +231,9 @@ function renderSky(root) {
           <span class="mono" id="sky-time-label">00:00</span>
         </div>
         <label class="checkbox-row" style="font-size:13px"><input type="checkbox" id="sky-lines" ${SCI_STATE.lines ? 'checked' : ''}><span>Constellation lines</span></label>
-        <label class="checkbox-row" style="font-size:13px;margin-bottom:8px"><input type="checkbox" id="sky-names" ${SCI_STATE.names ? 'checked' : ''}><span>Names</span></label>
+        <label class="checkbox-row" style="font-size:13px"><input type="checkbox" id="sky-names" ${SCI_STATE.names ? 'checked' : ''}><span>Star and planet names</span></label>
+        <label class="checkbox-row" style="font-size:13px;margin-bottom:8px"><input type="checkbox" id="sky-constellations" ${SCI_STATE.constellations ? 'checked' : ''}><span>Constellation names</span></label>
+        <div class="card" id="sky-moon" style="padding:10px 12px;margin-bottom:10px"></div>
         <p class="faint" style="margin:0 0 10px">The sky over ${esc(window.describeHome ? window.describeHome(home) : `${home.lat.toFixed(2)}, ${home.lon.toFixed(2)}`)}
         ${home.lat < 0 ? ' — southern hemisphere, so the sky turns the other way and the Cross replaces the Plough' : ''}.
         Hold it over your head: north at the top, east on the left, as the sky is when you look up.</p>
@@ -327,6 +330,42 @@ function renderSky(root) {
       }
     }
 
+    // Constellation names, written across the middle of each shape.
+    //
+    // Only where enough of the figure is actually up: half a constellation
+    // rising over the horizon should not be labelled as though it were
+    // overhead, and a name floating on its own teaches nothing.
+    if (SCI_STATE.constellations) {
+      ctx.font = '600 11px system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const taken = [];
+      for (const [abbr, chains] of Object.entries(CONSTELLATION_LINES)) {
+        const members = new Set(chains.flat());
+        let sx = 0; let sy = 0; let n = 0; let lowest = 90;
+        for (const star of members) {
+          const pos = positions.get(star);
+          if (!pos || pos.alt < 3) continue;
+          const { x, y } = project(pos.alt, pos.az);
+          sx += x; sy += y; n++;
+          lowest = Math.min(lowest, pos.alt);
+        }
+        if (n < Math.max(2, Math.ceil(members.size * 0.6))) continue;
+
+        const x = sx / n;
+        const y = sy / n;
+        // Do not stack one name on another.
+        if (taken.some((t) => Math.abs(t.x - x) < 60 && Math.abs(t.y - y) < 16)) continue;
+        taken.push({ x, y });
+
+        // The long form carries the English name — "Ursa Major — the Plough" —
+        // which is the half people actually recognise.
+        const full = CONSTELLATION_NAMES[abbr] || abbr;
+        ctx.fillStyle = `rgba(150, 180, 230, ${0.75 * starVisibility})`;
+        ctx.fillText(full, x, y);
+      }
+    }
+
     // Planets, the Moon, the Sun.
     const bodies = [];
     for (const name of Object.keys(PLANET_STYLE)) {
@@ -348,6 +387,31 @@ function renderSky(root) {
       if (b.name === 'Moon' && b.glyph) { ctx.font = '13px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(b.glyph, x, y); }
       if (SCI_STATE.names) { ctx.fillStyle = b.style.colour; ctx.font = '600 11px system-ui, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(b.name, x + b.style.size + 3, y - 6); }
       placed.push({ x, y, label: b.name, sub: b.name === 'Moon' && phase ? `${phase.name}, ${Math.round(phase.illumination * 100)}% lit` : 'planet', alt: b.alt, az: b.az });
+    }
+
+    // The moon, on its own, because it is the one thing up there that
+    // changes what you can do: a full moon is enough to walk, work or move
+    // stock by, and a new moon is why the stars look the way they do tonight.
+    const moonBox = document.getElementById('sky-moon');
+    if (moonBox && phase) {
+      const lit = Math.round(phase.illumination * 100);
+      const days = (d) => Math.max(0, Math.round((d - date) / 86400000));
+      const useful = lit >= 85 ? 'Bright enough to walk or work outside without a light.'
+        : lit >= 45 ? 'Enough light to find your way on open ground.'
+        : lit >= 15 ? 'Little use as a light, but the stars are good.'
+        : 'Darkest skies of the month — the best nights for stars.';
+      moonBox.innerHTML = `
+        <div class="row" style="gap:10px;align-items:center">
+          <span style="font-size:26px;line-height:1">${phase.glyph}</span>
+          <div>
+            <strong>${esc(phase.name)}</strong>
+            <div class="faint" style="font-size:12px">${lit}% lit${moonPos.alt > 0 ? ` · up, ${moonPos.alt.toFixed(0)}° high` : ' · below the horizon'}</div>
+          </div>
+        </div>
+        <p class="faint" style="margin:8px 0 0;font-size:12px">${useful}</p>
+        ${phase.nextFull && phase.nextNew ? `<p class="faint" style="margin:6px 0 0;font-size:12px">
+          Full in ${days(phase.nextFull)} day${days(phase.nextFull) === 1 ? '' : 's'} ·
+          new in ${days(phase.nextNew)} day${days(phase.nextNew) === 1 ? '' : 's'}</p>` : ''}`;
     }
 
     // The list beside the chart.
@@ -373,6 +437,7 @@ function renderSky(root) {
   document.getElementById('sky-now').onclick = () => { const n = new Date(); dateInput.value = iso(n); timeInput.value = n.getHours() * 60 + n.getMinutes(); follow = true; draw(); };
   document.getElementById('sky-lines').onchange = (e) => { SCI_STATE.lines = e.target.checked; saveSci(); draw(); };
   document.getElementById('sky-names').onchange = (e) => { SCI_STATE.names = e.target.checked; saveSci(); draw(); };
+  document.getElementById('sky-constellations').onchange = (e) => { SCI_STATE.constellations = e.target.checked; saveSci(); draw(); };
   const clock = setInterval(() => {
     if (!document.getElementById('sky')) { clearInterval(clock); return; }
     if (follow) { const n = new Date(); timeInput.value = n.getHours() * 60 + n.getMinutes(); draw(); }

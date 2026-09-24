@@ -433,7 +433,7 @@ async function renderMusic() {
       const black = NOTE_NAMES[midi % 12].includes('#');
       const letter = Object.entries(KEY_TO_SEMITONE).find(([, semi]) => semi === i)?.[0];
       keys.push(`<button class="piano-key ${black ? 'black' : 'white'}" data-midi="${midi}" title="${midiName(midi)}">
-        <span class="piano-note">${black ? '' : midiName(midi)}</span>${letter ? `<span class="piano-letter">${letter.toUpperCase()}</span>` : ''}
+        <span class="piano-note">${midiName(midi)}</span>${letter ? `<span class="piano-letter">${letter.toUpperCase()}</span>` : ''}
       </button>`);
     }
     piano.innerHTML = keys.join('');

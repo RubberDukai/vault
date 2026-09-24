@@ -31,6 +31,10 @@ class Chess {
     this.halfmove = 0;
     this.history = [];       // { san, from, to, captured }
     this.snapshots = [];     // for undo
+    // Chess has no forced multi-jump. It is set anyway because the board
+    // interface asks both games the same question, and an undefined answer
+    // read as "yes, mid-jump" made every chess piece unselectable.
+    this.mustContinue = null;
   }
 
   static startBoard() {
@@ -506,7 +510,7 @@ async function renderGames(params) {
     if (status.over) {
       line = status.result === 'draw' ? `Draw — ${status.reason}.` : `${status.result === 'w' ? 'White' : 'Black'} wins — ${status.reason}.`;
     } else if (thinking) line = 'The machine is thinking…';
-    else line = `${turnName} to move${status.check ? ' — check!' : ''}${game.mustContinue !== null ? ' — keep jumping' : ''}`;
+    else line = `${turnName} to move${status.check ? ' — check!' : ''}${game.mustContinue != null ? ' — keep jumping' : ''}`;
 
     const moves = kind === 'chess'
       ? game.history.map((h, i) => (i % 2 === 0 ? `<span class="mv-no">${i / 2 + 1}.</span> ` : '') + `<span class="mv">${esc(h.san)}</span> `).join('')
@@ -568,14 +572,14 @@ async function renderGames(params) {
       }
       game.apply(move);
       lastMove = { from: move.from, to: move.to };
-      selected = game.mustContinue !== null ? move.to : null;
+      selected = game.mustContinue != null ? move.to : null;
       storeGame(kind, game);
       paintBoard();
       maybeMachine();
       return;
     }
     const piece = game.board[i];
-    if (piece && piece[0] === game.turn && (game.mustContinue === null || game.mustContinue === i)) selected = selected === i ? null : i;
+    if (piece && piece[0] === game.turn && (game.mustContinue == null || game.mustContinue === i)) selected = selected === i ? null : i;
     else selected = null;
     paintBoard();
   };
@@ -595,7 +599,7 @@ async function renderGames(params) {
       lastMove = { from: move.from, to: move.to };
       storeGame(kind, game);
       paintBoard();
-      if (game.mustContinue !== null) maybeMachine(); // a multi-jump continues
+      if (game.mustContinue != null) maybeMachine(); // a multi-jump continues
     }, 120);
   };
 

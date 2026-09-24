@@ -984,6 +984,8 @@ class VaultMap {
     // dropped — otherwise a city at close zoom is unreadable.
     this._labelBoxes = [];
     if ((this.showPoi || this.showLabels) && !this._interacting) {
+      // Places first, so a city claims its space before a hamlet can.
+      if (this.showLabels) this._drawPlaceNames(visible, tz, tilePx);
       for (const tile of visible) {
         const data = this._tiles.get(`${tz}/${tile.tx}/${tile.ty}`);
         if (data) this._drawOverlayFeatures(data, tile.px, tile.py, tilePx);
@@ -1589,31 +1591,6 @@ class VaultMap {
     const ctx = this.ctx;
     const style = this.style;
 
-    // Place names take priority over everything else for label space.
-    if (this.showLabels && data.places) {
-      ctx.font = '600 12px system-ui, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      for (const feature of data.places) {
-        if (!feature.n || feature.t !== POINT) continue;
-        if (!this._visibleAtZoom(feature)) continue;
-        const point = feature.g[0]?.[0];
-        if (!point) continue;
-        const x = px + point[0] * size;
-        const y = py + point[1] * size;
-        if (x < 0 || x > this.width || y < 0 || y > this.height) continue;
-
-        const width = ctx.measureText(feature.n).width;
-        if (!this._claimLabelSpace(x, y, width + 8, 15)) continue;
-
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = style.layers.labelHalo;
-        ctx.strokeText(feature.n, x, y);
-        ctx.fillStyle = style.layers.label;
-        ctx.fillText(feature.n, x, y);
-      }
-    }
-
     // Heights on the index contours, close in, where a walker wants them.
     if (this.showLabels && data.contours && this.zoom >= 13.5) {
       ctx.font = '10px system-ui, sans-serif';
@@ -1687,6 +1664,87 @@ class VaultMap {
           ctx.fillText(feature.n, x, y + 14);
         }
       }
+    }
+  }
+
+  /**
+   * Place names, biggest and first.
+   *
+   * These used to be drawn tile by tile in whatever order the tiles came
+   * back, all at one size — so a hamlet could claim the space a city needed
+   * and London could lose its name to Chipping Ongar. Every visible place is
+   * now gathered first, sorted by how important the map data says it is, and
+   * drawn in that order at a size to match, so the eye finds the big places
+   * without reading anything.
+   */
+  _drawPlaceNames(visible, tz, tilePx) {
+    const ctx = this.ctx;
+    const style = this.style;
+
+    // The pack's own importance number: lower means "show me sooner". Dublin
+    // is 4, a market town 8, a village 10. It is the best signal there is,
+    // because it was set from population when the map was built.
+    const KIND = {
+      country: { size: 15, weight: 700, caps: true, spacing: 1.5, dot: 0 },
+      region: { size: 13, weight: 600, caps: true, spacing: 0.8, dot: 0 },
+      city: { size: 15, weight: 700, caps: false, spacing: 0, dot: 3.5 },
+      town: { size: 13, weight: 600, caps: false, spacing: 0, dot: 2.5 },
+      village: { size: 11.5, weight: 400, caps: false, spacing: 0, dot: 2 },
+      hamlet: { size: 10.5, weight: 400, caps: false, spacing: 0, dot: 1.5 },
+    };
+    const fallback = { size: 11, weight: 400, caps: false, spacing: 0, dot: 1.5 };
+
+    const found = [];
+    for (const tile of visible) {
+      const data = this._tiles.get(`${tz}/${tile.tx}/${tile.ty}`);
+      if (!data || !data.places) continue;
+      for (const feature of data.places) {
+        if (!feature.n || feature.t !== POINT) continue;
+        if (!this._visibleAtZoom(feature)) continue;
+        const point = feature.g[0]?.[0];
+        if (!point) continue;
+        const x = tile.px + point[0] * tilePx;
+        const y = tile.py + point[1] * tilePx;
+        if (x < 0 || x > this.width || y < 0 || y > this.height) continue;
+        found.push({ name: feature.n, x, y, spec: KIND[feature.d] || fallback, rank: feature.z ?? 99 });
+      }
+    }
+
+    // Most important first, so the important ones get the space.
+    found.sort((a, b) => a.rank - b.rank || b.spec.size - a.spec.size);
+
+    const seen = new Set();
+    for (const place of found) {
+      if (seen.has(place.name)) continue; // the same town in two tiles
+      seen.add(place.name);
+
+      const spec = place.spec;
+      const text = spec.caps ? place.name.toUpperCase() : place.name;
+      ctx.font = `${spec.weight} ${spec.size}px system-ui, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.letterSpacing = `${spec.spacing}px`;
+
+      const width = ctx.measureText(text).width;
+      const ty = spec.dot ? place.y - spec.size * 0.8 : place.y;
+      if (!this._claimLabelSpace(place.x, ty, width + 8, spec.size + 4)) { ctx.letterSpacing = '0px'; continue; }
+
+      if (spec.dot) {
+        ctx.beginPath();
+        ctx.arc(place.x, place.y, spec.dot, 0, Math.PI * 2);
+        ctx.fillStyle = style.layers.label;
+        ctx.strokeStyle = style.layers.labelHalo;
+        ctx.lineWidth = 1.5;
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = style.layers.labelHalo;
+      ctx.strokeText(text, place.x, ty);
+      ctx.fillStyle = style.layers.label;
+      ctx.fillText(text, place.x, ty);
+      ctx.letterSpacing = '0px';
     }
   }
 
