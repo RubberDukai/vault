@@ -1490,7 +1490,14 @@ async function renderMaps(params) {
   setBusy('Loading maps…');
   const { packs, categories, mapsDir } = await api('maps');
 
-  const vectorPacks = packs.filter((p) => p.ok !== false && p.kind === 'vector');
+  // Offline maps first, and the one online source last and labelled. The
+  // remote planet is a 45-byte pointer file, not a map on this disk: it is
+  // there for the rare case of having the internet and wanting the whole
+  // world at street detail, and it is the only thing in the vault that needs
+  // a connection.
+  const localVectors = packs.filter((p) => p.ok !== false && p.kind === 'vector' && !p.remote);
+  const remoteVectors = packs.filter((p) => p.ok !== false && p.kind === 'vector' && p.remote);
+  const vectorPacks = [...localVectors, ...remoteVectors];
   const rasterPacks = packs.filter((p) => p.ok !== false && p.kind === 'raster' && !p.baselayer);
   const satellitePacks = packs.filter((p) => p.ok !== false && p.kind === 'raster' && p.baselayer);
   const terrainPacks = packs.filter((p) => p.ok !== false && p.kind === 'terrain');
@@ -1514,8 +1521,14 @@ async function renderMaps(params) {
       <div class="map-panel">
         <h3>Base map</h3>
         ${vectorPacks.length ? `<select id="map-base" class="map-select">
-          ${vectorPacks.map((p) => `<option value="${esc(p.id)}">${esc(p.title)} · ${esc(p.sizeHuman)}</option>`).join('')}
+          ${localVectors.map((p) => `<option value="${esc(p.id)}">${esc(p.title)} · ${esc(p.sizeHuman)}</option>`).join('')}
+          ${remoteVectors.length ? `<optgroup label="Needs the internet — not stored here">
+            ${remoteVectors.map((p) => `<option value="${esc(p.id)}">${esc(p.title)}</option>`).join('')}
+          </optgroup>` : ''}
         </select>` : '<p class="faint">None installed.</p>'}
+        <p class="faint" style="margin:6px 0 0">${localVectors.length} map${localVectors.length === 1 ? '' : 's'} on this disk, working with no connection at all.
+        More regions — the Americas, Africa, Asia, Australia — are on the <a href="#/setup">Setup</a> page: each one is cut out of the
+        world map and stored here, so it keeps working once it has been fetched.</p>
 
         <h3 style="margin-top:16px">Satellite</h3>
         ${satellitePacks.length ? `<select id="map-satellite" class="map-select">
