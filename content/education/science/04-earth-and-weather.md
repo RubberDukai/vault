@@ -77,3 +77,13 @@ Air is a mix: about four-fifths nitrogen, one-fifth oxygen, a little argon, and 
 5. Do the jar test on garden soil. What did you find? What would you add?
 6. Why is it summer in Australia when it is winter here? Why is the shortest day not the coldest?
 7. Keep the weather diary for a month. On how many days did a "sign" you noted correctly predict the next day?
+
+## Answers
+
+1. Look for: evaporation from sea and land, condensation into cloud, precipitation, run-off through streams and rivers, back to the sea, and a loop through the ground as well. Drinking water is taken from the run-off or the groundwater; waste water re-enters the same system, which is the whole argument for putting the latrine downhill and well away from the well.
+2. Air forced up over the mountains cools, cannot hold its water, and rains on the way up; it descends the far side dry. In Britain the wet westerly wind off the Atlantic hits the western hills, so **the west is wet and the east is in the rain shadow**.
+3. Cloud acts as a blanket, absorbing the heat radiating from the ground and sending much of it back down. With a clear sky that heat escapes straight out, so the ground cools much faster — which is why frost comes on clear nights.
+4. Red sunset with a westerly wind usually means clear, dry air approaching from the west, so a fine day is likely. Worth saying: this is a rule of thumb for these latitudes with prevailing westerlies, and it is often wrong — which is why the weather diary in exercise 7 is the real lesson.
+5. No fixed answer. In a jar of soil shaken with water and left to settle, sand falls first, then silt, then clay, with organic matter floating. Mostly sand — add compost and manure to hold water and goodness. Mostly clay — add grit, compost and lime to open it up. Look for the proportions and a sensible conclusion, not a particular soil.
+6. The Earth's 23.5° tilt keeps pointing the same way all year, so when the northern half leans towards the sun the southern half leans away. The shortest day is not the coldest because the ground and the sea are still giving up the heat they stored in summer; the coldest weeks come four to six weeks later, once that store has run down. (The same lag makes the hottest days come after midsummer.)
+7. No fixed answer, and the number matters less than keeping the diary. Most people find their local signs are right more often than chance and well short of always — which is exactly the right attitude to a weather forecast.

@@ -72,3 +72,11 @@ This is how knowledge accumulates across seasons and across generations. Weather
 3. You notice plants near the compost heap grow taller. List three possible explanations besides the compost.
 4. Design an experiment to find which of three firewood types burns longest. What must you keep the same?
 5. Your experiment gives the opposite result to what you expected. What should you do, and what should you not do?
+
+## Answers
+
+1. E.g. *"Do bean plants grown in soil with compost yield more than the same beans in the same soil without it?"* — two beds, same seed, same water, same light, compost the only difference. *"Does water from the river cause illness when drunk untreated?"* is not a test you may ethically run: instead test the water itself against a known-clean sample, or compare households who boil with households who do not. *"Do headaches go away faster with this herb than without it?"* — same person, same kind of headache, alternate occasions, and ideally someone else recording who does not know which was taken.
+2. Most colds go in about three days anyway, so there is nothing to compare against — no control. One person is also a sample of one, and they knew what they had taken, which changes what they report. Better: many people, half taking it and half not, allocated by chance, with the recording done by someone who does not know which is which.
+3. More light at the edge of the plot; more water draining towards the heap; warmth from the heap itself; the ground was dug or disturbed there; seeds from the heap were stronger varieties; you simply notice the tall ones there more.
+4. Same size and shape of piece, same dryness (weigh them, or dry them the same way), same starting fire, same airflow and container, same weather. Measure the time to burn out, or the heat delivered; repeat at least three times per wood, because one run tells you very little.
+5. Do: check the method for a mistake, repeat it, then believe the result and write it down. Do not: quietly drop it, repeat it until you get the answer you wanted, or change what you were measuring afterwards. An unexpected result is the most valuable kind, because it is the only kind that teaches you something you did not already think.

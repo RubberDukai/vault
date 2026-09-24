@@ -23,7 +23,9 @@ function parseFrontmatter(raw) {
       value = value.slice(1, -1).split(',').map((s) => s.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
     } else {
       value = value.replace(/^["']|["']$/g, '');
-      if (/^\d+$/.test(value)) value = Number(value);
+      // Whole numbers and decimals alike: lesson orders are written 1, 1.5,
+      // 2.3 and a string there sorts by luck rather than by value.
+      if (/^-?\d+(\.\d+)?$/.test(value)) value = Number(value);
     }
     meta[kv[1]] = value;
   }

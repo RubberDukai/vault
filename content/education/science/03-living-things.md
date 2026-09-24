@@ -83,3 +83,13 @@ Most fruit and seed crops need pollen carried from one flower to another, and **
 5. Why do we boil water rather than just filtering it? Why do we filter rather than just boiling?
 6. Explain, in terms of cells, why a fever is not a bad thing in itself.
 7. A gardener saves seed only from her tallest bean plants, every year for ten years. What happens to her beans, and why?
+
+## Answers
+
+1. Water — drying. Food (sugars) — there is no way to remove it, so it is denied to microbes instead by fermenting, which turns it to acid or alcohol. Warmth — chilling, freezing, a cold cellar. Oxygen — sealing, canning, submerging in brine or oil. A tolerable acidity — pickling in vinegar. Salting and smoking work mainly by removing water and adding what microbes cannot live in.
+2. E.g. sun → grass → cow → milk → you; or sun → wheat → you. The energy started as sunlight, captured by a plant.
+3. Turning lets air in. The microbes that break down a heap fastest need oxygen, and they use it up in the middle; turning also moves the cool outside to the hot centre, so everything is broken down rather than just the middle.
+4. Roughly **ten people**, perhaps fewer. Most of the energy in the wheat is used by the cattle for living, moving and keeping warm, and is lost as heat — only about a tenth reaches the next step of a food chain.
+5. Boiling kills microbes but leaves dirt, sediment and anything dissolved; filtering removes the dirt and some microbes but not all of them, and not viruses. Doing both, in that order — filter, then boil — is why the two are taught together.
+6. A fever is the body raising its own temperature on purpose, because most microbes breed best at normal body temperature and are slowed by heat, while the immune cells work faster warm. It is the defence, not the disease. (A very high or prolonged fever is still dangerous in itself, especially in the very young and very old — see the Handbook.)
+7. Her beans get taller, generation by generation. The tallest plants pass on the versions of their genes that made them tall, so those versions become commoner each year. It is artificial selection, and it is the same process as natural selection with the gardener doing the choosing — though selecting hard for one thing alone can lose others, such as flavour or yield, so it is better to select from several good plants than one.

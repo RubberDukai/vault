@@ -72,3 +72,12 @@ Count how many double-steps (left foot each time) you take over a measured 100 m
 4. Draw a map of your house and garden, from above, with a scale bar and a north arrow. Give it to someone and ask them to find a hidden object using only the map.
 5. Orient the map outside and identify three landmarks. Then, from a different spot, do it again. Could you tell where you had moved to?
 6. Explain, in one sentence, why a stream on the map tells you where the low ground is.
+
+## Answers
+
+1. 6 × 25,000 = 150,000 cm = **1.5 km**.
+2. No fixed answer. On a 1:25,000 map, an estimate from the scale bar should be within about 10% of the measured figure; a bigger gap usually means the scale bar was read from the wrong end or the route was measured straight-line while the walk is not.
+3. No fixed answer. Check they wrote latitude first and longitude second, with north/south and east/west (or a sign), and enough decimal places to be useful — three decimal places is about 100 m.
+4. Look for: a scale bar, a north arrow, a plan view from above rather than a picture from the side, and enough fixed features (walls, doors, trees) to locate anything by. The test is whether the other person finds the object.
+5. Orienting means turning the map until its north matches real north, so everything on the paper lies in the direction it really lies. From a second spot the same landmarks appear in different directions, and where the lines back from two or three of them cross is where you are — that is a resection, and yes, it tells you where you have moved to.
+6. Water runs downhill, so a stream marks the lowest line of its valley — which also means the contours around it point uphill, back upstream.

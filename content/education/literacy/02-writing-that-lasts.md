@@ -56,6 +56,17 @@ That last one is a safety rule, not a style rule. A warning that appears after t
 5. Write instructions for something you know well and someone else does not. Have them do it while you stay silent.
 6. Write a letter to be read in twenty years by someone who does not know you. Explain one thing you think is worth knowing.
 
+## Answers
+
+These are all pieces of writing rather than questions with one right answer, so mark them against what the writing had to *do*.
+
+1. It works when the other person makes the tea without asking you anything and without guessing. Every hesitation is a fault in the instructions, not in them. Expect three or four rewrites — that is the lesson.
+2. Look for: the date, the weather, what was actually done (not "the usual"), quantities with units, and one honest line about what did not work. A record that only lists successes is worth much less in a year.
+3. For the six-year-old: short sentences, no technical words, one idea at a time. For the twenty words: count them exactly. The discipline of an exact count is what teaches compression.
+4. Check it contains the job, the day, roughly how long it will take, what they would need to bring, and a way to say no. If the neighbour would have to write back to ask a question, it has failed.
+5. As with 1 — staying silent is the whole exercise. Note where they stopped, and fix those places.
+6. No fixed answer. Look for something concrete and true rather than general advice, and for enough context that a stranger in twenty years would understand it. Date it and keep it.
+
 ## Handwriting, and why it still matters
 
 Legible handwriting is a survival skill when there is no printer. Teach a plain, joined hand — speed comes from joining, legibility from consistent size and spacing.

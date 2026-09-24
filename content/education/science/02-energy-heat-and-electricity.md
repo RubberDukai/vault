@@ -82,3 +82,12 @@ The lamp's resistance = V ÷ I = 12 ÷ 2 = **6 ohms**.
 4. Three 1.5 V cells in series: what voltage? In parallel?
 5. Explain, using the three modes of heat transfer, why a vacuum flask works.
 6. A rocket stove burns clean and an open fire smokes. In terms of energy, what is the smoke?
+
+## Answers
+
+1. I = P ÷ V = 5 ÷ 12 = **0.42 A**. R = V ÷ I = 12 ÷ 0.42 = **about 29 Ω**.
+2. 12 × 100 = **1,200 Wh**; 90% usable is 1,080 Wh; 1,080 ÷ 380 = **about 2.8 days** of autonomy.
+3. 2,000 W × 3 h = **6,000 Wh** — nearly sixteen times the whole day's other use, and more than five times what the battery holds. Resistance heating is the one thing a small off-grid system cannot do; heat with fuel, and keep the electricity for light, radio and tools.
+4. In series: 4.5 V (the voltages add, the capacity does not). In parallel: 1.5 V, with three times the capacity.
+5. **Conduction** is stopped by the vacuum, which has no particles to pass heat along, and by the thin glass neck. **Convection** is stopped by the vacuum for the same reason — no air to circulate. **Radiation** is stopped by the silvered surfaces, which reflect heat back. The stopper stops the fourth route, which is the liquid itself evaporating away.
+6. Unburnt fuel. Smoke is fuel that left up the chimney without releasing its energy — so a smoky fire is both wasting wood and coating the flue in tar. A clean flame means the fuel is burning fully, which is why a rocket stove gets more heat from less wood.
