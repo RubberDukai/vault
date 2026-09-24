@@ -668,6 +668,7 @@ async function renderSetup() {
       </div>
 
       <h2>Privacy</h2>
+      <div class="card" id="lock-panel"><p class="faint">Checking…</p></div>
       <div class="card">
         <label class="checkbox-row">
           <input type="checkbox" id="wipe-browser" ${STATUS?.wipeBrowser !== false ? 'checked' : ''}>
@@ -793,6 +794,7 @@ async function renderSetup() {
     wireCatalogSearch();
     paintNetwork();
     setUpHomeSetting();
+    setUpLockSetting();
 
     const wipeToggle = document.getElementById('wipe-browser');
     if (wipeToggle) wipeToggle.onchange = async (e) => {
@@ -2841,6 +2843,129 @@ function setUpHomeSetting() {
   show();
 }
 
+/**
+ * Turning the PIN on and off, changing it, and writing down the phrase.
+ *
+ * The recovery phrase is shown exactly once, at the moment it is made. It is
+ * never stored anywhere in readable form, so there is no second chance to
+ * look at it — which the page says, twice, before anyone clicks away.
+ */
+// While the recovery phrase is on screen, nothing may redraw over it. The
+// Setup page refreshes itself every few seconds to follow the download queue,
+// and it wiped the one and only showing of the phrase before it could be
+// copied down.
+let SHOWING_PHRASE = false;
+
+async function setUpLockSetting({ force = false } = {}) {
+  const panel = document.getElementById('lock-panel');
+  if (!panel) return;
+  if (SHOWING_PHRASE && !force) return;
+  SHOWING_PHRASE = false;
+  const lock = await api('lock');
+
+  const showPhrase = (phrase, heading) => {
+    SHOWING_PHRASE = true;
+    panel.innerHTML = `
+      <strong>${esc(heading)}</strong>
+      <p class="faint" style="margin:6px 0 10px">Write these twelve words on paper, in this order, and put the paper
+      somewhere safe and away from this machine. They are the only way back in if the PIN is forgotten, and they are
+      shown now and never again.</p>
+      <p class="recovery-phrase">${phrase.split(' ').map((w, i) => `<span><em>${i + 1}</em>${esc(w)}</span>`).join('')}</p>
+      <div class="row" style="gap:8px;margin-top:10px">
+        <button class="btn btn-sm" id="lock-print">Print it</button>
+        <button class="btn btn-sm btn-primary" id="lock-written">I have written it down</button>
+      </div>`;
+    document.getElementById('lock-print').onclick = () => window.print();
+    document.getElementById('lock-written').onclick = () => {
+      if (!confirm('The phrase is shown once and cannot be shown again. Have you written it down?')) return;
+      setUpLockSetting({ force: true });
+    };
+  };
+
+  if (!lock.enabled) {
+    panel.innerHTML = `
+      <strong>Lock this vault with a PIN</strong>
+      <p class="faint" style="margin:6px 0 10px">Off. Everything the household writes — notes, messages, the calendar,
+      map markings, who is here and how far they have got — sits on this disk as plain files that anyone holding the
+      machine can read. Turning this on encrypts all of it, and asks for the PIN when the vault opens.</p>
+      <p class="faint" style="margin:0 0 10px">The library is deliberately left alone: fifty gigabytes of Wikipedia is
+      public knowledge, it tells a searcher nothing about you, and encrypting it would make every pack slower to write.</p>
+      <div class="row" style="gap:8px;flex-wrap:wrap;align-items:center">
+        <input type="password" id="lock-new" class="map-select" style="flex:1;min-width:200px" placeholder="PIN or passphrase, ${lock.minPin} characters or more">
+        <button class="btn btn-sm btn-primary" id="lock-on">Turn on</button>
+      </div>
+      <p class="faint" id="lock-strength" style="margin:8px 0 0"></p>`;
+
+    const field = document.getElementById('lock-new');
+    const note = document.getElementById('lock-strength');
+    let timer = null;
+    field.oninput = () => {
+      clearTimeout(timer);
+      timer = setTimeout(async () => {
+        if (!field.value) { note.textContent = ''; return; }
+        const s = await api('lock/strength', { method: 'POST', body: { pin: field.value } });
+        note.innerHTML = `<strong>${esc(s.level)}</strong> — ${esc(s.note)}`;
+      }, 200);
+    };
+    document.getElementById('lock-on').onclick = async () => {
+      try {
+        const { phrase } = await api('lock/enable', { method: 'POST', body: { pin: field.value } });
+        showPhrase(phrase, 'The vault is now locked. Here is your recovery phrase.');
+      } catch (err) {
+        note.textContent = err.message;
+      }
+    };
+    return;
+  }
+
+  panel.innerHTML = `
+    <strong>This vault is locked</strong>
+    <p class="faint" style="margin:6px 0 10px">The PIN is asked for every time the vault opens, and everything the
+    household wrote is encrypted on the disk. The library is not, by design.</p>
+    <div class="row" style="gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
+      <input type="password" id="lock-cur" class="map-select" style="min-width:150px" placeholder="current PIN">
+      <input type="password" id="lock-next" class="map-select" style="min-width:150px" placeholder="new PIN">
+      <button class="btn btn-sm" id="lock-change">Change it</button>
+    </div>
+    <div class="row" style="gap:8px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-sm" id="lock-newphrase">New recovery phrase</button>
+      <button class="btn btn-sm" id="lock-off">Take the lock off</button>
+    </div>
+    <p class="faint" id="lock-msg" style="margin:8px 0 0"></p>`;
+
+  const message = document.getElementById('lock-msg');
+  document.getElementById('lock-change').onclick = async () => {
+    try {
+      await api('lock/pin', { method: 'POST', body: {
+        current: document.getElementById('lock-cur').value,
+        next: document.getElementById('lock-next').value,
+      } });
+      message.textContent = 'Changed. The recovery phrase still works — it is tied to the vault, not to the PIN.';
+      document.getElementById('lock-cur').value = '';
+      document.getElementById('lock-next').value = '';
+    } catch (err) { message.textContent = err.message; }
+  };
+
+  document.getElementById('lock-newphrase').onclick = async () => {
+    const pin = prompt('The current PIN, to make a new recovery phrase:');
+    if (!pin) return;
+    try {
+      const { phrase } = await api('lock/recovery', { method: 'POST', body: { pin } });
+      showPhrase(phrase, 'A new recovery phrase. The old one no longer works.');
+    } catch (err) { message.textContent = err.message; }
+  };
+
+  document.getElementById('lock-off').onclick = async () => {
+    if (!confirm('Take the lock off? Everything goes back to plain files that anyone with this machine can read.')) return;
+    const pin = prompt('The current PIN:');
+    if (!pin) return;
+    try {
+      await api('lock/disable', { method: 'POST', body: { pin } });
+      setUpLockSetting();
+    } catch (err) { message.textContent = err.message; }
+  };
+}
+
 async function renderSearch(params) {
   const query = params.get('q') || '';
   searchInput.value = query;
@@ -2948,6 +3073,10 @@ window.addEventListener('hashchange', route);
   const mark = document.querySelector('.brand-mark');
   if (mark) { mark.classList.add('rise'); mark.addEventListener('animationend', () => mark.classList.remove('rise'), { once: true }); }
   try {
+    // Before anything else: is there a PIN, and has it been given?
+    const lock = await api('lock');
+    if (lock.locked) { showLockScreen(lock); return; }
+
     STATUS = await api('status');
     const creditEl = document.getElementById('footer-credit-name');
     if (creditEl && STATUS.credit) { creditEl.innerHTML = `Prepared by <strong>${esc(STATUS.credit)}</strong>.`; }
@@ -2957,3 +3086,66 @@ window.addEventListener('hashchange', route);
   }
   route();
 })();
+
+/**
+ * The lock screen. Nothing else is drawn until the vault is open — not the
+ * sidebar, not the last page, nothing that might hint at what is inside.
+ */
+function showLockScreen(lock) {
+  document.body.classList.add('locked');
+  document.body.innerHTML = `
+    <div class="lock-screen">
+      <div class="lock-card">
+        <svg class="brand-mark" viewBox="0 0 24 24" width="40" height="40" aria-hidden="true" fill="none"
+             stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path class="arch-line" d="M6 20.5V13A12 12 0 0 1 12 2.6"/>
+          <path class="arch-line" d="M18 20.5V13A12 12 0 0 0 12 2.6"/>
+          <path class="arch-floor" d="M3.5 21.5H20.5"/>
+        </svg>
+        <h1>The vault is locked</h1>
+        <p class="faint">Everything the household wrote — notes, messages, the calendar, what is marked on the map,
+        who is here and how far each of them has got — is encrypted on this disk. The library itself is not: that is
+        public knowledge and tells nobody anything about you.</p>
+
+        <form id="lock-form">
+          <input type="password" id="lock-pin" class="map-select" autocomplete="current-password"
+                 placeholder="PIN or passphrase" autofocus>
+          <button class="btn btn-primary" type="submit">Open</button>
+        </form>
+        <p class="lock-error" id="lock-error"></p>
+
+        <details>
+          <summary class="faint">I have forgotten the PIN</summary>
+          <p class="faint">If you wrote down the twelve-word recovery phrase when you set this up, type it here.
+          It opens the vault regardless of the PIN, and you can then set a new one.</p>
+          <form id="lock-recover">
+            <textarea id="lock-phrase" class="map-select" rows="2" placeholder="twelve words, in order"></textarea>
+            <button class="btn" type="submit">Open with the phrase</button>
+          </form>
+          <p class="faint">Without either, the notes cannot be recovered by anybody, including me. That is what
+          encryption means. The library, the handbook and the lessons are all still there and unaffected — only what
+          was written here is lost.</p>
+        </details>
+      </div>
+    </div>`;
+
+  const error = document.getElementById('lock-error');
+  const attempt = async (body) => {
+    error.textContent = 'Checking…';
+    try {
+      await api('lock/unlock', { method: 'POST', body });
+      location.reload();
+    } catch (err) {
+      error.textContent = err.message || 'That did not open it.';
+    }
+  };
+
+  document.getElementById('lock-form').onsubmit = (e) => {
+    e.preventDefault();
+    attempt({ pin: document.getElementById('lock-pin').value });
+  };
+  document.getElementById('lock-recover').onsubmit = (e) => {
+    e.preventDefault();
+    attempt({ phrase: document.getElementById('lock-phrase').value });
+  };
+}

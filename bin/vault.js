@@ -78,6 +78,10 @@ async function cmdServe(args) {
   } else if (!server.sharing()) {
     console.log('  Sharing with other devices is off — Setup → Share on this network to turn it on.');
   }
+  if (server.locked) {
+    console.log('');
+    console.log('  This vault is locked. Open the page above and enter the PIN.');
+  }
   console.log('');
 
   // The vault window's own profile is wiped at both ends: now, in case the

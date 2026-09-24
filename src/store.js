@@ -8,6 +8,7 @@
 const fs = require('node:fs');
 const fsp = require('node:fs/promises');
 const path = require('node:path');
+const lock = require('./lock');
 
 class Store {
   constructor(filePath, defaults = {}) {
@@ -15,15 +16,40 @@ class Store {
     this.defaults = defaults;
     this.data = null;
     this._writeQueue = Promise.resolve();
+    // When the vault is locked, the key that this file is written under.
+    // Null means plain JSON, which is how an unlocked vault has always worked.
+    this._key = null;
+  }
+
+  /**
+   * Encrypt this file from now on, or stop. Setting a key does not rewrite
+   * the file — the caller decides when to do that, because turning the lock
+   * on has to rewrite every store at once or not at all.
+   */
+  setKey(key) {
+    this._key = key || null;
+    return this;
   }
 
   load() {
     if (this.data) return this.data;
     let raw = null;
     try {
-      raw = fs.readFileSync(this.filePath, 'utf8');
-    } catch {
-      raw = null; // no file yet: start from the defaults
+      const bytes = fs.readFileSync(this.filePath);
+      // A file written while the vault was locked is ciphertext. One that
+      // predates the lock is not, and must still open — turning the lock on
+      // is a migration, not a cliff.
+      raw = lock.looksEncrypted(bytes)
+        ? (this._key ? lock.decrypt(this._key, bytes).toString('utf8') : null)
+        : bytes.toString('utf8');
+      if (raw === null) throw new Error('locked');
+    } catch (err) {
+      if (err && err.message === 'locked') {
+        // Asked to read an encrypted file with no key. Never quarantine it:
+        // that would destroy data whose only problem is that we are locked.
+        throw new Error(`${path.basename(this.filePath)} is encrypted and the vault is locked`);
+      }
+      raw = null; // no file yet, or unreadable: start from the defaults
     }
     if (raw === null) {
       this.data = structuredClone(this.defaults);
@@ -63,7 +89,8 @@ class Store {
   }
 
   _writeOnce() {
-    const snapshot = JSON.stringify(this.load(), null, 2);
+    const json = JSON.stringify(this.load(), null, 2);
+    const snapshot = this._key ? lock.encrypt(this._key, Buffer.from(json, 'utf8')) : json;
     this._writeQueue = this._writeQueue.then(async () => {
       await fsp.mkdir(path.dirname(this.filePath), { recursive: true });
       const tmp = `${this.filePath}.${process.pid}.tmp`;
@@ -71,7 +98,7 @@ class Store {
       // file or the new one, never half of either.
       const handle = await fsp.open(tmp, 'w');
       try {
-        await handle.writeFile(snapshot, 'utf8');
+        await handle.writeFile(snapshot, Buffer.isBuffer(snapshot) ? undefined : 'utf8');
         await handle.sync();
       } finally {
         await handle.close();

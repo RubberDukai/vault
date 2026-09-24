@@ -1090,3 +1090,27 @@ details.answers[open] > summary::after { content: ""; }
   .k-col { width: 38px; }
   .rl-num, .rl-out { font-size: 11px; padding: 4px 2px; }
 }
+
+/* --- the lock screen ----------------------------------------------------- */
+/* Nothing of the vault is drawn behind this: no sidebar, no last page, no
+   hint of what is inside. */
+body.locked { display: block; background: var(--bg); }
+.lock-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
+.lock-card { width: 100%; max-width: 30rem; text-align: center; }
+.lock-card .brand-mark { color: var(--accent); margin-bottom: 10px; }
+.lock-card h1 { margin: 0 0 10px; font-size: 22px; }
+.lock-card p.faint { text-align: left; }
+.lock-card form { display: flex; gap: 8px; margin: 16px 0 6px; }
+.lock-card input, .lock-card textarea { flex: 1; }
+.lock-card details { margin-top: 18px; text-align: left; }
+.lock-card details summary { cursor: pointer; }
+.lock-error { min-height: 1.2em; color: var(--bad); margin: 0; }
+
+/* The twelve words, numbered, in a shape that is easy to copy onto paper. */
+.recovery-phrase { display: grid; grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); gap: 6px; margin: 0; }
+.recovery-phrase span { font-family: var(--mono); background: var(--bg-sunken); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; }
+.recovery-phrase em { color: var(--text-faint); font-style: normal; margin-right: 8px; }
+@media print {
+  .recovery-phrase { grid-template-columns: repeat(3, 1fr); }
+  .shell > *:not(#view), .nav, .navbar { display: none !important; }
+}

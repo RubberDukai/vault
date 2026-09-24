@@ -29,6 +29,7 @@ const markdown = require('./content/markdown');
 const { UnifiedSearch } = require('./search/unified');
 const srs = require('./srs/engine');
 const { Store } = require('./store');
+const { VaultLock, checkPin, pinStrength } = require('./lock');
 
 const ROOT = path.join(__dirname, '..');
 
@@ -123,12 +124,64 @@ class ArkServer {
     // Notebooks: journal pages, recipes and lists, per person, with a flag
     // to share a page with the household.
     this.notebook = new Store(path.join(this.dataDir, 'notebook.json'), { notes: [] });
+
+    // Everything the household wrote, as opposed to everything it downloaded.
+    // These are the files a PIN protects; the library and the indexes built
+    // from it are public knowledge and stay as they are.
+    this.privateStores = [this.state, this.annotations, this.messages, this.calendar, this.notebook];
+    this.lock = new VaultLock(this.dataDir);
+  }
+
+  /** Is there a PIN set, and has it been given yet? */
+  get locked() {
+    return this.lock.locked;
+  }
+
+  /**
+   * Hand the data key to every private store, or take it away.
+   *
+   * `keepData` matters when the lock is being removed: the files on disk are
+   * still ciphertext at that moment, so the copy already in memory is the only
+   * readable one and must not be thrown away before it has been written back.
+   */
+  _applyKey(key, { keepData = false } = {}) {
+    for (const store of this.privateStores) {
+      if (!keepData) store.data = null; // force a re-read under the new key
+      store.setKey(key);
+    }
+  }
+
+  /**
+   * The work init() had to skip while the vault was locked: the settings are
+   * only readable now.
+   */
+  async afterUnlock() {
+    this.state.load();
+    this._addPlaceVocabulary();
+    if (!this.hostOverride && this.state.get().share && !this.sharing()) {
+      // Sharing was on when it was locked. Honour it, but only now.
+      this.setSharing(true).catch((err) => console.error('[vault] sharing switch failed:', err.message));
+    }
+  }
+
+  /** Re-write every private file under the current key. */
+  async _rewritePrivate() {
+    for (const store of this.privateStores) {
+      store.load();
+      await store.save();
+    }
   }
 
   async init() {
     await fsp.mkdir(this.dataDir, { recursive: true });
-    this.state.load();
-    if (!this.hostOverride && this.state.get().share) this.host = '0.0.0.0';
+    // A locked vault starts up knowing nothing about itself: the settings are
+    // inside the encryption. It listens on this machine only until the PIN is
+    // given, which is also the safe default for a vault that cannot yet read
+    // whether sharing was switched on.
+    if (!this.locked) {
+      this.state.load();
+      if (!this.hostOverride && this.state.get().share) this.host = '0.0.0.0';
+    }
     await this.content.load();
     await this.library.scan();
     await this.maps.scan();
@@ -309,8 +362,16 @@ class ArkServer {
     };
   }
 
-  /** Whether the launcher should wipe the vault window's profile. Default on. */
+  /**
+   * Whether the launcher should wipe the vault window's profile. Default on.
+   *
+   * A locked vault cannot read its own settings yet, and the launcher asks
+   * this before anyone has typed the PIN. Wiping is the safe answer: it
+   * destroys only a browser cache, and the setting can be honoured properly
+   * on the way out once the vault is open.
+   */
   wipeBrowserProfile() {
+    if (this.locked) return true;
     return this.state.get().wipeBrowser !== false;
   }
 
@@ -681,6 +742,88 @@ class ArkServer {
     const route = pathname.slice('/api/'.length);
     const q = url.searchParams;
     const method = req.method.toUpperCase();
+
+    // --- the lock ---------------------------------------------------------
+    // Whether there is a PIN, and whether it has been given. Always answerable,
+    // because the page needs it before it can decide what to show.
+    if (route === 'lock' && method === 'GET') {
+      return this.json(res, 200, {
+        enabled: this.lock.exists(),
+        locked: this.locked,
+        minPin: require('./lock').MIN_PIN,
+      });
+    }
+
+    if (route === 'lock/unlock' && method === 'POST') {
+      const body = await this.readBody(req);
+      try {
+        if (typeof body.phrase === 'string' && body.phrase.trim()) await this.lock.unlockWithPhrase(body.phrase);
+        else await this.lock.unlock(body.pin);
+      } catch (err) {
+        // Slow every failed attempt a little, so guessing over the network is
+        // hopeless even where guessing against the disk would not be.
+        await new Promise((r) => setTimeout(r, 400));
+        return this.json(res, 401, { error: err.message });
+      }
+      this._applyKey(this.lock.key);
+      await this.afterUnlock();
+      return this.json(res, 200, { locked: false });
+    }
+
+    // Everything else waits until the vault is open.
+    if (this.locked) {
+      return this.json(res, 423, { error: 'This vault is locked.', locked: true });
+    }
+
+    if (route === 'lock/enable' && method === 'POST') {
+      const body = await this.readBody(req);
+      try { checkPin(body.pin); } catch (err) { return this.json(res, 400, { error: err.message }); }
+      if (this.lock.exists()) return this.json(res, 400, { error: 'This vault already has a PIN.' });
+      const phrase = await this.lock.enable(body.pin);
+      this._applyKey(this.lock.key);
+      await this._rewritePrivate();
+      return this.json(res, 200, { phrase, strength: pinStrength(body.pin) });
+    }
+
+    if (route === 'lock/pin' && method === 'POST') {
+      const body = await this.readBody(req);
+      try {
+        await this.lock.changePin(body.current, body.next);
+      } catch (err) {
+        return this.json(res, 400, { error: err.message });
+      }
+      return this.json(res, 200, { ok: true, strength: pinStrength(body.next) });
+    }
+
+    if (route === 'lock/recovery' && method === 'POST') {
+      const body = await this.readBody(req);
+      try {
+        const phrase = await this.lock.newRecoveryPhrase(body.pin);
+        return this.json(res, 200, { phrase });
+      } catch (err) {
+        return this.json(res, 400, { error: err.message });
+      }
+    }
+
+    if (route === 'lock/disable' && method === 'POST') {
+      const body = await this.readBody(req);
+      // Read everything into memory while the key still works, because once
+      // the lock file is gone the ciphertext on disk can never be read again.
+      for (const store of this.privateStores) store.load();
+      try {
+        await this.lock.disable(body.pin);
+      } catch (err) {
+        return this.json(res, 400, { error: err.message });
+      }
+      this._applyKey(null, { keepData: true });
+      await this._rewritePrivate();
+      return this.json(res, 200, { ok: true });
+    }
+
+    if (route === 'lock/strength' && method === 'POST') {
+      const body = await this.readBody(req);
+      return this.json(res, 200, pinStrength(body.pin));
+    }
 
     // --- status -----------------------------------------------------------
     // --- sharing on the local network -------------------------------------
