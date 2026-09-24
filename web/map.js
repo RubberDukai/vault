@@ -150,6 +150,7 @@ const STYLES = {
       boundaries: '#a08890',
       contour: '#c9a26b',
       label: '#3a3228',
+      roadLabel: '#6b5d47',
       labelHalo: '#f4efe2',
     },
   },
@@ -203,6 +204,7 @@ const STYLES = {
       boundaries: '#8f6aa8',
       contour: '#c98a3c',
       label: '#1f1a14',
+      roadLabel: '#5a5248',
       labelHalo: '#ffffff',
     },
   },
@@ -253,6 +255,7 @@ const STYLES = {
       boundaries: '#5a4a55',
       contour: '#4a3d2c',
       label: '#d8dee6',
+      roadLabel: '#9aa4b2',
       labelHalo: '#0a0d12',
     },
   },
@@ -374,6 +377,11 @@ class VaultMap {
     this._tiles = new Map();
     this._pending = new Set();
     this._raster = new Map();
+    // A tile's roads, fields and buildings are the same picture every frame,
+    // so each one is drawn once onto its own small canvas and then copied.
+    // Panning central London was re-drawing thousands of paths sixty times a
+    // second; now it copies a dozen bitmaps.
+    this._bitmaps = new Map();
     this._frame = null;
     this._timer = null;
     this._marker = null;
@@ -391,6 +399,7 @@ class VaultMap {
 
   setStyle(name) {
     this.styleName = name;
+    this._bitmaps.clear(); // every cached tile was drawn in the old colours
     this.draw();
   }
 
@@ -459,6 +468,19 @@ class VaultMap {
 
   // ------------------------------------------------------------- interaction
 
+  /**
+   * Names and pins cost more to place than the whole rest of the map: every
+   * one has to be measured and checked against every label already placed.
+   * While the map is actually moving they are left off and the map stays
+   * smooth; a moment after it settles they come back. Nobody reads a name on
+   * a map that is sliding past anyway.
+   */
+  _touch() {
+    this._interacting = true;
+    clearTimeout(this._settle);
+    this._settle = setTimeout(() => { this._interacting = false; this.draw(); }, 140);
+  }
+
   _bindEvents() {
     let dragging = false;
     let lastX = 0;
@@ -525,6 +547,7 @@ class VaultMap {
       };
       lastX = e.clientX;
       lastY = e.clientY;
+      this._touch();
       this.draw();
     };
 
@@ -584,6 +607,7 @@ class VaultMap {
     this.canvas.addEventListener('wheel', (e) => {
       e.preventDefault();
       const rect = this.canvas.getBoundingClientRect();
+      this._touch();
       this.zoomAround(e.clientX - rect.left, e.clientY - rect.top, e.deltaY < 0 ? 0.5 : -0.5);
     }, { passive: false });
 
@@ -674,12 +698,63 @@ class VaultMap {
       const res = await fetch(`/tile/${encodeURIComponent(this.basePack)}/${z}/${x}/${y}`);
       const data = res.ok ? await res.json() : {};
       this._tiles.set(key, isZoomstack(data) ? fromZoomstack(data) : data);
+      // Decoded tiles are the biggest thing this page holds; a long pan across
+      // a country would otherwise keep every one of them.
+      while (this._tiles.size > 400) {
+        const oldest = this._tiles.keys().next().value;
+        this._tiles.delete(oldest);
+      }
     } catch {
       this._tiles.set(key, {});
     } finally {
       this._pending.delete(key);
       this.draw();
     }
+  }
+
+  /**
+   * One tile, drawn once onto its own canvas and kept.
+   *
+   * The tile is drawn at its own zoom rather than the map's, so the cache
+   * survives the fractional zoom between one tile level and the next; the
+   * result is then scaled on the way out, which is at most about 40% either
+   * way and invisible in practice.
+   */
+  _tileBitmap(tz, tx, ty, data) {
+    const key = `${this.styleName}|${this._skipFills ? 'r' : 'v'}|${tz}/${tx}/${ty}`;
+    const cached = this._bitmaps.get(key);
+    if (cached) {
+      // Touch it, so the least recently seen tile is the one evicted.
+      this._bitmaps.delete(key);
+      this._bitmaps.set(key, cached);
+      return cached;
+    }
+
+    const dpr = window.devicePixelRatio || 1;
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(TILE_SIZE * dpr);
+    canvas.height = Math.round(TILE_SIZE * dpr);
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // The drawing methods read this.ctx and this.zoom; lend them the tile's.
+    const realCtx = this.ctx;
+    const realZoom = this.zoom;
+    this.ctx = ctx;
+    this.zoom = tz;
+    try {
+      this._drawTile(data, 0, 0, TILE_SIZE);
+    } finally {
+      this.ctx = realCtx;
+      this.zoom = realZoom;
+    }
+
+    this._bitmaps.set(key, canvas);
+    // Roughly four screens' worth at any one zoom; beyond that the oldest go.
+    while (this._bitmaps.size > 220) {
+      this._bitmaps.delete(this._bitmaps.keys().next().value);
+    }
+    return canvas;
   }
 
   _rasterTile(packId, z, x, y) {
@@ -891,7 +966,8 @@ class VaultMap {
         this._fetchVectorTile(tz, tile.tx, tile.ty);
         continue;
       }
-      this._drawTile(data, tile.px, tile.py, tilePx);
+      const bitmap = this._tileBitmap(tz, tile.tx, tile.ty, data);
+      ctx.drawImage(bitmap, tile.px, tile.py, tilePx, tilePx);
     }
 
     // Slopes, from the terrain heights.
@@ -907,11 +983,12 @@ class VaultMap {
     // greedy: first come, first served, and anything that would overlap is
     // dropped — otherwise a city at close zoom is unreadable.
     this._labelBoxes = [];
-    if (this.showPoi || this.showLabels) {
+    if ((this.showPoi || this.showLabels) && !this._interacting) {
       for (const tile of visible) {
         const data = this._tiles.get(`${tz}/${tile.tx}/${tile.ty}`);
         if (data) this._drawOverlayFeatures(data, tile.px, tile.py, tilePx);
       }
+      if (this.showLabels) this._drawRoadNames(visible, tz, tilePx);
     }
 
     if (this.showAnnotations) this._drawAnnotations();
@@ -1610,6 +1687,141 @@ class VaultMap {
           ctx.fillText(feature.n, x, y + 14);
         }
       }
+    }
+  }
+
+  /**
+   * Road names, written along the road.
+   *
+   * A road is usually cut into a piece per tile, and a long one repeats its
+   * name in every tile it crosses, so the pieces are gathered by name first
+   * and only the longest straight run on screen is labelled. Anything too
+   * short to hold the text is left unnamed rather than squashed, and a name
+   * that would read upside down is flipped.
+   */
+  /**
+   * The longest roughly-straight stretch of a line, in screen pixels, that is
+   * far enough inside the canvas to hold a label. Returns null if there is no
+   * such stretch — a tight bend or a road running off the edge.
+   */
+  _straightestRun(line, px, py, size) {
+    const pad = 16;
+    const onScreen = (x, y) => x > pad && x < this.width - pad && y > pad && y < this.height - pad;
+    const TURN = 0.45; // radians: about 25 degrees off the run's own direction
+
+    let best = null;
+    let start = 0;
+    let startAngle = null;
+    let length = 0;
+
+    const close = (end) => {
+      if (end <= start) return;
+      const ax = px + line[start][0] * size;
+      const ay = py + line[start][1] * size;
+      const bx = px + line[end][0] * size;
+      const by = py + line[end][1] * size;
+      if (!best || length > best.length) {
+        best = { length, x1: ax, y1: ay, x2: bx, y2: by };
+      }
+    };
+
+    for (let i = 1; i < line.length; i++) {
+      const x1 = px + line[i - 1][0] * size;
+      const y1 = py + line[i - 1][1] * size;
+      const x2 = px + line[i][0] * size;
+      const y2 = py + line[i][1] * size;
+
+      if (!onScreen(x1, y1) || !onScreen(x2, y2)) {
+        close(i - 1);
+        start = i;
+        startAngle = null;
+        length = 0;
+        continue;
+      }
+
+      const angle = Math.atan2(y2 - y1, x2 - x1);
+      if (startAngle === null) {
+        start = i - 1;
+        startAngle = angle;
+        length = 0;
+      } else {
+        // Difference between two angles, wrapped into -pi..pi.
+        let turn = angle - startAngle;
+        while (turn > Math.PI) turn -= 2 * Math.PI;
+        while (turn < -Math.PI) turn += 2 * Math.PI;
+        if (Math.abs(turn) > TURN) {
+          close(i - 1);
+          start = i - 1;
+          startAngle = angle;
+          length = 0;
+        }
+      }
+      length += Math.hypot(x2 - x1, y2 - y1);
+    }
+    close(line.length - 1);
+    return best;
+  }
+
+  _drawRoadNames(visible, tz, tilePx) {
+    // Close in, minor roads get names too; far out, only the main ones, or
+    // the map turns into a page of text.
+    if (this.zoom < 13) return;
+    const minorToo = this.zoom >= 15;
+
+    const ctx = this.ctx;
+    const style = this.style;
+    const best = new Map(); // name -> the longest run found for it
+
+    for (const tile of visible) {
+      const data = this._tiles.get(`${tz}/${tile.tx}/${tile.ty}`);
+      const roads = data && data.roads;
+      if (!roads) continue;
+
+      for (const feature of roads) {
+        if (!feature.n || feature.t !== LINE) continue;
+        // Railways and ferries sit in the same layer; their names are not
+        // road names and they crowd out the streets.
+        if (feature.k === 'rail' || feature.k === 'ferry' || feature.k === 'transit') continue;
+        if (!minorToo && feature.k !== 'major_road' && feature.k !== 'highway') continue;
+        if (!this._visibleAtZoom(feature)) continue;
+
+        for (const line of feature.g) {
+          // A road is drawn as a chain of short segments, so no one segment is
+          // long enough to write on. Walk the chain instead and keep the
+          // longest stretch that stays roughly straight — which is what a
+          // person would pick to write along.
+          const run = this._straightestRun(line, tile.px, tile.py, tilePx);
+          if (!run) continue;
+          const held = best.get(feature.n);
+          if (!held || run.length > held.length) best.set(feature.n, run);
+        }
+      }
+    }
+
+    ctx.font = '500 11px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    for (const [name, run] of best) {
+      const width = ctx.measureText(name).width;
+      if (run.length < width + 12) continue; // no room to write it along this road
+
+      const midX = (run.x1 + run.x2) / 2;
+      const midY = (run.y1 + run.y2) / 2;
+      if (!this._claimLabelSpace(midX, midY, width + 8, 13)) continue;
+
+      let angle = Math.atan2(run.y2 - run.y1, run.x2 - run.x1);
+      if (angle > Math.PI / 2 || angle < -Math.PI / 2) angle += Math.PI; // never upside down
+
+      ctx.save();
+      ctx.translate(midX, midY);
+      ctx.rotate(angle);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = style.layers.labelHalo;
+      ctx.strokeText(name, 0, 0);
+      ctx.fillStyle = style.layers.roadLabel || style.layers.label;
+      ctx.fillText(name, 0, 0);
+      ctx.restore();
     }
   }
 
