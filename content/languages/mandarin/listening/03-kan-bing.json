@@ -1,0 +1,41 @@
+{
+  "title": "看病 — seeing the doctor",
+  "level": "HSK2",
+  "order": 3,
+  "summary": "Stomach pain, fever, what has already been taken. 了 doing its work, and the allergy question you must be able to answer.",
+  "speakers": { "A": "医生 (doctor)", "B": "病人 (patient)" },
+  "lines": [
+    { "speaker": "A", "text": "你哪儿不舒服？", "reading": "Nǐ nǎr bù shūfu?", "translation": "Where do you feel unwell?" },
+    { "speaker": "B", "text": "我肚子很疼。", "reading": "Wǒ dùzi hěn téng.", "translation": "My stomach hurts a lot." },
+    { "speaker": "A", "text": "疼了几天了？", "reading": "Téng le jǐ tiān le?", "translation": "How many days has it hurt?" },
+    { "speaker": "B", "text": "三天了。", "reading": "Sān tiān le.", "translation": "Three days now." },
+    { "speaker": "A", "text": "发烧吗？", "reading": "Fāshāo ma?", "translation": "Do you have a fever?" },
+    { "speaker": "B", "text": "昨天晚上三十八度。", "reading": "Zuótiān wǎnshang sānshíbā dù.", "translation": "Last night it was thirty-eight degrees." },
+    { "speaker": "A", "text": "吃药了吗？", "reading": "Chī yào le ma?", "translation": "Have you taken any medicine?" },
+    { "speaker": "B", "text": "吃了，但是没有用。", "reading": "Chī le, dànshì méiyǒu yòng.", "translation": "I did, but it was no use." },
+    { "speaker": "A", "text": "你对什么药过敏吗？", "reading": "Nǐ duì shénme yào guòmǐn ma?", "translation": "Are you allergic to any medicine?" },
+    { "speaker": "B", "text": "我对青霉素过敏。", "reading": "Wǒ duì qīngméisù guòmǐn.", "translation": "I am allergic to penicillin." },
+    { "speaker": "A", "text": "多喝水，多休息。", "reading": "Duō hē shuǐ, duō xiūxi.", "translation": "Drink plenty of water, rest a lot." },
+    { "speaker": "A", "text": "明天要是还疼，再来。", "reading": "Míngtiān yàoshi hái téng, zài lái.", "translation": "If it still hurts tomorrow, come again." }
+  ],
+  "vocabulary": [
+    { "word": "不舒服 (bù shūfu)", "meaning": "unwell, uncomfortable" },
+    { "word": "肚子 (dùzi)", "meaning": "stomach, belly" },
+    { "word": "疼 (téng)", "meaning": "to hurt, to be sore" },
+    { "word": "发烧 (fāshāo)", "meaning": "to have a fever" },
+    { "word": "度 (dù)", "meaning": "degree" },
+    { "word": "吃药 (chī yào)", "meaning": "to take medicine — in Chinese you eat it" },
+    { "word": "没有用 (méiyǒu yòng)", "meaning": "no use, it did not work" },
+    { "word": "对…过敏 (duì … guòmǐn)", "meaning": "allergic to …" },
+    { "word": "青霉素 (qīngméisù)", "meaning": "penicillin" },
+    { "word": "要是 (yàoshi)", "meaning": "if" }
+  ],
+  "questions": [
+    { "q": "What is wrong?", "options": ["Stomach pain", "Headache", "Sore throat"], "answer": 0, "explain": "dùzi hěn téng" },
+    { "q": "For how long?", "options": ["Three days", "Since last night", "A week"], "answer": 0, "explain": "sān tiān le — the 了 at the end means it is still going on" },
+    { "q": "What temperature?", "options": ["38 degrees", "35 degrees", "30 degrees"], "answer": 0 },
+    { "q": "Did the medicine help?", "options": ["No", "Yes", "He took none"], "answer": 0, "explain": "méiyǒu yòng" },
+    { "q": "What is he allergic to?", "options": ["Penicillin", "Nothing", "The medicine he took"], "answer": 0 },
+    { "q": "What should he do tomorrow if it still hurts?", "options": ["Come back", "Take more medicine", "Wait another day"], "answer": 0, "explain": "zài lái" }
+  ]
+}

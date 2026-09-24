@@ -1,0 +1,41 @@
+{
+  "title": "Beim Arzt — at the doctor",
+  "level": "A2",
+  "order": 3,
+  "summary": "Describing pain, fever and what has already been taken. The perfect tense doing the work it does in real speech.",
+  "speakers": { "A": "Ärztin", "B": "Patient" },
+  "lines": [
+    { "speaker": "A", "text": "Guten Tag. Setzen Sie sich. Was fehlt Ihnen?", "translation": "Hello. Sit down. What is wrong?" },
+    { "speaker": "B", "text": "Ich habe seit drei Tagen starke Bauchschmerzen.", "translation": "I have had bad stomach pains for three days." },
+    { "speaker": "A", "text": "Haben Sie Fieber gehabt?", "translation": "Have you had a fever?" },
+    { "speaker": "B", "text": "Ja, gestern Abend achtunddreißig fünf.", "translation": "Yes, yesterday evening thirty-eight point five." },
+    { "speaker": "A", "text": "Haben Sie sich übergeben?", "translation": "Have you been sick?" },
+    { "speaker": "B", "text": "Zweimal gestern. Durchfall habe ich nicht.", "translation": "Twice yesterday. I do not have diarrhoea." },
+    { "speaker": "A", "text": "Haben Sie etwas dagegen genommen?", "translation": "Have you taken anything for it?" },
+    { "speaker": "B", "text": "Eine Schmerztablette, aber sie hat nicht geholfen.", "translation": "A painkiller, but it did not help." },
+    { "speaker": "A", "text": "Sind Sie gegen ein Medikament allergisch?", "translation": "Are you allergic to any medicine?" },
+    { "speaker": "B", "text": "Ja, gegen Penicillin.", "translation": "Yes, to penicillin." },
+    { "speaker": "A", "text": "Gut. Trinken Sie viel Wasser und ruhen Sie sich aus.", "translation": "Good. Drink plenty of water and rest." },
+    { "speaker": "A", "text": "Wenn es morgen nicht besser ist, kommen Sie wieder.", "translation": "If it is no better tomorrow, come back." }
+  ],
+  "vocabulary": [
+    { "word": "Was fehlt Ihnen?", "meaning": "what is wrong with you? (literally: what is missing to you?)" },
+    { "word": "seit drei Tagen", "meaning": "for three days — seit takes the dative and means it is still going on" },
+    { "word": "die Bauchschmerzen", "meaning": "stomach pains" },
+    { "word": "das Fieber", "meaning": "fever" },
+    { "word": "sich übergeben", "meaning": "to be sick, to vomit" },
+    { "word": "der Durchfall", "meaning": "diarrhoea" },
+    { "word": "die Schmerztablette", "meaning": "painkiller" },
+    { "word": "allergisch gegen", "meaning": "allergic to — note gegen, not zu" },
+    { "word": "sich ausruhen", "meaning": "to rest" },
+    { "word": "wieder kommen", "meaning": "to come back" }
+  ],
+  "questions": [
+    { "q": "How long has he had the pain?", "options": ["Three days", "Since yesterday", "Three weeks"], "answer": 0, "explain": "seit drei Tagen" },
+    { "q": "What was his temperature?", "options": ["38.5", "35.8", "28.5"], "answer": 0, "explain": "achtunddreißig fünf — German says the units before the tens: acht-und-dreißig." },
+    { "q": "Has he had diarrhoea?", "options": ["No", "Yes", "He does not say"], "answer": 0, "explain": "Durchfall habe ich nicht" },
+    { "q": "Did the painkiller work?", "options": ["No", "Yes", "A little"], "answer": 0, "explain": "sie hat nicht geholfen" },
+    { "q": "What is he allergic to?", "options": ["Penicillin", "Nothing", "The painkiller"], "answer": 0 },
+    { "q": "What should he do if it is no better tomorrow?", "options": ["Come back", "Take two tablets", "Go to hospital"], "answer": 0 }
+  ]
+}

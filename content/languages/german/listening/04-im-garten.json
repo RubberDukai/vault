@@ -1,0 +1,40 @@
+{
+  "title": "Im Garten — in the garden",
+  "level": "A2",
+  "order": 4,
+  "summary": "Two neighbours on the weather, the frost and when to plant. The perfect, the future and a subordinate clause with the verb thrown to the end.",
+  "speakers": { "A": "Frau Weber", "B": "Herr Klein" },
+  "lines": [
+    { "speaker": "A", "text": "Guten Morgen! Haben Sie die Kartoffeln schon gesetzt?", "translation": "Good morning! Have you planted the potatoes yet?" },
+    { "speaker": "B", "text": "Noch nicht. Letzte Woche hat es zu viel geregnet.", "translation": "Not yet. Last week it rained too much." },
+    { "speaker": "A", "text": "Ja, der Boden war viel zu nass.", "translation": "Yes, the ground was far too wet." },
+    { "speaker": "B", "text": "Wenn es am Wochenende trocken ist, setze ich sie am Samstag.", "translation": "If it is dry at the weekend, I'll plant them on Saturday." },
+    { "speaker": "A", "text": "Und die Bohnen? Ihre sind letztes Jahr sehr gut gewachsen.", "translation": "And the beans? Yours grew very well last year." },
+    { "speaker": "B", "text": "Bohnen säe ich erst im Mai, wenn kein Frost mehr kommt.", "translation": "I don't sow beans until May, when there is no more frost." },
+    { "speaker": "A", "text": "Bei uns ist der letzte Frost meistens Ende April.", "translation": "Here the last frost is usually at the end of April." },
+    { "speaker": "B", "text": "Schon, aber letztes Jahr hat es im Mai gefroren und ich habe die ersten verloren.", "translation": "True, but last year it froze in May and I lost the first ones." },
+    { "speaker": "A", "text": "Dann warte ich lieber auch. Haben Sie Samen für mich?", "translation": "Then I'd rather wait too. Do you have seed for me?" },
+    { "speaker": "B", "text": "Natürlich. Ich habe wie immer von den besten Pflanzen Samen aufgehoben.", "translation": "Of course. As always I saved seed from the best plants." },
+    { "speaker": "A", "text": "Vielen Dank. Ich bringe Ihnen am Sonntag Eier.", "translation": "Thank you. I'll bring you eggs on Sunday." }
+  ],
+  "vocabulary": [
+    { "word": "setzen / säen", "meaning": "to plant (tubers, seedlings) / to sow (seed)" },
+    { "word": "noch nicht", "meaning": "not yet" },
+    { "word": "der Boden", "meaning": "the ground, the soil" },
+    { "word": "nass / trocken", "meaning": "wet / dry" },
+    { "word": "die Bohne", "meaning": "bean" },
+    { "word": "der Frost / frieren", "meaning": "frost / to freeze" },
+    { "word": "erst im Mai", "meaning": "not until May" },
+    { "word": "Ende April", "meaning": "at the end of April" },
+    { "word": "der Samen", "meaning": "seed" },
+    { "word": "aufheben", "meaning": "to keep, to save" }
+  ],
+  "questions": [
+    { "q": "Why has Herr Klein not planted the potatoes?", "options": ["Too much rain, the ground was wet", "He has no seed", "It is too early"], "answer": 0 },
+    { "q": "What has to happen before he plants on Saturday?", "options": ["It must be dry at the weekend", "Nothing — he will plant anyway", "The frost must come"], "answer": 0, "explain": "Wenn es am Wochenende trocken ist… — a condition, not a promise." },
+    { "q": "When does he sow beans?", "options": ["Not until May, after the frosts", "End of April", "As soon as it is dry"], "answer": 0, "explain": "erst im Mai — 'erst' means not until." },
+    { "q": "What happened last May?", "options": ["It froze and he lost the first beans", "It was very dry", "The beans grew well"], "answer": 0 },
+    { "q": "Where does his seed come from?", "options": ["Saved from his best plants", "Bought each year", "From Frau Weber"], "answer": 0 },
+    { "q": "What does Frau Weber offer in return?", "options": ["Eggs on Sunday", "Potatoes", "Nothing"], "answer": 0 }
+  ]
+}

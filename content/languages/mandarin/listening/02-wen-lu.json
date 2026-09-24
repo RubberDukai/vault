@@ -1,0 +1,40 @@
+{
+  "title": "问路 — asking the way",
+  "level": "HSK1",
+  "order": 2,
+  "summary": "Finding the station. Direction words, 往 and 到, and how to ask someone to repeat themselves slowly.",
+  "speakers": { "A": "旅客 (traveller)", "B": "路人 (passer-by)" },
+  "lines": [
+    { "speaker": "A", "text": "请问，火车站在哪儿？", "reading": "Qǐngwèn, huǒchēzhàn zài nǎr?", "translation": "Excuse me, where is the railway station?" },
+    { "speaker": "B", "text": "火车站啊，你往前走。", "reading": "Huǒchēzhàn a, nǐ wǎng qián zǒu.", "translation": "The station — go straight ahead." },
+    { "speaker": "A", "text": "请你说慢一点儿，好吗？", "reading": "Qǐng nǐ shuō màn yìdiǎnr, hǎo ma?", "translation": "Please speak a little more slowly, would you?" },
+    { "speaker": "B", "text": "好。你往前走，到银行。", "reading": "Hǎo. Nǐ wǎng qián zǒu, dào yínháng.", "translation": "All right. Go straight ahead as far as the bank." },
+    { "speaker": "B", "text": "然后往右拐。", "reading": "Ránhòu wǎng yòu guǎi.", "translation": "Then turn right." },
+    { "speaker": "B", "text": "火车站就在左边。", "reading": "Huǒchēzhàn jiù zài zuǒbian.", "translation": "The station is right there on the left." },
+    { "speaker": "A", "text": "远不远？", "reading": "Yuǎn bu yuǎn?", "translation": "Is it far?" },
+    { "speaker": "B", "text": "不远，走路十分钟。", "reading": "Bù yuǎn, zǒulù shí fēnzhōng.", "translation": "Not far, ten minutes on foot." },
+    { "speaker": "A", "text": "下一班火车几点？", "reading": "Xià yì bān huǒchē jǐ diǎn?", "translation": "What time is the next train?" },
+    { "speaker": "B", "text": "我不知道，你去问问吧。", "reading": "Wǒ bù zhīdào, nǐ qù wènwen ba.", "translation": "I don't know — go and ask." },
+    { "speaker": "A", "text": "谢谢你！", "reading": "Xièxie nǐ!", "translation": "Thank you!" }
+  ],
+  "vocabulary": [
+    { "word": "请问 (qǐngwèn)", "meaning": "excuse me, may I ask" },
+    { "word": "火车站 (huǒchēzhàn)", "meaning": "railway station — fire-cart-stop" },
+    { "word": "在哪儿 (zài nǎr)", "meaning": "where is it" },
+    { "word": "往前走 (wǎng qián zǒu)", "meaning": "go straight ahead" },
+    { "word": "慢一点儿 (màn yìdiǎnr)", "meaning": "a bit slower — the phrase to learn first" },
+    { "word": "到 (dào)", "meaning": "as far as, until" },
+    { "word": "往右拐 / 往左拐", "meaning": "turn right / turn left" },
+    { "word": "左边 / 右边 (zuǒbian / yòubian)", "meaning": "left side / right side" },
+    { "word": "远不远 (yuǎn bu yuǎn)", "meaning": "is it far? — the verb-not-verb way of asking a yes/no question" },
+    { "word": "走路 (zǒulù)", "meaning": "to walk, on foot" }
+  ],
+  "questions": [
+    { "q": "What is he looking for?", "options": ["The railway station", "The bank", "A bus"], "answer": 0 },
+    { "q": "Where does he turn right?", "options": ["At the bank", "At the station", "Straight away"], "answer": 0, "explain": "dào yínháng, ránhòu wǎng yòu guǎi" },
+    { "q": "Which side is the station on?", "options": ["The left", "The right", "Behind the bank"], "answer": 0, "explain": "jiù zài zuǒbian" },
+    { "q": "How far is it?", "options": ["Ten minutes on foot", "Ten minutes by bus", "Not stated"], "answer": 0 },
+    { "q": "Does she know the train time?", "options": ["No", "Yes, ten o'clock", "Yes, in ten minutes"], "answer": 0, "explain": "wǒ bù zhīdào" },
+    { "q": "What does 远不远 mean, and why is it built that way?", "options": ["Is it far? — verb-not-verb makes a yes/no question", "It is not far", "How far is it?"], "answer": 0, "explain": "Repeating the adjective with 不 between is a normal way to ask a yes/no question, instead of 吗." }
+  ]
+}

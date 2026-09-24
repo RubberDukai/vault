@@ -1,0 +1,40 @@
+{
+  "title": "¿Cómo se llega? — asking the way",
+  "level": "A1",
+  "order": 2,
+  "summary": "A stranger asks for the station. Directions, distances and the one question worth learning by heart: can you say it more slowly?",
+  "speakers": { "A": "Viajero", "B": "Señora" },
+  "lines": [
+    { "speaker": "A", "text": "Perdone, ¿hay una estación por aquí?", "translation": "Excuse me, is there a station near here?" },
+    { "speaker": "B", "text": "Sí, la estación de autobuses está a diez minutos andando.", "translation": "Yes, the bus station is ten minutes' walk away." },
+    { "speaker": "A", "text": "¿Puede repetirlo más despacio, por favor?", "translation": "Can you say that again more slowly, please?" },
+    { "speaker": "B", "text": "Claro. Siga todo recto por esta calle.", "translation": "Of course. Go straight on along this street." },
+    { "speaker": "B", "text": "Después gire a la derecha en la plaza.", "translation": "Then turn right at the square." },
+    { "speaker": "B", "text": "La estación está enfrente de la iglesia.", "translation": "The station is opposite the church." },
+    { "speaker": "A", "text": "¿Está lejos?", "translation": "Is it far?" },
+    { "speaker": "B", "text": "No, no está lejos. Un kilómetro, más o menos.", "translation": "No, it is not far. A kilometre, more or less." },
+    { "speaker": "A", "text": "¿Y sabe a qué hora sale el próximo autobús?", "translation": "And do you know what time the next bus leaves?" },
+    { "speaker": "B", "text": "Creo que a las cuatro y media. Pero pregunte allí.", "translation": "I think at half past four. But ask there." },
+    { "speaker": "A", "text": "Muchas gracias. Es usted muy amable.", "translation": "Thank you very much. You are very kind." }
+  ],
+  "vocabulary": [
+    { "word": "perdone", "meaning": "excuse me (polite)" },
+    { "word": "andando", "meaning": "on foot, walking" },
+    { "word": "más despacio", "meaning": "more slowly — learn this one first" },
+    { "word": "siga todo recto", "meaning": "go straight on" },
+    { "word": "gire a la derecha / izquierda", "meaning": "turn right / left" },
+    { "word": "enfrente de", "meaning": "opposite" },
+    { "word": "lejos / cerca", "meaning": "far / near" },
+    { "word": "más o menos", "meaning": "more or less, roughly" },
+    { "word": "sale", "meaning": "it leaves, it departs" },
+    { "word": "y media", "meaning": "and a half — half past" }
+  ],
+  "questions": [
+    { "q": "What is the traveller looking for?", "options": ["The bus station", "The church", "The square"], "answer": 0 },
+    { "q": "Which way does he turn at the square?", "options": ["Right", "Left", "Straight on"], "answer": 0, "explain": "gire a la derecha" },
+    { "q": "What is the station opposite?", "options": ["The church", "The square", "A shop"], "answer": 0, "explain": "enfrente de la iglesia" },
+    { "q": "How far is it?", "options": ["About a kilometre", "Ten kilometres", "Half a kilometre"], "answer": 0, "explain": "Un kilómetro, más o menos — and about ten minutes' walk, which agrees." },
+    { "q": "What time does she think the next bus goes?", "options": ["4.30", "4.00", "5.30"], "answer": 0, "explain": "a las cuatro y media" },
+    { "q": "How sure is she about the time?", "options": ["Not certain — she says to ask there", "Completely certain", "She does not know at all"], "answer": 0, "explain": "Creo que… Pero pregunte allí. 'Creo que' is the signal that she is not sure." }
+  ]
+}

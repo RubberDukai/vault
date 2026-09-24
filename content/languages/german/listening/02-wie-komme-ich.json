@@ -1,0 +1,40 @@
+{
+  "title": "Wie komme ich zum Bahnhof? — finding the station",
+  "level": "A1",
+  "order": 2,
+  "summary": "Directions on foot, with the dative prepositions that German directions are built from.",
+  "speakers": { "A": "Tourist", "B": "Passantin" },
+  "lines": [
+    { "speaker": "A", "text": "Entschuldigung, wie komme ich zum Bahnhof?", "translation": "Excuse me, how do I get to the station?" },
+    { "speaker": "B", "text": "Zum Bahnhof? Gehen Sie hier geradeaus.", "translation": "To the station? Go straight on here." },
+    { "speaker": "A", "text": "Können Sie bitte langsamer sprechen?", "translation": "Could you speak more slowly, please?" },
+    { "speaker": "B", "text": "Natürlich. Gehen Sie geradeaus bis zur Kirche.", "translation": "Of course. Go straight on as far as the church." },
+    { "speaker": "B", "text": "Dann gehen Sie links, und der Bahnhof ist auf der rechten Seite.", "translation": "Then go left, and the station is on the right-hand side." },
+    { "speaker": "A", "text": "Ist es weit?", "translation": "Is it far?" },
+    { "speaker": "B", "text": "Nein, ungefähr zehn Minuten zu Fuß.", "translation": "No, about ten minutes on foot." },
+    { "speaker": "A", "text": "Und wann fährt der nächste Zug nach München?", "translation": "And when does the next train to Munich leave?" },
+    { "speaker": "B", "text": "Das weiß ich leider nicht. Fragen Sie am Schalter.", "translation": "I'm afraid I don't know. Ask at the ticket window." },
+    { "speaker": "A", "text": "Vielen Dank für Ihre Hilfe!", "translation": "Many thanks for your help!" },
+    { "speaker": "B", "text": "Bitte schön. Gute Reise!", "translation": "You're welcome. Have a good journey!" }
+  ],
+  "vocabulary": [
+    { "word": "Entschuldigung", "meaning": "excuse me" },
+    { "word": "geradeaus", "meaning": "straight on" },
+    { "word": "langsamer sprechen", "meaning": "to speak more slowly — learn this early" },
+    { "word": "bis zur Kirche", "meaning": "as far as the church" },
+    { "word": "links / rechts", "meaning": "left / right" },
+    { "word": "auf der rechten Seite", "meaning": "on the right-hand side" },
+    { "word": "zu Fuß", "meaning": "on foot" },
+    { "word": "ungefähr", "meaning": "approximately" },
+    { "word": "der Schalter", "meaning": "the counter, the ticket window" },
+    { "word": "Bitte schön", "meaning": "you're welcome (in reply to thanks)" }
+  ],
+  "questions": [
+    { "q": "Where does he want to go?", "options": ["The station", "The church", "Munich, on foot"], "answer": 0 },
+    { "q": "Which way after the church?", "options": ["Left", "Right", "Straight on"], "answer": 0, "explain": "Dann gehen Sie links" },
+    { "q": "Which side is the station on?", "options": ["The right", "The left", "Opposite the church"], "answer": 0, "explain": "auf der rechten Seite — note that he turns left but the station is then on the right." },
+    { "q": "How long will it take?", "options": ["About ten minutes walking", "Ten minutes by train", "Half an hour"], "answer": 0 },
+    { "q": "Does she know when the train leaves?", "options": ["No — she says to ask at the counter", "Yes, in ten minutes", "Yes, at four o'clock"], "answer": 0, "explain": "Das weiß ich leider nicht" },
+    { "q": "What phrase did he use to ask her to slow down?", "options": ["Können Sie bitte langsamer sprechen?", "Wie bitte?", "Noch einmal"], "answer": 0 }
+  ]
+}

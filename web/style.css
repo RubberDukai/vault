@@ -951,3 +951,28 @@ details.answers > summary { cursor: pointer; font-weight: 600; }
 details.answers > summary::after { content: " — click to reveal"; font-weight: 400; color: var(--text-faint); font-size: 13px; }
 details.answers[open] > summary::after { content: ""; }
 @media print { details.answers { display: none; } }
+
+/* --- listening comprehension ------------------------------------------- */
+/* The transcript is hidden by default: a learner who reads along is reading,
+   not listening, and the point of the exercise is the ear. */
+.listen-lines { list-style: none; margin: 18px 0; padding: 0; }
+.listen-line { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: var(--radius); border: 1px solid transparent; }
+.listen-line.speaking { border-color: var(--accent); background: var(--bg-raised); }
+.listen-line .listen-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.listen-who { font-size: 12px; color: var(--text-faint); text-transform: uppercase; letter-spacing: .04em; }
+.listen-text, .listen-reading, .listen-translation { display: none; }
+.listen-text { font-size: 17px; }
+.listen-reading { font-size: 13px; color: var(--text-faint); }
+.listen-translation { font-size: 14px; color: var(--text-muted); font-style: italic; }
+.listen-lines.show-text .listen-text, .listen-lines.show-text .listen-reading { display: block; }
+.listen-lines.show-translation .listen-translation { display: block; }
+/* With nothing shown, the row still has to be a target worth clicking. */
+.listen-lines:not(.show-text) .listen-body::before { content: "▬▬▬▬ ▬▬▬ ▬▬▬▬▬▬"; color: var(--border); letter-spacing: .1em; }
+.listen-lines.show-text .listen-body::before { content: none; }
+.listen-questions li { margin-bottom: 16px; }
+.listen-options { display: flex; gap: 8px; flex-wrap: wrap; }
+.listen-option.chosen { border-color: var(--accent); }
+.listen-verdict:empty { display: none; }
+.listen-verdict.right { color: var(--good, var(--accent)); }
+.listen-verdict.wrong { color: var(--text-muted); }
+@media print { .listen-text, .listen-reading, .listen-translation { display: block !important; } #listen-controls { display: none; } }

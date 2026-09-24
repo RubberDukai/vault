@@ -1,0 +1,40 @@
+{
+  "title": "道をきく — asking the way",
+  "level": "N5",
+  "order": 2,
+  "summary": "Finding the station on foot. Direction words, distances in minutes, and how to ask someone to slow down.",
+  "speakers": { "A": "たびびと (traveller)", "B": "ひと (passer-by)" },
+  "lines": [
+    { "speaker": "A", "text": "すみません、えきは どこですか。", "reading": "Sumimasen, eki wa doko desu ka.", "translation": "Excuse me, where is the station?" },
+    { "speaker": "B", "text": "えきですか。まっすぐ いってください。", "reading": "Eki desu ka. Massugu itte kudasai.", "translation": "The station? Go straight on." },
+    { "speaker": "A", "text": "もういちど、ゆっくり おねがいします。", "reading": "Mou ichido, yukkuri onegaishimasu.", "translation": "Once more, slowly, please." },
+    { "speaker": "B", "text": "はい。この みちを まっすぐ いってください。", "reading": "Hai. Kono michi o massugu itte kudasai.", "translation": "Yes. Go straight along this road." },
+    { "speaker": "B", "text": "ぎんこうの かどを みぎに まがってください。", "reading": "Ginkou no kado o migi ni magatte kudasai.", "translation": "Turn right at the bank corner." },
+    { "speaker": "B", "text": "えきは ひだりがわに あります。", "reading": "Eki wa hidarigawa ni arimasu.", "translation": "The station is on the left-hand side." },
+    { "speaker": "A", "text": "とおいですか。", "reading": "Tooi desu ka.", "translation": "Is it far?" },
+    { "speaker": "B", "text": "いいえ、あるいて じゅっぷんぐらいです。", "reading": "Iie, aruite juppun gurai desu.", "translation": "No, about ten minutes on foot." },
+    { "speaker": "A", "text": "つぎの でんしゃは なんじですか。", "reading": "Tsugi no densha wa nanji desu ka.", "translation": "What time is the next train?" },
+    { "speaker": "B", "text": "さあ、わかりません。えきで きいてください。", "reading": "Saa, wakarimasen. Eki de kiite kudasai.", "translation": "Hmm, I don't know. Please ask at the station." },
+    { "speaker": "A", "text": "どうも ありがとうございます。", "reading": "Doumo arigatou gozaimasu.", "translation": "Thank you very much." }
+  ],
+  "vocabulary": [
+    { "word": "えき (eki)", "meaning": "station" },
+    { "word": "まっすぐ (massugu)", "meaning": "straight on" },
+    { "word": "もういちど (mou ichido)", "meaning": "once more" },
+    { "word": "ゆっくり (yukkuri)", "meaning": "slowly — the most useful word in this passage" },
+    { "word": "かど (kado)", "meaning": "corner" },
+    { "word": "みぎ / ひだり (migi / hidari)", "meaning": "right / left" },
+    { "word": "まがる (magaru)", "meaning": "to turn" },
+    { "word": "とおい / ちかい (tooi / chikai)", "meaning": "far / near" },
+    { "word": "あるいて (aruite)", "meaning": "on foot, walking" },
+    { "word": "ぐらい (gurai)", "meaning": "about, approximately" }
+  ],
+  "questions": [
+    { "q": "Where does he want to go?", "options": ["The station", "The bank", "The train"], "answer": 0 },
+    { "q": "Where does he turn right?", "options": ["At the bank corner", "At the station", "At the first corner"], "answer": 0, "explain": "ginkou no kado — ginkou is bank" },
+    { "q": "Which side is the station on?", "options": ["The left", "The right", "Straight ahead"], "answer": 0, "explain": "hidarigawa — hidari (left) + gawa (side)" },
+    { "q": "How long does it take?", "options": ["About ten minutes walking", "Ten minutes by train", "Twenty minutes"], "answer": 0, "explain": "aruite juppun gurai" },
+    { "q": "Does she know the train time?", "options": ["No — ask at the station", "Yes, in ten minutes", "Yes, at ten o'clock"], "answer": 0, "explain": "wakarimasen — and 'saa' is the hesitation noise that warns you the answer is no." },
+    { "q": "Which phrase asked her to slow down?", "options": ["Yukkuri onegaishimasu", "Massugu itte kudasai", "Doko desu ka"], "answer": 0 }
+  ]
+}

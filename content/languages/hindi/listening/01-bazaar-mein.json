@@ -1,0 +1,39 @@
+{
+  "title": "बाज़ार में — at the market",
+  "level": "A1",
+  "order": 1,
+  "summary": "Buying vegetables. Prices by the kilo, haggling, and the postpositions that Hindi uses where English uses prepositions.",
+  "speakers": { "A": "ग्राहक (customer)", "B": "दुकानदार (shopkeeper)" },
+  "lines": [
+    { "speaker": "A", "text": "नमस्ते! टमाटर कितने के हैं?", "reading": "Namaste! Tamātar kitne ke hain?", "translation": "Hello! How much are the tomatoes?" },
+    { "speaker": "B", "text": "चालीस रुपये किलो।", "reading": "Chālīs rupaye kilo.", "translation": "Forty rupees a kilo." },
+    { "speaker": "A", "text": "बहुत महँगे हैं! कुछ कम कीजिए।", "reading": "Bahut mahange hain! Kuchh kam kījiye.", "translation": "That's very dear! Make it a bit less." },
+    { "speaker": "B", "text": "ठीक है, पैंतीस रुपये।", "reading": "Thīk hai, paintīs rupaye.", "translation": "All right, thirty-five rupees." },
+    { "speaker": "A", "text": "दो किलो दीजिए। और एक किलो प्याज़।", "reading": "Do kilo dījiye. Aur ek kilo pyāz.", "translation": "Give me two kilos. And a kilo of onions." },
+    { "speaker": "B", "text": "और कुछ चाहिए?", "reading": "Aur kuchh chāhiye?", "translation": "Anything else?" },
+    { "speaker": "A", "text": "नहीं, बस। कितना हुआ?", "reading": "Nahīn, bas. Kitnā huā?", "translation": "No, that's all. How much is it?" },
+    { "speaker": "B", "text": "सौ रुपये।", "reading": "Sau rupaye.", "translation": "A hundred rupees." },
+    { "speaker": "A", "text": "यह लीजिए। धन्यवाद।", "reading": "Yah lījiye. Dhanyavād.", "translation": "Here you are. Thank you." },
+    { "speaker": "B", "text": "फिर आइएगा!", "reading": "Phir āiyegā!", "translation": "Come again!" }
+  ],
+  "vocabulary": [
+    { "word": "कितने के हैं (kitne ke hain)", "meaning": "how much are they?" },
+    { "word": "रुपये (rupaye)", "meaning": "rupees" },
+    { "word": "महँगा / सस्ता (mahangā / sastā)", "meaning": "expensive / cheap" },
+    { "word": "कम कीजिए (kam kījiye)", "meaning": "make it less — the polite imperative, and how haggling starts" },
+    { "word": "दीजिए (dījiye)", "meaning": "please give" },
+    { "word": "प्याज़ (pyāz)", "meaning": "onion" },
+    { "word": "चाहिए (chāhiye)", "meaning": "is wanted, is needed" },
+    { "word": "बस (bas)", "meaning": "that's enough, that's all" },
+    { "word": "कितना हुआ (kitnā huā)", "meaning": "how much did it come to?" },
+    { "word": "फिर आइएगा (phir āiyegā)", "meaning": "please come again" }
+  ],
+  "questions": [
+    { "q": "What was the first price for tomatoes?", "options": ["40 rupees a kilo", "35 rupees a kilo", "100 rupees a kilo"], "answer": 0, "explain": "chālīs = 40" },
+    { "q": "What price did they agree on?", "options": ["35 rupees", "40 rupees", "30 rupees"], "answer": 0, "explain": "paintīs = 35" },
+    { "q": "What does she buy?", "options": ["Two kilos of tomatoes and one of onions", "One kilo of each", "Only tomatoes"], "answer": 0 },
+    { "q": "What does she pay altogether?", "options": ["100 rupees", "70 rupees", "35 rupees"], "answer": 0, "explain": "sau = 100" },
+    { "q": "What does बस (bas) mean here?", "options": ["That's all, nothing more", "A bus", "Wait"], "answer": 0 },
+    { "q": "Which phrase is the polite way of asking for a lower price?", "options": ["Kuchh kam kījiye", "Kitnā huā", "Aur kuchh chāhiye"], "answer": 0 }
+  ]
+}

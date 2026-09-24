@@ -123,6 +123,7 @@ const routes = [
   [/^\/handbook\/(.+)$/, renderChapter],
   [/^\/languages$/, renderLanguages],
   [/^\/languages\/([^/]+)\/guide$/, renderLanguageGuide],
+  [/^\/languages\/([^/]+)\/listening\/([^/]+)$/, renderListening],
   [/^\/study(?:\/(.+))?$/, renderStudy],
   [/^\/maps$/, renderMaps],
   [/^\/comms$/, renderComms],
@@ -312,7 +313,7 @@ const FEATURES = [
   ['Knowledge', null, null],
   ['Library', '#/library', 'Your encyclopedia packs and books. Every one records the day it was cloned, and tells you when a fresher copy exists.'],
   ['Handbook', '#/handbook', 'Water, fire, medicine, food, power, shelter, comms, community, repair. Written to be read before you need it.'],
-  ['Languages', '#/languages', 'Spaced repetition that shows you a card just before you would have forgotten it. Japanese to N5, Spanish to A1.'],
+  ['Languages', '#/languages', 'Spaced repetition that shows you a card just before you would have forgotten it, and spoken passages to train the ear. Five languages, offline.'],
   ['School', '#/school', 'A curriculum that needs no teacher, server or signal. Progress tracked per person.'],
   ['Music', '#/music', 'A piano you can play from the keyboard, a metronome and tuning pitches. So the music does not stop.'],
   ['Science', '#/science', 'The periodic table, and the night sky for any place, date and hour — stars, planets and the moon, computed on the spot.'],
@@ -976,7 +977,8 @@ async function renderLanguages() {
 
   view.innerHTML = `
     <h1>Languages</h1>
-    <p class="lede">Spaced repetition: each card comes back just before you would have forgotten it. Ten minutes a day beats an hour a week.</p>
+    <p class="lede">Spaced repetition: each card comes back just before you would have forgotten it. Ten minutes a day beats an hour a week.
+    The listening passages train the other half — understanding someone talking at their own speed, which no amount of reading teaches.</p>
 
     <div class="card" style="margin-bottom:18px">
       <div class="row" style="gap:18px;flex-wrap:wrap;align-items:center">
@@ -1004,6 +1006,8 @@ async function renderLanguages() {
       using the voices installed in Windows; that works offline, but only for languages whose voice is installed.</p>
     </div>
 
+    <div class="card" id="voice-status" style="margin-bottom:18px"></div>
+
     ${languages.length === 0 ? '<div class="empty">No language decks installed.</div>' : languages.map((lang) => `
       <h2>${esc(lang.name)}${lang.nativeName ? ` <span class="muted" style="font-weight:400">${esc(lang.nativeName)}</span>` : ''}</h2>
       <div class="row" style="margin:-6px 0 12px">
@@ -1013,6 +1017,15 @@ async function renderLanguages() {
         <a class="btn btn-primary btn-sm" href="#/study?language=${encodeURIComponent(lang.id)}">Study ${esc(lang.name)}</a>
         ${lang.guide ? `<a class="btn btn-sm" href="#/languages/${encodeURIComponent(lang.id)}/guide">How it works</a>` : ''}
       </div>
+      ${(lang.listening || []).length ? `
+        <div class="card">
+          <strong>Listening</strong>
+          <p class="faint" style="margin:4px 0 10px">Spoken passages with questions — the ear is a separate skill from the eye, and it is the one that fails first.</p>
+          <div class="row" style="gap:8px;flex-wrap:wrap">
+            ${lang.listening.map((p) => `<a class="btn btn-sm" href="#/languages/${encodeURIComponent(lang.id)}/listening/${encodeURIComponent(p.slug)}">${p.level ? `${esc(p.level)} · ` : ''}${esc(p.title)}</a>`).join('')}
+          </div>
+        </div>
+      ` : ''}
       ${lang.notes ? `<p class="faint" style="margin:0 0 12px">${esc(lang.notes)}</p>` : ''}
       ${lang.syllabus ? `<p class="faint" style="margin:0 0 12px"><strong>Where this sits:</strong> ${esc(lang.syllabus)}</p>` : ''}
       ${lang.decks.map((deck) => `
@@ -1033,6 +1046,38 @@ async function renderLanguages() {
   document.getElementById('study-new').onchange = (e) => saveStudySettings({ newLimit: Number(e.target.value) });
   document.getElementById('study-limit').onchange = (e) => saveStudySettings({ limit: Number(e.target.value) });
   document.getElementById('study-reading').onchange = (e) => saveStudySettings({ showReading: e.target.checked });
+
+  renderVoiceStatus(languages);
+  // Chrome fills the voice list asynchronously, so the first paint can be wrong.
+  if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = () => renderVoiceStatus(languages);
+}
+
+/**
+ * Which languages this machine can actually speak. Worth saying plainly: the
+ * voices are a free part of Windows but they are not installed by default, and
+ * without one the listening passages have nothing to play.
+ */
+function renderVoiceStatus(languages) {
+  const box = document.getElementById('voice-status');
+  if (!box) return;
+  if (!('speechSynthesis' in window)) {
+    box.innerHTML = '<p class="faint" style="margin:0">This browser has no speech engine, so nothing can be spoken aloud.</p>';
+    return;
+  }
+  const have = languages.filter((l) => speechVoice(l.id));
+  const missing = languages.filter((l) => !speechVoice(l.id));
+  box.innerHTML = `
+    <strong>Spoken aloud</strong>
+    <p class="faint" style="margin:4px 0 8px">Speech comes from the voices installed in Windows. It works entirely offline — nothing is fetched, and no recording is stored in the vault.</p>
+    <div class="row" style="gap:6px;flex-wrap:wrap;margin-bottom:8px">
+      ${have.map((l) => `<span class="tag tag-good">${esc(l.name)}</span>`).join('')}
+      ${missing.map((l) => `<span class="tag">${esc(l.name)} — no voice</span>`).join('')}
+    </div>
+    ${missing.length ? `<p class="faint" style="margin:0">To add the missing ones: <strong>Settings › Time &amp; language › Speech › Manage voices › Add voices</strong>,
+      pick the language, and it downloads once and then works offline for ever. You may need to sign out and back in before the browser sees a new voice.
+      Until then the flashcards still work silently and the listening passages show their transcript instead.</p>`
+      : '<p class="faint" style="margin:0">Every installed language has a voice. The listening passages and the Say it button will speak.</p>'}
+  `;
 }
 
 /** How big a study session is and whether the reading shows before the flip. Per browser. */
@@ -1085,6 +1130,188 @@ async function renderLanguageGuide(langId) {
     guide.html,
     `Languages · ${guide.language} · ${guide.title}`
   );
+}
+
+// --------------------------------------------------- listening comprehension
+
+// Hearing a language is a separate skill from reading it, and it is the one
+// that fails first: a learner who knows every word on the page still cannot
+// follow two people talking. These passages are spoken by the same offline
+// voice the flashcards use — nothing is streamed, nothing is downloaded, and
+// the transcript stays hidden until the listener has had a fair go without it.
+const LISTEN_STOP = { stopped: false };
+
+function stopSpeaking() {
+  LISTEN_STOP.stopped = true;
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+}
+
+/** Speak one line and resolve when it has finished (or failed). */
+function speakLine(text, langId, rate) {
+  return new Promise((resolve) => {
+    const voice = speechVoice(langId);
+    if (!voice) return resolve(false);
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.voice = voice;
+    utter.lang = voice.lang;
+    utter.rate = rate;
+    utter.onend = () => resolve(true);
+    // A voice that dies mid-sentence must not leave the player stuck for ever.
+    utter.onerror = () => resolve(false);
+    speechSynthesis.speak(utter);
+  });
+}
+
+async function renderListening(langId, slug) {
+  setBusy();
+  const passage = await api(`languages/${encodeURIComponent(langId)}/listening/${encodeURIComponent(slug)}`);
+  const voice = speechVoice(langId);
+  const speakerName = (key) => passage.speakers[key] || key;
+
+  view.innerHTML = printable(
+    `<a href="#/languages">Languages</a> · ${esc(passage.language)} · Listening`,
+    `
+    <h1>${esc(passage.title)}</h1>
+    <p class="lede">${esc(passage.summary)}</p>
+    <p class="faint">${passage.level ? `${esc(passage.level)} · ` : ''}${passage.lines.length} lines · ${passage.questions.length} questions</p>
+
+    ${voice ? '' : `<div class="card" style="margin-bottom:16px"><strong>No ${esc(passage.language)} voice is installed</strong>
+      <p class="faint" style="margin:6px 0 0">The passage cannot be spoken, so the transcript is shown instead. To add a voice:
+      Windows Settings › Time &amp; language › Speech › Add voices. It works offline once installed.</p></div>`}
+
+    <div class="card" id="listen-controls">
+      <div class="row" style="gap:8px;flex-wrap:wrap;align-items:center">
+        <button class="btn btn-primary" id="listen-play" ${voice ? '' : 'disabled'}>▶ Play</button>
+        <button class="btn" id="listen-stop" ${voice ? '' : 'disabled'}>■ Stop</button>
+        <label class="row" style="gap:8px;margin-left:8px">
+          <span>Speed</span>
+          <select class="map-select" id="listen-rate" style="width:auto">
+            <option value="0.6">Slow</option>
+            <option value="0.8" selected>Steady</option>
+            <option value="1">Normal</option>
+          </select>
+        </label>
+        <label class="checkbox-row" style="margin-left:8px">
+          <input type="checkbox" id="listen-transcript" ${voice ? '' : 'checked'}>
+          <span>Show the transcript</span>
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" id="listen-translation">
+          <span>Show the English</span>
+        </label>
+      </div>
+      <p class="faint" style="margin:10px 0 0">Listen right through once with the transcript hidden. Then answer what you can.
+      Then listen again, line by line — the ▶ beside a line plays just that line — and only then turn the transcript on.
+      Understanding half of it the first time is a normal and good result.</p>
+    </div>
+
+    <ol class="listen-lines" id="listen-lines">
+      ${passage.lines.map((line) => `
+        <li class="listen-line" data-index="${line.index}">
+          <button class="btn btn-sm listen-one" data-index="${line.index}" ${voice ? '' : 'disabled'} title="Play this line">▶</button>
+          <div class="listen-body">
+            ${line.speaker ? `<span class="listen-who">${esc(speakerName(line.speaker))}</span>` : ''}
+            <span class="listen-text">${esc(line.text)}</span>
+            ${line.reading ? `<span class="listen-reading">${esc(line.reading)}</span>` : ''}
+            ${line.translation ? `<span class="listen-translation">${esc(line.translation)}</span>` : ''}
+          </div>
+        </li>
+      `).join('')}
+    </ol>
+
+    ${passage.questions.length ? `
+      <h2>Questions</h2>
+      <p class="faint" style="margin:-8px 0 12px">Answer from what you heard, before you read anything.</p>
+      <ol class="listen-questions">
+        ${passage.questions.map((qn) => `
+          <li>
+            <p style="margin:0 0 6px">${esc(qn.q)}</p>
+            ${qn.options ? `<div class="listen-options" data-index="${qn.index}">
+              ${qn.options.map((opt, i) => `<button class="btn btn-sm listen-option" data-index="${qn.index}" data-option="${i}">${esc(opt)}</button>`).join('')}
+            </div>` : '<p class="faint" style="margin:0">Write your answer, then check it below.</p>'}
+            <p class="listen-verdict faint" data-index="${qn.index}" style="margin:6px 0 0"></p>
+          </li>
+        `).join('')}
+      </ol>
+      <details class="answers">
+        <summary>Answers</summary>
+        <ol>
+          ${passage.questions.map((qn) => `<li>${esc(qn.options ? qn.options[qn.answer] : String(qn.answer))}${qn.explain ? ` — ${esc(qn.explain)}` : ''}</li>`).join('')}
+        </ol>
+      </details>
+    ` : ''}
+
+    ${passage.vocabulary.length ? `
+      <h2>Words in this passage</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Word</th><th>Meaning</th></tr></thead>
+        <tbody>${passage.vocabulary.map((v) => `<tr><td>${esc(v.word)}</td><td>${esc(v.meaning)}</td></tr>`).join('')}</tbody>
+      </table></div>
+    ` : ''}
+    `,
+    `Languages · ${passage.language} · ${passage.title}`
+  );
+
+  const lines = view.querySelector('#listen-lines');
+  const rateOf = () => Number(document.getElementById('listen-rate').value) || 0.8;
+  const setShow = (cls, on) => lines.classList.toggle(cls, on);
+
+  document.getElementById('listen-transcript').onchange = (e) => setShow('show-text', e.target.checked);
+  document.getElementById('listen-translation').onchange = (e) => setShow('show-translation', e.target.checked);
+  setShow('show-text', document.getElementById('listen-transcript').checked);
+
+  const highlight = (index) => {
+    for (const el of lines.querySelectorAll('.listen-line')) {
+      el.classList.toggle('speaking', Number(el.dataset.index) === index);
+    }
+  };
+
+  document.getElementById('listen-play').onclick = async () => {
+    stopSpeaking();
+    LISTEN_STOP.stopped = false;
+    const rate = rateOf();
+    for (const line of passage.lines) {
+      if (LISTEN_STOP.stopped) break;
+      highlight(line.index);
+      await speakLine(line.text, langId, rate);
+      // A beat between speakers, as in real speech.
+      if (!LISTEN_STOP.stopped) await new Promise((r) => setTimeout(r, 400));
+    }
+    highlight(-1);
+  };
+
+  document.getElementById('listen-stop').onclick = () => { stopSpeaking(); highlight(-1); };
+
+  for (const button of view.querySelectorAll('.listen-one')) {
+    button.onclick = async () => {
+      stopSpeaking();
+      LISTEN_STOP.stopped = false;
+      const index = Number(button.dataset.index);
+      highlight(index);
+      await speakLine(passage.lines[index].text, langId, rateOf());
+      highlight(-1);
+    };
+  }
+
+  for (const button of view.querySelectorAll('.listen-option')) {
+    button.onclick = () => {
+      const index = Number(button.dataset.index);
+      const chosen = Number(button.dataset.option);
+      const question = passage.questions[index];
+      const right = chosen === question.answer;
+      for (const other of view.querySelectorAll(`.listen-option[data-index="${index}"]`)) {
+        other.classList.toggle('chosen', other === button);
+      }
+      const verdict = view.querySelector(`.listen-verdict[data-index="${index}"]`);
+      verdict.textContent = right
+        ? `Yes${question.explain ? ` — ${question.explain}` : ''}`
+        : 'Not that one — listen again before you look at the answers.';
+      verdict.className = `listen-verdict ${right ? 'right' : 'wrong'}`;
+    };
+  }
+
+  // Leaving the page must not leave a voice talking to an empty room.
+  window.addEventListener('hashchange', stopSpeaking, { once: true });
 }
 
 async function renderStudy(deckId, params) {

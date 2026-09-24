@@ -1,0 +1,40 @@
+{
+  "title": "お店で — at the shop",
+  "level": "N5",
+  "order": 1,
+  "summary": "Buying apples and water. Counters, prices and the politeness that carries every shop exchange in Japan.",
+  "speakers": { "A": "きゃく (customer)", "B": "みせのひと (shopkeeper)" },
+  "lines": [
+    { "speaker": "B", "text": "いらっしゃいませ。", "reading": "Irasshaimase.", "translation": "Welcome. (said to every customer entering)" },
+    { "speaker": "A", "text": "すみません、りんごはいくらですか。", "reading": "Sumimasen, ringo wa ikura desu ka.", "translation": "Excuse me, how much are the apples?" },
+    { "speaker": "B", "text": "ひとつ ひゃくごじゅうえんです。", "reading": "Hitotsu hyaku-gojuu-en desu.", "translation": "One hundred and fifty yen each." },
+    { "speaker": "A", "text": "じゃあ、みっつ ください。", "reading": "Jaa, mittsu kudasai.", "translation": "Three, please, then." },
+    { "speaker": "B", "text": "はい。ほかに なにか ありますか。", "reading": "Hai. Hoka ni nanika arimasu ka.", "translation": "Yes. Anything else?" },
+    { "speaker": "A", "text": "みずを いっぽん おねがいします。", "reading": "Mizu o ippon onegaishimasu.", "translation": "One bottle of water, please." },
+    { "speaker": "B", "text": "ぜんぶで ごひゃくえんです。", "reading": "Zenbu de gohyaku-en desu.", "translation": "Five hundred yen altogether." },
+    { "speaker": "A", "text": "カードは つかえますか。", "reading": "Kaado wa tsukaemasu ka.", "translation": "Can I use a card?" },
+    { "speaker": "B", "text": "すみません、げんきんだけです。", "reading": "Sumimasen, genkin dake desu.", "translation": "Sorry, cash only." },
+    { "speaker": "A", "text": "わかりました。どうぞ。", "reading": "Wakarimashita. Douzo.", "translation": "I see. Here you are." },
+    { "speaker": "B", "text": "ありがとうございました。", "reading": "Arigatou gozaimashita.", "translation": "Thank you very much." }
+  ],
+  "vocabulary": [
+    { "word": "いらっしゃいませ (irasshaimase)", "meaning": "welcome — said to you, not by you; no reply is needed" },
+    { "word": "いくら (ikura)", "meaning": "how much" },
+    { "word": "ひとつ、ふたつ、みっつ (hitotsu, futatsu, mittsu)", "meaning": "one, two, three things — the general counter" },
+    { "word": "いっぽん (ippon)", "meaning": "one long thin thing — bottles, pens, umbrellas" },
+    { "word": "ください (kudasai)", "meaning": "please give me" },
+    { "word": "おねがいします (onegaishimasu)", "meaning": "please — softer and more general than kudasai" },
+    { "word": "ぜんぶで (zenbu de)", "meaning": "altogether" },
+    { "word": "げんきん (genkin)", "meaning": "cash" },
+    { "word": "だけ (dake)", "meaning": "only" },
+    { "word": "わかりました (wakarimashita)", "meaning": "I understand, I see" }
+  ],
+  "questions": [
+    { "q": "How much is one apple?", "options": ["150 yen", "115 yen", "500 yen"], "answer": 0, "explain": "hyaku-gojuu-en = 100 + 50" },
+    { "q": "How many apples does she buy?", "options": ["Three", "Two", "One"], "answer": 0, "explain": "mittsu — the general counter for three things" },
+    { "q": "What else does she buy?", "options": ["A bottle of water", "Bread", "Nothing"], "answer": 0, "explain": "mizu o ippon — ippon is the counter for a long thin thing" },
+    { "q": "What is the total?", "options": ["500 yen", "450 yen", "150 yen"], "answer": 0, "explain": "zenbu de gohyaku-en" },
+    { "q": "Can she pay by card?", "options": ["No, cash only", "Yes", "Only for the water"], "answer": 0, "explain": "genkin dake desu" },
+    { "q": "Who says いらっしゃいませ?", "options": ["The shopkeeper, to the customer", "The customer, on entering", "Both"], "answer": 0, "explain": "It is a greeting to customers. You do not say it back." }
+  ]
+}

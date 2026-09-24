@@ -170,6 +170,54 @@ test('the pack catalogue is valid and its ids are unique', () => {
   assert.deepStrictEqual(problems, []);
 });
 
+test('every listening passage is complete and its answers point at real options', () => {
+  const languages = path.join(CONTENT, 'languages');
+  if (!fs.existsSync(languages)) return;
+  const problems = [];
+  let passages = 0;
+
+  for (const lang of fs.readdirSync(languages, { withFileTypes: true }).filter((e) => e.isDirectory())) {
+    const dir = path.join(languages, lang.name, 'listening');
+    if (!fs.existsSync(dir)) continue;
+    for (const entry of fs.readdirSync(dir).filter((f) => f.endsWith('.json'))) {
+      const where = `${lang.name}/listening/${entry}`;
+      let passage;
+      try { passage = JSON.parse(fs.readFileSync(path.join(dir, entry), 'utf8')); }
+      catch (err) { problems.push(`${where}: invalid JSON — ${err.message}`); continue; }
+      passages++;
+
+      if (!passage.title) problems.push(`${where}: no title`);
+      if (!passage.summary) problems.push(`${where}: no summary`);
+      if (typeof passage.order !== 'number') problems.push(`${where}: order must be a number`);
+      if (!Array.isArray(passage.lines) || passage.lines.length < 2) problems.push(`${where}: needs at least two lines`);
+
+      for (const [i, line] of (passage.lines || []).entries()) {
+        if (!line.text) problems.push(`${where}: line ${i} has no text`);
+        // Without a translation a learner has no way to check themselves.
+        if (!line.translation) problems.push(`${where}: line ${i} has no translation`);
+        if (line.speaker && passage.speakers && !passage.speakers[line.speaker]) {
+          problems.push(`${where}: line ${i} speaks as "${line.speaker}", which is not in speakers`);
+        }
+      }
+
+      for (const [i, qn] of (passage.questions || []).entries()) {
+        if (!qn.q) problems.push(`${where}: question ${i} has no text`);
+        if (qn.options) {
+          if (!Array.isArray(qn.options) || qn.options.length < 2) problems.push(`${where}: question ${i} needs at least two options`);
+          else if (!Number.isInteger(qn.answer) || qn.answer < 0 || qn.answer >= qn.options.length) {
+            problems.push(`${where}: question ${i} answer ${JSON.stringify(qn.answer)} is not one of its ${qn.options.length} options`);
+          }
+        } else if (qn.answer === undefined || qn.answer === null || qn.answer === '') {
+          problems.push(`${where}: question ${i} has no answer`);
+        }
+      }
+    }
+  }
+
+  assert.deepStrictEqual(problems, []);
+  assert.ok(passages > 0, 'there should be some listening passages');
+});
+
 test('no language deck repeats a card within itself', () => {
   const languages = path.join(CONTENT, 'languages');
   if (!fs.existsSync(languages)) return;

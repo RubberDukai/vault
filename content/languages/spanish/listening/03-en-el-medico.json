@@ -1,0 +1,40 @@
+{
+  "title": "En el médico — at the doctor",
+  "level": "A2",
+  "order": 3,
+  "summary": "A man describes what hurts, for how long, and what he has already taken. The past tense, and the vocabulary you cannot afford to be vague about.",
+  "speakers": { "A": "Médica", "B": "Paciente" },
+  "lines": [
+    { "speaker": "A", "text": "Buenas tardes. Siéntese. ¿Qué le pasa?", "translation": "Good afternoon. Sit down. What is the matter?" },
+    { "speaker": "B", "text": "Me duele mucho el estómago desde hace tres días.", "translation": "My stomach has hurt a lot for three days." },
+    { "speaker": "A", "text": "¿Ha tenido fiebre?", "translation": "Have you had a fever?" },
+    { "speaker": "B", "text": "Sí, anoche tuve treinta y ocho y medio.", "translation": "Yes, last night I had thirty-eight and a half." },
+    { "speaker": "A", "text": "¿Ha vomitado? ¿Tiene diarrea?", "translation": "Have you vomited? Do you have diarrhoea?" },
+    { "speaker": "B", "text": "Vomité ayer dos veces. Diarrea no.", "translation": "I was sick twice yesterday. No diarrhoea." },
+    { "speaker": "A", "text": "¿Ha tomado algo?", "translation": "Have you taken anything?" },
+    { "speaker": "B", "text": "Tomé una pastilla para el dolor, pero no me hizo nada.", "translation": "I took a painkiller, but it did nothing for me." },
+    { "speaker": "A", "text": "¿Es usted alérgico a algún medicamento?", "translation": "Are you allergic to any medicine?" },
+    { "speaker": "B", "text": "A la penicilina, sí.", "translation": "To penicillin, yes." },
+    { "speaker": "A", "text": "Bien. Beba mucha agua y descanse. Si sigue igual mañana, vuelva.", "translation": "Good. Drink plenty of water and rest. If it is the same tomorrow, come back." }
+  ],
+  "vocabulary": [
+    { "word": "¿qué le pasa?", "meaning": "what is wrong with you?" },
+    { "word": "me duele…", "meaning": "… hurts me — the thing that hurts is the subject: me duele la cabeza, me duelen los pies" },
+    { "word": "desde hace tres días", "meaning": "for three days (and still going)" },
+    { "word": "la fiebre", "meaning": "fever" },
+    { "word": "vomitar", "meaning": "to be sick, to vomit" },
+    { "word": "la pastilla", "meaning": "tablet, pill" },
+    { "word": "no me hizo nada", "meaning": "it did nothing for me" },
+    { "word": "alérgico a", "meaning": "allergic to — say this before anything else if it is true" },
+    { "word": "descanse", "meaning": "rest (polite command)" },
+    { "word": "si sigue igual", "meaning": "if it stays the same" }
+  ],
+  "questions": [
+    { "q": "How long has his stomach hurt?", "options": ["Three days", "Three weeks", "Since last night"], "answer": 0, "explain": "desde hace tres días" },
+    { "q": "What temperature did he have last night?", "options": ["38.5", "35.8", "30.8"], "answer": 0, "explain": "treinta y ocho y medio" },
+    { "q": "Which of these does he have?", "options": ["He was sick twice", "Diarrhoea", "Both"], "answer": 0, "explain": "Vomité ayer dos veces. Diarrea no." },
+    { "q": "What did the painkiller do?", "options": ["Nothing", "Helped a little", "Made it worse"], "answer": 0, "explain": "no me hizo nada" },
+    { "q": "What is he allergic to?", "options": ["Penicillin", "Nothing", "Painkillers"], "answer": 0 },
+    { "q": "What does the doctor tell him to do?", "options": ["Drink water, rest, come back if no better", "Go to hospital now", "Take the pill again"], "answer": 0 }
+  ]
+}

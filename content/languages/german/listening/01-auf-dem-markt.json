@@ -1,0 +1,36 @@
+{
+  "title": "Auf dem Markt — at the market",
+  "level": "A1",
+  "order": 1,
+  "summary": "Buying bread and apples. Numbers, prices and the accusative case doing its quiet work.",
+  "speakers": { "A": "Kundin", "B": "Verkäufer" },
+  "lines": [
+    { "speaker": "A", "text": "Guten Morgen!", "translation": "Good morning!" },
+    { "speaker": "B", "text": "Guten Morgen. Was darf es sein?", "translation": "Good morning. What can I get you?" },
+    { "speaker": "A", "text": "Ich hätte gern ein Brot, bitte.", "translation": "I would like a loaf of bread, please." },
+    { "speaker": "B", "text": "Gern. Sonst noch etwas?", "translation": "Gladly. Anything else?" },
+    { "speaker": "A", "text": "Ja, ein Kilo Äpfel. Was kosten die?", "translation": "Yes, a kilo of apples. What do they cost?" },
+    { "speaker": "B", "text": "Zwei Euro achtzig das Kilo.", "translation": "Two euros eighty a kilo." },
+    { "speaker": "A", "text": "Gut, dann nehme ich ein Kilo.", "translation": "Good, I'll take a kilo then." },
+    { "speaker": "B", "text": "Das macht zusammen fünf Euro dreißig.", "translation": "That comes to five euros thirty altogether." },
+    { "speaker": "A", "text": "Hier, bitte. Stimmt so.", "translation": "Here you are. Keep the change." },
+    { "speaker": "B", "text": "Danke schön. Schönen Tag noch!", "translation": "Thank you. Have a good day!" }
+  ],
+  "vocabulary": [
+    { "word": "Was darf es sein?", "meaning": "what can I get you? — the standard shop greeting" },
+    { "word": "ich hätte gern", "meaning": "I would like — politer than ich will, and the phrase to learn first" },
+    { "word": "sonst noch etwas?", "meaning": "anything else?" },
+    { "word": "der Apfel / die Äpfel", "meaning": "apple / apples" },
+    { "word": "das macht…", "meaning": "that comes to… (the total)" },
+    { "word": "zusammen", "meaning": "altogether" },
+    { "word": "Stimmt so", "meaning": "keep the change (literally: that's right as it is)" },
+    { "word": "Schönen Tag noch", "meaning": "have a good day" }
+  ],
+  "questions": [
+    { "q": "What does she buy?", "options": ["Bread and apples", "Bread only", "Apples and cheese"], "answer": 0 },
+    { "q": "What do the apples cost per kilo?", "options": ["2.80", "2.30", "5.30"], "answer": 0, "explain": "Zwei Euro achtzig" },
+    { "q": "What is the total?", "options": ["5.30", "2.80", "5.80"], "answer": 0, "explain": "fünf Euro dreißig" },
+    { "q": "What does 'Stimmt so' mean here?", "options": ["Keep the change", "That is wrong", "One moment"], "answer": 0 },
+    { "q": "Which phrase did she use to order politely?", "options": ["Ich hätte gern", "Ich will", "Gib mir"], "answer": 0, "explain": "Ich hätte gern — the subjunctive, and the normal polite way to ask for something." }
+  ]
+}

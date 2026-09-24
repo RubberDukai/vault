@@ -1,0 +1,40 @@
+{
+  "title": "La huerta — the vegetable garden",
+  "level": "A2",
+  "order": 4,
+  "summary": "Two neighbours talk about the weather, what to plant and when. Past and future together, at a speed people actually talk.",
+  "speakers": { "A": "Carmen", "B": "Luis" },
+  "lines": [
+    { "speaker": "A", "text": "¡Buenos días, Luis! ¿Ya has sembrado las patatas?", "translation": "Good morning, Luis! Have you sown the potatoes yet?" },
+    { "speaker": "B", "text": "Todavía no. La semana pasada llovió demasiado y la tierra estaba muy mojada.", "translation": "Not yet. Last week it rained too much and the ground was very wet." },
+    { "speaker": "A", "text": "Es verdad. Yo tampoco pude trabajar en la huerta.", "translation": "That's true. I couldn't work in the garden either." },
+    { "speaker": "B", "text": "Si hace sol el fin de semana, las sembraré el sábado.", "translation": "If it's sunny at the weekend, I'll sow them on Saturday." },
+    { "speaker": "A", "text": "¿Y las judías? El año pasado las tuyas crecieron muy bien.", "translation": "And the beans? Last year yours grew very well." },
+    { "speaker": "B", "text": "Las judías las siembro en mayo, cuando ya no hay heladas.", "translation": "I sow the beans in May, when there are no more frosts." },
+    { "speaker": "A", "text": "Aquí la última helada suele ser a finales de abril.", "translation": "Here the last frost is usually at the end of April." },
+    { "speaker": "B", "text": "Sí, pero el año pasado heló en mayo y perdí las primeras.", "translation": "Yes, but last year it froze in May and I lost the first ones." },
+    { "speaker": "A", "text": "Entonces mejor esperar. ¿Me puedes dar semillas?", "translation": "Better to wait, then. Can you give me some seed?" },
+    { "speaker": "B", "text": "Claro. Guardé las de las mejores plantas, como siempre.", "translation": "Of course. I saved them from the best plants, as always." },
+    { "speaker": "A", "text": "Gracias. Te traeré huevos el domingo.", "translation": "Thank you. I'll bring you eggs on Sunday." }
+  ],
+  "vocabulary": [
+    { "word": "sembrar", "meaning": "to sow" },
+    { "word": "todavía no", "meaning": "not yet" },
+    { "word": "la tierra", "meaning": "the soil, the ground" },
+    { "word": "mojado", "meaning": "wet" },
+    { "word": "la judía", "meaning": "bean (also alubia, frijol in the Americas)" },
+    { "word": "la helada / helar", "meaning": "frost / to freeze" },
+    { "word": "a finales de", "meaning": "at the end of (a month)" },
+    { "word": "suele ser", "meaning": "it is usually — from soler, 'to tend to'" },
+    { "word": "la semilla", "meaning": "seed" },
+    { "word": "guardé", "meaning": "I kept, I saved" }
+  ],
+  "questions": [
+    { "q": "Why has Luis not sown his potatoes yet?", "options": ["It rained too much and the ground was wet", "He has no seed", "It is too cold"], "answer": 0 },
+    { "q": "When will he sow them?", "options": ["Saturday, if it is sunny", "Sunday, whatever happens", "In May"], "answer": 0, "explain": "Si hace sol el fin de semana, las sembraré el sábado — note the 'if'." },
+    { "q": "When does he sow beans, and why then?", "options": ["May, when the frosts are over", "April, before the rain", "March, to get ahead"], "answer": 0 },
+    { "q": "What happened to his first beans last year?", "options": ["A May frost killed them", "The rain washed them out", "They grew very well"], "answer": 0, "explain": "heló en mayo y perdí las primeras" },
+    { "q": "Where does Luis's seed come from?", "options": ["He saved it from his best plants", "He buys it", "Carmen gave it to him"], "answer": 0, "explain": "Guardé las de las mejores plantas — the seed-saving from the science lessons, in a conversation." },
+    { "q": "What will Carmen give him in return?", "options": ["Eggs, on Sunday", "Potatoes", "Money"], "answer": 0 }
+  ]
+}

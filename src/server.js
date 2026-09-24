@@ -1254,6 +1254,17 @@ class ArkServer {
       });
     }
 
+    // A listening passage: the lines, the questions and the translations. The
+    // audio is spoken by the browser's own voice, so nothing is served here
+    // but text.
+    if (route.startsWith('languages/') && route.includes('/listening/')) {
+      const [, langId, , slug] = route.split('/');
+      const lang = this.content.languages.find((l) => l.id === langId);
+      const passage = lang && (lang.listening || []).find((p) => p.slug === slug);
+      if (!passage) return this.json(res, 404, { error: 'No such listening passage' });
+      return this.json(res, 200, { ...passage, language: lang.name, languageId: lang.id });
+    }
+
     if (route === 'languages') {
       const profileId = this.safeKey(q.get('profile'), 'default');
       const states = this.state.get().srs[profileId] || {};
@@ -1262,6 +1273,10 @@ class ArkServer {
         languages: this.content.languages.map((lang) => ({
           ...lang,
           guide: lang.guide ? { title: lang.guide.title } : null,
+          listening: (lang.listening || []).map((p) => ({
+            id: p.id, slug: p.slug, title: p.title, level: p.level, summary: p.summary,
+            lineCount: p.lines.length, questionCount: p.questions.length,
+          })),
           decks: lang.decks.map((deck) => ({
             id: deck.id,
             slug: deck.slug,

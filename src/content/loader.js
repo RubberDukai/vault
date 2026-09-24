@@ -227,6 +227,46 @@ class ContentLibrary {
 
       decks.sort((a, b) => (a.order - b.order) || a.title.localeCompare(b.title));
 
+      // Listening passages live in listening/ so they are not mistaken for
+      // decks. Cards teach words; these teach the ear, which is the part that
+      // fails first when a real person speaks at a real speed.
+      const listening = [];
+      for (const file of await readDirSafe(path.join(langDir, 'listening'))) {
+        if (!file.isFile() || !file.name.endsWith('.json')) continue;
+        try {
+          const passage = JSON.parse(await fsp.readFile(path.join(langDir, 'listening', file.name), 'utf8'));
+          const slug = file.name.replace(/\.json$/, '');
+          listening.push({
+            id: `${dirent.name}/${slug}`,
+            language: dirent.name,
+            slug,
+            title: passage.title || slug,
+            level: passage.level || '',
+            order: passage.order ?? 50,
+            summary: passage.summary || '',
+            speakers: passage.speakers || {},
+            lines: (passage.lines || []).map((l, idx) => ({
+              index: idx,
+              speaker: l.speaker || '',
+              text: l.text || '',
+              reading: l.reading || '',
+              translation: l.translation || '',
+            })),
+            vocabulary: passage.vocabulary || [],
+            questions: (passage.questions || []).map((qn, idx) => ({
+              index: idx,
+              q: qn.q,
+              options: qn.options || null,
+              answer: qn.answer,
+              explain: qn.explain || '',
+            })),
+          });
+        } catch (err) {
+          console.error(`[vault] skipping listening passage ${file.name}: ${err.message}`);
+        }
+      }
+      listening.sort((a, b) => (a.order - b.order) || a.title.localeCompare(b.title));
+
       // A written guide — grammar, pronunciation, how the language works —
       // because flashcards can teach words but not how to put them together.
       let guide = null;
@@ -248,6 +288,7 @@ class ContentLibrary {
         syllabus: langMeta.syllabus || '',
         decks,
         guide,
+        listening,
         cardCount: decks.reduce((n, d) => n + d.cards.length, 0),
       });
     }

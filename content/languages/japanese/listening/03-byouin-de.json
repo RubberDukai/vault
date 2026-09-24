@@ -1,0 +1,41 @@
+{
+  "title": "病院で — at the clinic",
+  "level": "N5",
+  "order": 3,
+  "summary": "Saying what hurts and for how long. The が particle with adjectives, and the past tense in a conversation you may badly need.",
+  "speakers": { "A": "いしゃ (doctor)", "B": "かんじゃ (patient)" },
+  "lines": [
+    { "speaker": "A", "text": "どうしましたか。", "reading": "Dou shimashita ka.", "translation": "What is the matter?" },
+    { "speaker": "B", "text": "おなかが いたいです。", "reading": "Onaka ga itai desu.", "translation": "My stomach hurts." },
+    { "speaker": "A", "text": "いつからですか。", "reading": "Itsu kara desu ka.", "translation": "Since when?" },
+    { "speaker": "B", "text": "みっかまえからです。", "reading": "Mikka mae kara desu.", "translation": "Since three days ago." },
+    { "speaker": "A", "text": "ねつは ありますか。", "reading": "Netsu wa arimasu ka.", "translation": "Do you have a fever?" },
+    { "speaker": "B", "text": "はい、きのうの よる さんじゅうはちどでした。", "reading": "Hai, kinou no yoru sanjuu-hachi-do deshita.", "translation": "Yes, last night it was thirty-eight degrees." },
+    { "speaker": "A", "text": "くすりを のみましたか。", "reading": "Kusuri o nomimashita ka.", "translation": "Have you taken any medicine?" },
+    { "speaker": "B", "text": "はい、のみましたが、きいませんでした。", "reading": "Hai, nomimashita ga, kikimasen deshita.", "translation": "Yes, I took some, but it did not work." },
+    { "speaker": "A", "text": "アレルギーは ありますか。", "reading": "Arerugii wa arimasu ka.", "translation": "Do you have any allergies?" },
+    { "speaker": "B", "text": "はい、ペニシリンです。", "reading": "Hai, penishirin desu.", "translation": "Yes, penicillin." },
+    { "speaker": "A", "text": "みずを たくさん のんで、やすんでください。", "reading": "Mizu o takusan nonde, yasunde kudasai.", "translation": "Drink plenty of water and rest." },
+    { "speaker": "A", "text": "あした よくならなかったら、また きてください。", "reading": "Ashita yoku naranakattara, mata kite kudasai.", "translation": "If it is no better tomorrow, come again." }
+  ],
+  "vocabulary": [
+    { "word": "どうしましたか (dou shimashita ka)", "meaning": "what is the matter?" },
+    { "word": "おなか (onaka)", "meaning": "stomach, belly" },
+    { "word": "いたい (itai)", "meaning": "painful, sore — the thing that hurts takes が" },
+    { "word": "いつから (itsu kara)", "meaning": "since when" },
+    { "word": "みっか (mikka)", "meaning": "three days" },
+    { "word": "ねつ (netsu)", "meaning": "fever" },
+    { "word": "くすり (kusuri)", "meaning": "medicine — you drink it: kusuri o nomu" },
+    { "word": "きく (kiku)", "meaning": "to be effective, to work (of medicine)" },
+    { "word": "やすむ (yasumu)", "meaning": "to rest" },
+    { "word": "また (mata)", "meaning": "again" }
+  ],
+  "questions": [
+    { "q": "What hurts?", "options": ["His stomach", "His head", "His back"], "answer": 0, "explain": "onaka ga itai" },
+    { "q": "Since when?", "options": ["Three days ago", "Yesterday", "This morning"], "answer": 0, "explain": "mikka mae kara" },
+    { "q": "What was his temperature last night?", "options": ["38 degrees", "35 degrees", "30 degrees"], "answer": 0, "explain": "sanjuu-hachi-do" },
+    { "q": "Did the medicine work?", "options": ["No", "Yes", "He did not take any"], "answer": 0, "explain": "kikimasen deshita — kiku is the verb for medicine working" },
+    { "q": "What is he allergic to?", "options": ["Penicillin", "Nothing", "The medicine he took"], "answer": 0 },
+    { "q": "What must he do if it is no better tomorrow?", "options": ["Come again", "Take more medicine", "Rest another day"], "answer": 0, "explain": "mata kite kudasai" }
+  ]
+}

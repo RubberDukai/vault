@@ -1,0 +1,36 @@
+{
+  "title": "En el mercado — at the market",
+  "level": "A1",
+  "order": 1,
+  "summary": "Ana buys vegetables and haggles a little. Prices, quantities and the courtesies that go round them.",
+  "speakers": { "A": "Ana", "B": "Vendedor" },
+  "lines": [
+    { "speaker": "A", "text": "Buenos días, señor.", "translation": "Good morning, sir." },
+    { "speaker": "B", "text": "Buenos días. ¿Qué le pongo?", "translation": "Good morning. What can I get you?" },
+    { "speaker": "A", "text": "¿Cuánto cuestan los tomates?", "translation": "How much are the tomatoes?" },
+    { "speaker": "B", "text": "Dos euros el kilo. Están muy buenos hoy.", "translation": "Two euros a kilo. They are very good today." },
+    { "speaker": "A", "text": "Póngame dos kilos, por favor. Y un kilo de cebollas.", "translation": "Give me two kilos, please. And a kilo of onions." },
+    { "speaker": "B", "text": "¿Algo más? Tengo patatas muy buenas.", "translation": "Anything else? I have very good potatoes." },
+    { "speaker": "A", "text": "No, gracias. ¿Cuánto es todo?", "translation": "No, thank you. How much is it altogether?" },
+    { "speaker": "B", "text": "Seis euros con cincuenta.", "translation": "Six euros fifty." },
+    { "speaker": "A", "text": "Aquí tiene. Muchas gracias.", "translation": "Here you are. Thank you very much." },
+    { "speaker": "B", "text": "A usted. Hasta luego.", "translation": "Thank you. See you later." }
+  ],
+  "vocabulary": [
+    { "word": "¿Qué le pongo?", "meaning": "what can I get you? (literally: what shall I put for you?)" },
+    { "word": "cuestan", "meaning": "they cost" },
+    { "word": "el kilo", "meaning": "a kilo — prices are given per kilo, not per item" },
+    { "word": "póngame", "meaning": "give me (polite command)" },
+    { "word": "la cebolla", "meaning": "onion" },
+    { "word": "¿algo más?", "meaning": "anything else?" },
+    { "word": "con cincuenta", "meaning": "and fifty — how cents are said after the euros" },
+    { "word": "a usted", "meaning": "thank YOU — the shopkeeper's reply to gracias" }
+  ],
+  "questions": [
+    { "q": "What does Ana buy?", "options": ["Tomatoes and onions", "Tomatoes and potatoes", "Onions and potatoes"], "answer": 0, "explain": "dos kilos de tomates y un kilo de cebollas" },
+    { "q": "How much are the tomatoes per kilo?", "options": ["Two euros", "Six euros", "Fifty cents"], "answer": 0 },
+    { "q": "What else does the seller offer her?", "options": ["Potatoes", "Onions", "Bread"], "answer": 0, "explain": "Tengo patatas muy buenas" },
+    { "q": "What does she pay altogether?", "options": ["6.50", "2.50", "6.15"], "answer": 0, "explain": "seis euros con cincuenta" },
+    { "q": "How does the seller answer 'muchas gracias'?", "options": ["A usted", "De nada", "Por favor"], "answer": 0, "explain": "A usted — 'thank YOU'. Common in shops and markets." }
+  ]
+}

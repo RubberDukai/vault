@@ -1,0 +1,40 @@
+{
+  "title": "रास्ता पूछना — asking the way",
+  "level": "A1",
+  "order": 2,
+  "summary": "Finding the station on foot. Directions, distance, and asking someone to speak slowly.",
+  "speakers": { "A": "यात्री (traveller)", "B": "राहगीर (passer-by)" },
+  "lines": [
+    { "speaker": "A", "text": "माफ़ कीजिए, स्टेशन कहाँ है?", "reading": "Māf kījiye, sṭeshan kahān hai?", "translation": "Excuse me, where is the station?" },
+    { "speaker": "B", "text": "स्टेशन? सीधे जाइए।", "reading": "Sṭeshan? Sīdhe jāiye.", "translation": "The station? Go straight on." },
+    { "speaker": "A", "text": "कृपया धीरे बोलिए।", "reading": "Kripayā dhīre bolie.", "translation": "Please speak slowly." },
+    { "speaker": "B", "text": "ठीक है। इस सड़क पर सीधे जाइए।", "reading": "Thīk hai. Is saṛak par sīdhe jāiye.", "translation": "All right. Go straight along this road." },
+    { "speaker": "B", "text": "बैंक के पास दाईं ओर मुड़िए।", "reading": "Baink ke pās dāīn or muṛiye.", "translation": "Turn right near the bank." },
+    { "speaker": "B", "text": "स्टेशन बाईं तरफ़ है।", "reading": "Sṭeshan bāīn taraf hai.", "translation": "The station is on the left." },
+    { "speaker": "A", "text": "क्या यह दूर है?", "reading": "Kyā yah dūr hai?", "translation": "Is it far?" },
+    { "speaker": "B", "text": "नहीं, पैदल दस मिनट।", "reading": "Nahīn, paidal das minaṭ.", "translation": "No, ten minutes on foot." },
+    { "speaker": "A", "text": "अगली गाड़ी कितने बजे है?", "reading": "Aglī gāṛī kitne baje hai?", "translation": "What time is the next train?" },
+    { "speaker": "B", "text": "मुझे नहीं मालूम। वहाँ पूछ लीजिए।", "reading": "Mujhe nahīn mālūm. Vahān pūchh lījiye.", "translation": "I don't know. Ask there." },
+    { "speaker": "A", "text": "बहुत धन्यवाद।", "reading": "Bahut dhanyavād.", "translation": "Thank you very much." }
+  ],
+  "vocabulary": [
+    { "word": "माफ़ कीजिए (māf kījiye)", "meaning": "excuse me, forgive me" },
+    { "word": "कहाँ (kahān)", "meaning": "where" },
+    { "word": "सीधे (sīdhe)", "meaning": "straight on" },
+    { "word": "धीरे (dhīre)", "meaning": "slowly" },
+    { "word": "सड़क (saṛak)", "meaning": "road" },
+    { "word": "के पास (ke pās)", "meaning": "near — a postposition, so it comes after the noun" },
+    { "word": "दाईं / बाईं (dāīn / bāīn)", "meaning": "right / left" },
+    { "word": "मुड़िए (muṛiye)", "meaning": "turn (polite)" },
+    { "word": "पैदल (paidal)", "meaning": "on foot" },
+    { "word": "मालूम (mālūm)", "meaning": "known — mujhe nahīn mālūm, I don't know" }
+  ],
+  "questions": [
+    { "q": "Where does he want to go?", "options": ["The station", "The bank", "The road"], "answer": 0 },
+    { "q": "Where does he turn right?", "options": ["Near the bank", "At the station", "At the first road"], "answer": 0, "explain": "baink ke pās — note that ke pās comes after the noun" },
+    { "q": "Which side is the station on?", "options": ["The left", "The right", "Straight ahead"], "answer": 0, "explain": "bāīn taraf" },
+    { "q": "How far is it?", "options": ["Ten minutes on foot", "Ten minutes by train", "Very far"], "answer": 0 },
+    { "q": "Does she know the train time?", "options": ["No", "Yes, in ten minutes", "Yes, at ten"], "answer": 0, "explain": "mujhe nahīn mālūm" },
+    { "q": "Which phrase asked her to slow down?", "options": ["Kripayā dhīre bolie", "Māf kījiye", "Kahān hai"], "answer": 0 }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "title": "डॉक्टर के पास — at the doctor",
+  "level": "A2",
+  "order": 3,
+  "summary": "Pain, fever and what has already been taken. The dative-subject construction Hindi uses for how you feel.",
+  "speakers": { "A": "डॉक्टर (doctor)", "B": "मरीज़ (patient)" },
+  "lines": [
+    { "speaker": "A", "text": "नमस्ते। क्या तकलीफ़ है?", "reading": "Namaste. Kyā taklīf hai?", "translation": "Hello. What is the trouble?" },
+    { "speaker": "B", "text": "मेरे पेट में बहुत दर्द है।", "reading": "Mere peṭ mein bahut dard hai.", "translation": "I have a lot of pain in my stomach." },
+    { "speaker": "A", "text": "कितने दिन से?", "reading": "Kitne din se?", "translation": "For how many days?" },
+    { "speaker": "B", "text": "तीन दिन से।", "reading": "Tīn din se.", "translation": "For three days." },
+    { "speaker": "A", "text": "बुखार है?", "reading": "Bukhār hai?", "translation": "Do you have a fever?" },
+    { "speaker": "B", "text": "हाँ, कल रात एक सौ एक था।", "reading": "Hān, kal rāt ek sau ek thā.", "translation": "Yes, last night it was a hundred and one." },
+    { "speaker": "A", "text": "कोई दवा ली?", "reading": "Koī davā lī?", "translation": "Have you taken any medicine?" },
+    { "speaker": "B", "text": "हाँ, लेकिन आराम नहीं मिला।", "reading": "Hān, lekin ārām nahīn milā.", "translation": "Yes, but it gave no relief." },
+    { "speaker": "A", "text": "किसी दवा से एलर्जी है?", "reading": "Kisī davā se elarjī hai?", "translation": "Are you allergic to any medicine?" },
+    { "speaker": "B", "text": "हाँ, पेनिसिलिन से।", "reading": "Hān, penisilin se.", "translation": "Yes, to penicillin." },
+    { "speaker": "A", "text": "ज़्यादा पानी पीजिए और आराम कीजिए।", "reading": "Zyādā pānī pījiye aur ārām kījiye.", "translation": "Drink plenty of water and rest." },
+    { "speaker": "A", "text": "कल भी दर्द हो तो फिर आइए।", "reading": "Kal bhī dard ho to phir āiye.", "translation": "If it still hurts tomorrow, come again." }
+  ],
+  "vocabulary": [
+    { "word": "तकलीफ़ (taklīf)", "meaning": "trouble, discomfort" },
+    { "word": "पेट (peṭ)", "meaning": "stomach" },
+    { "word": "दर्द (dard)", "meaning": "pain — Hindi says 'to me there is pain', not 'I hurt'" },
+    { "word": "…से (… se)", "meaning": "since, for (a length of time) — tīn din se, for three days" },
+    { "word": "बुखार (bukhār)", "meaning": "fever — usually given in Fahrenheit in India" },
+    { "word": "दवा (davā)", "meaning": "medicine" },
+    { "word": "आराम (ārām)", "meaning": "relief, rest" },
+    { "word": "एलर्जी (elarjī)", "meaning": "allergy" },
+    { "word": "ज़्यादा (zyādā)", "meaning": "more, plenty" },
+    { "word": "फिर आइए (phir āiye)", "meaning": "come again" }
+  ],
+  "questions": [
+    { "q": "Where is the pain?", "options": ["In his stomach", "In his head", "In his chest"], "answer": 0, "explain": "mere peṭ mein" },
+    { "q": "For how long?", "options": ["Three days", "Since last night", "A week"], "answer": 0, "explain": "tīn din se" },
+    { "q": "What was the fever?", "options": ["101 — in Fahrenheit", "101 — in Celsius", "38"], "answer": 0, "explain": "ek sau ek — India usually gives body temperature in Fahrenheit, so 101 °F is about 38.3 °C." },
+    { "q": "Did the medicine help?", "options": ["No relief", "Yes", "He took none"], "answer": 0, "explain": "ārām nahīn milā" },
+    { "q": "What is he allergic to?", "options": ["Penicillin", "Nothing", "The medicine he took"], "answer": 0 },
+    { "q": "What should he do if it still hurts tomorrow?", "options": ["Come again", "Take more medicine", "Nothing"], "answer": 0 }
+  ]
+}

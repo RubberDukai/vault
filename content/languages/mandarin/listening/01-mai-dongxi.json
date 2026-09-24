@@ -1,0 +1,40 @@
+{
+  "title": "买东西 — buying things",
+  "level": "HSK1",
+  "order": 1,
+  "summary": "Apples and water at a small shop. Measure words, prices in kuai, and paying.",
+  "speakers": { "A": "顾客 (customer)", "B": "老板 (shopkeeper)" },
+  "lines": [
+    { "speaker": "B", "text": "你好！你要买什么？", "reading": "Nǐ hǎo! Nǐ yào mǎi shénme?", "translation": "Hello! What would you like to buy?" },
+    { "speaker": "A", "text": "苹果多少钱一斤？", "reading": "Píngguǒ duōshao qián yì jīn?", "translation": "How much are the apples per jin?" },
+    { "speaker": "B", "text": "五块钱一斤。", "reading": "Wǔ kuài qián yì jīn.", "translation": "Five kuai a jin." },
+    { "speaker": "A", "text": "我要两斤。", "reading": "Wǒ yào liǎng jīn.", "translation": "I'll take two jin." },
+    { "speaker": "B", "text": "还要别的吗？", "reading": "Hái yào bié de ma?", "translation": "Anything else?" },
+    { "speaker": "A", "text": "我还要一瓶水。", "reading": "Wǒ hái yào yì píng shuǐ.", "translation": "I'd also like a bottle of water." },
+    { "speaker": "B", "text": "一共十三块。", "reading": "Yígòng shísān kuài.", "translation": "Thirteen kuai altogether." },
+    { "speaker": "A", "text": "太贵了！便宜一点儿，好吗？", "reading": "Tài guì le! Piányi yìdiǎnr, hǎo ma?", "translation": "That's too expensive! A bit cheaper, all right?" },
+    { "speaker": "B", "text": "好吧，十二块。", "reading": "Hǎo ba, shí'èr kuài.", "translation": "All right then, twelve kuai." },
+    { "speaker": "A", "text": "谢谢！给你。", "reading": "Xièxie! Gěi nǐ.", "translation": "Thank you! Here you are." },
+    { "speaker": "B", "text": "慢走！", "reading": "Màn zǒu!", "translation": "Take care! (literally: walk slowly — said as you leave)" }
+  ],
+  "vocabulary": [
+    { "word": "多少钱 (duōshao qián)", "meaning": "how much money" },
+    { "word": "一斤 (yì jīn)", "meaning": "half a kilo — the everyday market unit in China" },
+    { "word": "块 (kuài)", "meaning": "the spoken word for yuan" },
+    { "word": "两 (liǎng)", "meaning": "two, before a measure word — never èr here" },
+    { "word": "瓶 (píng)", "meaning": "bottle — the measure word for bottled things" },
+    { "word": "还 (hái)", "meaning": "also, still" },
+    { "word": "一共 (yígòng)", "meaning": "altogether" },
+    { "word": "太…了 (tài … le)", "meaning": "too … — tài guì le, too expensive" },
+    { "word": "便宜 (piányi)", "meaning": "cheap" },
+    { "word": "慢走 (màn zǒu)", "meaning": "take care — said to someone leaving" }
+  ],
+  "questions": [
+    { "q": "How much are the apples per jin?", "options": ["5 kuai", "13 kuai", "2 kuai"], "answer": 0, "explain": "wǔ kuài qián yì jīn" },
+    { "q": "How much does she buy?", "options": ["Two jin", "Five jin", "One jin"], "answer": 0, "explain": "liǎng jīn — note liǎng, not èr, before a measure word" },
+    { "q": "What else does she buy?", "options": ["A bottle of water", "Tea", "Nothing"], "answer": 0 },
+    { "q": "What was the first total?", "options": ["13 kuai", "12 kuai", "10 kuai"], "answer": 0, "explain": "yígòng shísān kuài" },
+    { "q": "What does she pay in the end?", "options": ["12 kuai", "13 kuai", "5 kuai"], "answer": 0, "explain": "She haggled: piányi yìdiǎnr, and he agreed to shí'èr." },
+    { "q": "What does 慢走 mean?", "options": ["Take care, said to someone leaving", "Walk slowly, a warning", "Come back soon"], "answer": 0 }
+  ]
+}
