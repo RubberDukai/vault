@@ -78,7 +78,7 @@ The full sequence, subject by subject, as the lessons stand and as they are mean
 
 **Mathematics.** KS1: counting and place value → number bonds and adding/subtracting to 20 → adding and subtracting to 100 → times tables 2, 5, 10 and sharing → shapes, measures, time and money → halves and quarters. KS2: arithmetic by hand → fractions, ratio and measuring → decimals and percentages → area, perimeter, angles and shape → graphs, tables and keeping records. KS3: negative numbers and algebra → chance and data → *equations and formulae* → *geometry with proof* → *ratio, proportion and rates*.
 
-**English.** KS1: learning to read → handwriting and spelling → sentences and stories. KS2: writing that lasts → grammar and punctuation → reading for meaning → poetry. KS3: thinking clearly → *the essay* → *the report and the letter* → *speaking and debate*.
+**English.** KS1: learning to read → handwriting and spelling → sentences and stories. KS2: writing that lasts → grammar and punctuation → reading for meaning → poetry. KS3: thinking clearly → the essay → the report and the letter → speaking and debate.
 
 **Science.** KS1: living things and their needs → materials → seasons, weather and the sky. KS2: how to find things out → living things → earth and weather → forces, light and sound → the human body. KS3: energy, heat and electricity → *matter and chemical reactions* → *cells, genes and evolution* → *the Earth in space*.
 
