@@ -976,3 +976,13 @@ details.answers[open] > summary::after { content: ""; }
 .listen-verdict.right { color: var(--good, var(--accent)); }
 .listen-verdict.wrong { color: var(--text-muted); }
 @media print { .listen-text, .listen-reading, .listen-translation { display: block !important; } #listen-controls { display: none; } }
+
+/* --- search: the plain answer first ------------------------------------ */
+/* When there is obviously an encyclopedia article on the thing you typed,
+   it goes above everything else rather than below the lessons that mention
+   it in passing. */
+.result-best { display: block; border: 1px solid var(--accent); border-radius: var(--radius); padding: 12px 14px; margin: 4px 0 18px; text-decoration: none; background: var(--bg-raised); }
+.result-best:hover { background: var(--bg-hover, var(--bg-raised)); }
+.result-best-kind { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-faint); margin-bottom: 2px; }
+.result-best strong { display: block; font-size: 19px; margin-bottom: 2px; }
+.did-you-mean { margin: -6px 0 14px; font-size: 15px; }

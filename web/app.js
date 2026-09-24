@@ -1467,7 +1467,7 @@ async function renderStudy(deckId, params) {
 
 let MAP = null;
 
-async function renderMaps() {
+async function renderMaps(params) {
   setBusy('Loading maps…');
   const { packs, categories, mapsDir } = await api('maps');
 
@@ -1619,11 +1619,25 @@ async function renderMaps() {
   let savedView = null;
   try { savedView = JSON.parse(localStorage.getItem('vault.mapView') || 'null'); } catch { savedView = null; }
 
+  // A place chosen from the search box arrives as ?go=lat,lon — open there
+  // rather than wherever the map was last left.
+  let goTo = null;
+  const goParam = params?.get('go');
+  if (goParam) {
+    const [lat, lon] = goParam.split(',').map(Number);
+    if (Number.isFinite(lat) && Number.isFinite(lon)) {
+      goTo = { lat, lon, zoom: Number(params.get('zoom')) || 12 };
+    }
+  }
+
   MAP = new VaultMap(canvas, {
     categories: colours,
-    lon: savedView?.lon, lat: savedView?.lat, zoom: savedView?.zoom,
+    lon: goTo?.lon ?? savedView?.lon,
+    lat: goTo?.lat ?? savedView?.lat,
+    zoom: goTo?.zoom ?? savedView?.zoom,
     style: savedView?.style === 'dark' ? 'dark' : 'paper',
   });
+  if (goTo) MAP.setMarker(goTo.lon, goTo.lat);
   MAP.setRasterInfo(packs.filter((p) => p.ok !== false));
   window.vaultMap = MAP; // handy when debugging from the console
 
@@ -2734,6 +2748,26 @@ async function renderSearch(params) {
   view.innerHTML = `
     <h1>“${esc(query)}”</h1>
     <p class="lede">${data.total} result${data.total === 1 ? '' : 's'} across the handbook, school and your packs.</p>
+
+    ${data.suggestion ? `<p class="did-you-mean">Did you mean
+      <a href="#/search?q=${encodeURIComponent(data.suggestion)}"><strong>${esc(data.suggestion)}</strong></a>?</p>` : ''}
+
+    ${data.best ? `
+      <a class="result-best" href="${esc(data.best.href)}">
+        <span class="result-best-kind">Encyclopedia</span>
+        <strong>${esc(data.best.title)}</strong>
+        <span class="faint">${esc(data.best.context)}</span>
+      </a>` : ''}
+
+    ${(data.places || []).length ? `
+      <h2>On the map</h2>
+      ${data.places.map((place) => `
+        <div class="result">
+          <a href="#/maps?go=${encodeURIComponent(`${place.lat},${place.lon}`)}&amp;zoom=${place.kind === 'country' ? 5 : place.kind === 'region' ? 8 : 12}">${esc(place.name)}</a>
+          <span class="faint"> · ${esc(place.kind || 'place')}${place.context ? ` · ${esc(place.context)}` : ''} · ${place.lat.toFixed(3)}, ${place.lon.toFixed(3)}</span>
+        </div>`).join('')}
+    ` : ''}
+
     ${section('Handbook, school and languages', data.content, (hit) => `
       <div class="result">
         <a href="${esc(hit.href)}">${esc(hit.title)}</a>
@@ -2751,7 +2785,9 @@ async function renderSearch(params) {
         <a href="${esc(hit.href)}">${esc(hit.title)}</a>
         <span class="faint"> · ${esc(hit.context)}</span>
       </div>`)}
-    ${data.total === 0 ? '<div class="empty">Nothing found. Try a shorter or more common word.</div>' : ''}
+    ${data.total === 0 ? `<div class="empty">Nothing found.${data.suggestion
+      ? ` Try <a href="#/search?q=${encodeURIComponent(data.suggestion)}">${esc(data.suggestion)}</a>.`
+      : ' Try a shorter or more common word.'}</div>` : ''}
   `;
 }
 

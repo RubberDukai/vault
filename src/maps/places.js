@@ -170,6 +170,12 @@ class PlaceIndex {
    * Names that start with the query rank first, then names containing it,
    * then names where every word of the query appears. Bigger places win ties.
    */
+  /** Every place name, for the search box's "did you mean". */
+  names() {
+    this.load();
+    return this.places.map((p) => p.name || p.n).filter(Boolean);
+  }
+
   search(query, limit = 12, near = null) {
     this.load();
     const q = fold(query);

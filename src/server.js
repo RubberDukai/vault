@@ -137,6 +137,7 @@ class ArkServer {
       try {
         await this.documents.scan();
         this.search.build(this.content, this.documents.searchable());
+        this._addPlaceVocabulary();
       } catch (err) {
         console.error('[vault] document scan failed:', err.message);
       }
@@ -147,6 +148,7 @@ class ArkServer {
       if (!this.places.status().ready && this.maps.list().some((p) => p.kind === 'vector' && !p.remote)) {
         await this.places.build().catch((err) => console.error('[vault] place index failed:', err.message));
       }
+      this._addPlaceVocabulary();
     })();
 
     // The content catalogue. When a pack lands, fold it into the library at
@@ -164,6 +166,7 @@ class ArkServer {
           await this.documents.scan();
         }
         this.search.build(this.content, this.documents.searchable());
+        this._addPlaceVocabulary();
       };
       // Anything queued before the last shutdown carries on where it left off.
       if (this.packs.state.get().queue.length) {
@@ -262,6 +265,25 @@ class ArkServer {
   /** True when other devices on the network can reach the vault. */
   sharing() {
     return this.host !== '127.0.0.1' && this.host !== 'localhost' && this.host !== '::1';
+  }
+
+  /**
+   * Teach the search box every place name, so "manchestr" can be corrected to
+   * somewhere that actually exists rather than left as a dead end.
+   */
+  _addPlaceVocabulary() {
+    try {
+      if (!this.places.status().ready) return;
+      const words = new Set();
+      for (const name of this.places.names()) {
+        for (const word of String(name).toLowerCase().split(/[^a-z0-9']+/i)) {
+          if (word.length > 3) words.add(word);
+        }
+      }
+      this.search.addVocabulary([...words]);
+    } catch (err) {
+      console.error('[vault] place vocabulary failed:', err.message);
+    }
   }
 
   /** Whether the launcher should wipe the vault window's profile. Default on. */
@@ -1356,12 +1378,16 @@ class ArkServer {
     // --- unified search ---------------------------------------------------
     if (route === 'search') {
       const query = q.get('q') || '';
-      if (!query.trim()) return this.json(res, 200, { query, content: [], packs: [], total: 0 });
+      if (!query.trim()) return this.json(res, 200, { query, content: [], packs: [], places: [], total: 0 });
       const results = await this.search.searchAll(this.library, query, {
         contentLimit: Number(q.get('limit') || 15),
         packLimit: Number(q.get('packLimit') || 8),
       });
-      return this.json(res, 200, results);
+      // A place name typed into the main box should offer the map, not just
+      // whatever article happens to mention the town.
+      let places = [];
+      try { places = this.places.status().ready ? this.places.search(query, 4) : []; } catch { places = []; }
+      return this.json(res, 200, { ...results, places });
     }
 
     return this.json(res, 404, { error: `Unknown endpoint: ${route}` });
