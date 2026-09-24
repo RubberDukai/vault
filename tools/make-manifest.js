@@ -151,9 +151,11 @@ async function openstaxBooks(fromFile) {
 }
 
 const { TILESETS } = require('./tilesets');
+const { BOOK_PACKS } = require('./books');
 
 async function main() {
   items.push(...TILESETS);
+  items.push(...BOOK_PACKS);
 
   // Ordnance Survey's free national map, as ready-made vector tiles. A plain
   // file download — no harvesting — with contours, which OpenStreetMap lacks.

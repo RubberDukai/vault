@@ -720,7 +720,7 @@ async function renderSetup() {
             <div class="progress"><div style="width:${pct}%"></div></div>
             <div class="faint">Being downloaded by another Vault window on this machine · ${esc(humanGb(first ? first.bytesOnDisk : 0))} of ${esc(q[0].sizeHuman)} on disk</div>`;
         })() : '<strong>Queue paused</strong> <span class="faint">— it resumes when the Vault is next started</span>'}
-        ${q.length ? `<p class="faint" style="margin:10px 0 0">Then: ${q.slice(0, 6).map((i) => esc(i.title)).join(' · ')}${q.length > 6 ? ` · and ${q.length - 6} more` : ''} — ${esc(humanGb(q.reduce((n, i) => n + i.size, 0)))} in all
+        ${q.length ? `<p class="faint" style="margin:10px 0 0">Then: ${q.slice(0, 6).map((i) => `${esc(i.title)} <a href="#" class="queue-first" data-id="${esc(i.id)}" title="Download this one next">↑ next</a>`).join(' · ')}${q.length > 6 ? ` · and ${q.length - 6} more` : ''} — ${esc(humanGb(q.reduce((n, i) => n + i.size, 0)))} in all
           <button class="btn btn-sm" id="cancel-all" style="margin-left:8px">Clear queue</button></p>` : ''}
       </div>`;
   };
@@ -758,6 +758,7 @@ async function renderSetup() {
     };
     const cancelActive = document.getElementById('cancel-active');
     if (cancelActive) cancelActive.onclick = async () => { await api('setup/cancel', { method: 'POST', body: { id: data.active.id } }); await refresh(); };
+    for (const link of view.querySelectorAll('.queue-first')) link.onclick = async (e) => { e.preventDefault(); await api('setup/first', { method: 'POST', body: { id: link.dataset.id } }); await refresh(); };
     const cancelAll = document.getElementById('cancel-all');
     if (cancelAll) cancelAll.onclick = async () => { if (confirm('Clear the whole queue?')) { await api('setup/cancel', { method: 'POST', body: {} }); await refresh(); } };
 

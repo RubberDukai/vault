@@ -163,6 +163,15 @@ class PackCatalog {
     return this.enqueue(ids);
   }
 
+  /** Put a queued pack at the head of the queue; the running download is cancelled and resumes later. */
+  prioritise(id) {
+    const queue = this.state.get().queue;
+    if (!queue.includes(id)) return false;
+    this.state.update((d) => { d.queue = [id, ...d.queue.filter((q) => q !== id)]; });
+    if (this.active && this.active.id !== id) downloads.cancel(this.active.jobId);
+    return true;
+  }
+
   dequeue(id) {
     this.state.update((d) => { d.queue = d.queue.filter((q) => q !== id); });
     if (this.active && this.active.id === id) downloads.cancel(this.active.jobId);
@@ -247,6 +256,11 @@ class PackCatalog {
         }
 
         const failure = await this._downloadItem(item);
+
+        // Cancelled because something was moved ahead of it: it is still in
+        // the queue, behind the newcomer, and picks up where it left off.
+        const after = this.state.get().queue;
+        if (failure === 'cancelled' && after.includes(id) && after[0] !== id) continue;
 
         this.state.update((d) => {
           d.queue = d.queue.filter((q) => q !== id);

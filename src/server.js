@@ -1090,6 +1090,12 @@ class ArkServer {
       return this.json(res, 200, { added, queue: this.packs.state.get().queue });
     }
 
+    if (route === 'setup/first' && method === 'POST') {
+      const body = await this.readBody(req);
+      const ok = typeof body.id === 'string' && this.packs.prioritise(body.id);
+      return this.json(res, ok ? 200 : 404, { ok, queue: this.packs.state.get().queue });
+    }
+
     if (route === 'setup/cancel' && method === 'POST') {
       const body = await this.readBody(req);
       if (body.id) this.packs.dequeue(body.id);
