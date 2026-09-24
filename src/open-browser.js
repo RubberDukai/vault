@@ -21,15 +21,19 @@ function candidates() {
       process.env.LOCALAPPDATA,
     ].filter(Boolean);
 
+    // Edge is last on purpose. On Windows it signs itself in to the machine's
+    // Microsoft account the first time a profile is made — a sync notice
+    // appears over the vault window, which is both alarming and the opposite
+    // of what this thing is for. Chrome and Brave do not do that.
     const relative = [
-      'Microsoft\\Edge\\Application\\msedge.exe',
       'Google\\Chrome\\Application\\chrome.exe',
       'BraveSoftware\\Brave-Browser\\Application\\brave.exe',
+      'Microsoft\\Edge\\Application\\msedge.exe',
     ];
 
     const found = [];
-    for (const base of programFiles) {
-      for (const rel of relative) {
+    for (const rel of relative) {
+      for (const base of programFiles) {
         const full = path.join(base, rel);
         if (fs.existsSync(full)) found.push(full);
       }
@@ -72,12 +76,28 @@ function openBrowser(url, { appMode = true, profileDir = null } = {}) {
   // The vault window gets a profile of its own, kept inside the vault folder:
   // nothing it reads ends up in the person's everyday browser history, no
   // extensions or sync accounts reach in, and the window comes up clean.
-  const args = [`--app=${url}`, '--new-window', '--no-first-run', '--no-default-browser-check'];
-  if (profileDir) {
-    try { fs.mkdirSync(profileDir, { recursive: true }); args.push(`--user-data-dir=${profileDir}`); } catch { /* fall back to the default profile */ }
-  }
-
+  // A browser left to itself talks to the internet on every launch: component
+  // updates, variations, safe-browsing lists, sign-in and sync. None of that
+  // belongs in an offline vault, so it is all switched off. Flags a given
+  // browser does not know are ignored, which is why the sign-in ones can be
+  // listed together — Edge's are best-effort, Chrome and Brave do not need them.
+  const base = [
+    `--app=${url}`, '--new-window', '--no-first-run', '--no-default-browser-check',
+    '--disable-sync', '--disable-background-networking', '--disable-component-update',
+    '--disable-domain-reliability', '--no-pings', '--no-service-autorun', '--disable-breakpad',
+    '--disable-features=OptimizationHints,Translate,MediaRouter,InterestFeedContentSuggestions,'
+      + 'msImplicitSignin,msEdgeImplicitSignIn,msIdentityWebSignIn,SyncPromo,SigninInterceptBubble',
+  ];
   for (const browser of candidates()) {
+    const args = [...base];
+    if (profileDir) {
+      // One profile per browser family: a profile written by Chrome is not a
+      // profile Edge can open, and the vault should never touch the person's
+      // own browsing data either way.
+      const family = path.basename(browser).replace(/\.exe$/i, '').toLowerCase();
+      const dir = `${profileDir}-${family}`;
+      try { fs.mkdirSync(dir, { recursive: true }); args.push(`--user-data-dir=${dir}`); } catch { /* fall back to the default profile */ }
+    }
     try {
       const child = detached(browser, args);
       let failed = false;
