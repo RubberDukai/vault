@@ -1,6 +1,6 @@
 {
   "name": "vault",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Vault - an offline knowledge vault. Wikipedia, survival handbook, languages and schooling that work with no internet.",
   "main": "src/server.js",
   "bin": {

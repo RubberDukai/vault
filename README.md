@@ -97,3 +97,46 @@ See the handbook chapter **Communications → Serving this library to everyone a
 The handbook chapter **Keeping the Machines Alive → Making data outlive the hardware** is the one to read before you trust this with anything. In short: three copies, two kinds of media, one somewhere else, checksums verified annually, and print the pages you would most regret losing.
 
 Do not use an SSD as your only cold archive. Flash memory loses its charge in a year or two unpowered, silently.
+
+## Handing it to somebody else
+
+There are two ways, and both are built by one command on a Windows machine:
+
+```bash
+node tools/make-installer.js
+```
+
+That produces, in `dist/`:
+
+- **`VaultSetup.exe`** (about 34 MB) — the one to send someone. They
+  double-click it, it installs to their own user folder with no
+  administrator and no UAC prompt, and puts a Vault shortcut on the
+  desktop and in the Start Menu. Running it again over the top updates
+  the program and keeps their notes, settings and downloaded packs.
+  Uninstalling asks before it touches anything they made.
+- **`Vault-<version>-portable.zip`** — the same thing with no installer,
+  for a machine that refuses unsigned executables, or for a USB stick.
+  Unzip it anywhere and run `Vault.bat`.
+
+Neither contains a single encyclopedia, map or book. They carry the
+program, the handbook, the lessons and the languages, plus a copy of
+Node.js so nothing has to be installed first. **What to download is
+chosen from inside the Vault**, on the Setup page, which is the only
+page that ever wants a connection.
+
+The installer is built with `makecab` and `iexpress`, which have shipped
+with Windows since XP — no toolchain to download, which is the same
+promise the Vault itself makes.
+
+**Expect a warning.** An unsigned installer makes Windows show *"Windows
+protected your PC"*. The person clicks **More info** and then **Run
+anyway**. Only a code-signing certificate removes it, and those are a
+yearly cost.
+
+To give someone a copy with the encyclopedias already on it — no
+download, no connection, for a machine that has never been online —
+use the portable builder directly:
+
+```bash
+node tools/make-portable.js E:/Vault --with-node --with-packs --with-maps
+```

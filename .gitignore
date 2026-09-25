@@ -8,3 +8,7 @@ data/
 .tmp/
 node_modules/
 *.log
+
+# Built installers. Big binaries do not belong in git; build them with
+# node tools/make-installer.js when they are needed.
+dist/
