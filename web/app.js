@@ -842,7 +842,8 @@ async function renderSetup() {
           <li><strong>Add it to the home screen</strong> (Share → Add to Home Screen on iPhone; ⋮ → Add to Home screen on Android) and it opens like an app from then on, as long as this computer is running the vault.</li>
           <li><strong>Switch off</strong> when you are done, or leave it on for the household: the choice is remembered across restarts.</li>
         </ol>
-        <p class="faint" style="margin:8px 0 0">What "on" means for safety: the vault has no passwords, so anyone who can join your wifi can read it and write to the shared parts (Comms, Calendar, map markings, shared notebook pages). It is still invisible from the internet — your router does not pass inbound connections unless you set that up yourself. On a public or shared wifi, keep it off.</p>
+        <p class="faint" style="margin:8px 0 0">What "on" means for safety: anyone who can join your wifi can read the vault and write to the shared parts (Comms, Calendar, map markings, shared notebook pages). It is still invisible from the internet — your router does not pass inbound connections unless you set that up yourself. On a public or shared wifi, keep it off.</p>
+        <p class="faint" style="margin:8px 0 0">If a PIN is set (Privacy, below), every device gets the lock screen and must enter it — but once anyone has unlocked the vault it stays unlocked for everyone on the wifi until it is closed. The PIN guards the disk against somebody who picks the machine up; it is not a separate password per person.</p>
       </details>`;
     const toggle = document.getElementById('share-toggle');
     if (toggle) toggle.onclick = async () => {
@@ -995,11 +996,30 @@ async function resolveWikiLinksWithFallback(root) {
   const pack = await wikiPack();
   if (!pack) return resolveWikiLinks(root);
   await Promise.all([...links].map(async (a) => {
-    const options = decodeURIComponent(a.getAttribute('href').slice(5)).split('|').map((t) => t.trim().replace(/ /g, '_')).filter(Boolean);
-    let chosen = options[0];
+    const options = decodeURIComponent(a.getAttribute('href').slice(5)).split(/\\?\|/).map((t) => t.trim().replace(/ /g, '_')).filter(Boolean);
+    let chosen = null;
     for (const t of options) { if (await packHas(pack, t)) { chosen = t; break; } }
-    a.href = `#/read/${encodeURIComponent(pack.id)}/${encodeURIComponent(chosen)}`;
-    a.title = `${chosen.replace(/_/g, ' ')} — ${pack.title}`;
+
+    if (chosen) {
+      a.href = `#/read/${encodeURIComponent(pack.id)}/${encodeURIComponent(chosen)}`;
+      a.title = `${chosen.replace(/_/g, ' ')} — ${pack.title}`;
+      return;
+    }
+
+    // None of the names exist in the encyclopedia that happens to be
+    // installed — the Latin name of a plant is in the full Wikipedia but not
+    // in the Simple English one. Send the reader to a search for it rather
+    // than to a page that is not there: the search looks across every pack,
+    // and puts the encyclopedia article first when there is one.
+    // Search for the topic, not the words the sentence happened to use: a
+    // link labelled "the encyclopedia" would otherwise search for that.
+    // The alternatives are written specific-first — Stellaria_media|Chickweed
+    // — so the second is the common English name where there is one, and
+    // that is what an encyclopedia is most likely to file it under.
+    const topic = (options.length > 1 ? options[1] : options[0]).replace(/_/g, ' ');
+    a.href = `#/search?q=${encodeURIComponent(topic)}`;
+    a.classList.add('wiki-search');
+    a.title = `Not in ${pack.title} — search the whole library for "${topic}"`;
   }));
 }
 
@@ -1350,6 +1370,9 @@ async function renderListening(langId, slug) {
   // Leaving the page must not leave a voice talking to an empty room.
   window.addEventListener('hashchange', stopSpeaking, { once: true });
 }
+
+// Exposed for the link checker in test and for debugging from the console.
+window.__resolveWikiLinks = resolveWikiLinksWithFallback;
 
 async function renderStudy(deckId, params) {
   setBusy('Building your review queue…');
@@ -2782,6 +2805,13 @@ function setUpHomeSetting() {
   const current = document.getElementById('home-current');
   const useMap = document.getElementById('home-here');
   if (!input) return;
+  // The Setup page re-attaches its handlers every couple of seconds while a
+  // download runs. Rebuilding this panel each time threw away whatever was
+  // half-typed into it, which made the box impossible to use during exactly
+  // the hours somebody is most likely to be setting the vault up. A repaint
+  // makes a fresh panel with no mark on it; a re-wire finds this one.
+  if (input.dataset.wired) return;
+  input.dataset.wired = '1';
 
   const show = () => {
     const home = STATUS?.home;
@@ -2873,6 +2903,10 @@ async function setUpLockSetting({ force = false } = {}) {
   const panel = document.getElementById('lock-panel');
   if (!panel) return;
   if (SHOWING_PHRASE && !force) return;
+  // Same as the location box: a download running means this is re-wired every
+  // couple of seconds, and rebuilding it would wipe a half-typed PIN.
+  if (panel.dataset.wired && !force) return;
+  panel.dataset.wired = '1';
   SHOWING_PHRASE = false;
   const lock = await api('lock');
 
@@ -2974,7 +3008,7 @@ async function setUpLockSetting({ force = false } = {}) {
     if (!pin) return;
     try {
       await api('lock/disable', { method: 'POST', body: { pin } });
-      setUpLockSetting();
+      setUpLockSetting({ force: true });
     } catch (err) { message.textContent = err.message; }
   };
 }

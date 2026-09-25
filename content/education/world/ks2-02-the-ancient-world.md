@@ -16,7 +16,7 @@ Britain's story is not the world's. While Britain was raising earth banks, citie
 
 Every one of these civilisations grew the same way, and it is worth drawing out before the names start:
 
-1. A **river** that floods and leaves rich silt — the Tigris and Euphrates, the Nile, the Indus, the Yellow River.
+1. A **river** that floods and leaves rich silt — the Tigris and Euphrates, the Nile, the Indus, [the Yellow River](wiki:Yellow_River).
 2. **Farming** on that silt produces more food than the farmers need.
 3. The surplus feeds people who **do not farm**: priests, scribes, soldiers, potters, smiths, builders.
 4. Surplus has to be **counted and stored**, so somebody invents **writing** and **number**.
@@ -43,7 +43,7 @@ So: **city, writing, law and army all come out of grain.** If a child takes one 
 
 ## The rest of the world, which is usually left out
 
-- **Africa.** [Nubia and Kush](wiki:Kingdom_of_Kush) built more pyramids than Egypt. [Aksum](wiki:Kingdom_of_Aksum) in Ethiopia traded across the Red Sea and minted its own coin. Later, [Mali](wiki:Mali_Empire) and [Timbuktu](wiki:Timbuktu) were centres of gold and scholarship, and [Great Zimbabwe](wiki:Great_Zimbabwe) was built in stone without mortar.
+- **Africa.** [Nubia and Kush](wiki:Kingdom_of_Kush) built more pyramids than Egypt. [Aksum](wiki:Kingdom_of_Aksum) in Ethiopia traded across [the Red Sea](wiki:Red_Sea) and minted its own coin. Later, [Mali](wiki:Mali_Empire) and [Timbuktu](wiki:Timbuktu) were centres of gold and scholarship, and [Great Zimbabwe](wiki:Great_Zimbabwe) was built in stone without mortar.
 - **The Americas**, developing entirely separately, with no wheel for transport and no horses: the [Maya](wiki:Maya_civilization) with a written script, astronomy and a place-value number system including zero; the [Aztecs](wiki:Aztecs) with a city built on a lake and floating gardens; the [Inca](wiki:Inca_Empire) with terraced mountain farming, suspension bridges, thousands of miles of road and record-keeping on knotted cords, having never invented writing as we would recognise it.
 - **[The Polynesians](wiki:Polynesian_navigation)** crossed thousands of miles of open Pacific in canoes, navigating by stars, swell, cloud and bird, and settled islands from Hawaii to New Zealand. It is probably the greatest feat of navigation in history, done with no instrument at all.
 
@@ -66,7 +66,7 @@ That is the practical lesson of the whole subject, and it is the reason this vau
 
 ## Exercises
 
-1. Put in order, earliest first: the Roman Empire, the first cities of Sumer, Ancient Greece's democracy, the Egyptian pyramids, the Inca Empire.
+1. Put in order, earliest first: [the Roman Empire](wiki:Roman_Empire), the first cities of Sumer, Ancient Greece's democracy, the Egyptian pyramids, the Inca Empire.
 2. Give the five steps by which a river leads to a city with a king, an army and a written language.
 3. What were the first written documents mostly about, and what does that tell you about why writing was invented?
 4. Name three things we still use today that come from Mesopotamian counting in sixties.

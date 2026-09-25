@@ -76,6 +76,26 @@ test('wiki: links are marked for the client to resolve', () => {
   assert.match(html, /href="wiki:Poetry"/);
 });
 
+test('an apostrophe in a link target is not escaped twice', () => {
+  // The whole text is escaped before links are found, so escaping the href
+  // again turned Aesop's_Fables into Aesop&amp;#39;s_Fables and the link
+  // pointed at an article that does not exist.
+  const html = inline("[Fables](wiki:Aesop's_Fables)");
+  assert.ok(!html.includes('&amp;#39;'), `double-escaped: ${html}`);
+  assert.match(html, /href="wiki:Aesop&#39;s_Fables"/);
+});
+
+test('an ampersand in an external link is still escaped once', () => {
+  const html = inline('[x](https://example.com/a?b=1&c=2)');
+  assert.match(html, /b=1&amp;c=2/);
+  assert.ok(!html.includes('&amp;amp;'));
+});
+
+test('a link may contain italics', () => {
+  const html = inline('[*Treasure Island*](wiki:Treasure_Island)');
+  assert.match(html, /<a [^>]*><em>Treasure Island<\/em><\/a>/);
+});
+
 test('ordinary links survive and javascript: ones do not become live', () => {
   assert.match(render('[a](#/school)'), /href="#\/school"/);
   const html = render('[x](javascript:alert(1))');

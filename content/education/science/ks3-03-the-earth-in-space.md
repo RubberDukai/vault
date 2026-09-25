@@ -29,7 +29,7 @@ The Moon goes round the Earth in about 27 days and takes about 29½ days from on
 - **Phases** are not a shadow of the Earth. Half the Moon is always lit by the sun; we see a different fraction of that lit half depending on where it is in its circuit. Demonstrate with a ball, a lamp and a slowly turning child in the middle, and it becomes obvious in a minute.
 - **The same face always points at us**, because the Moon turns once per orbit.
 - **Tides** are the Moon's gravity pulling the oceans — roughly two high tides a day. **Spring tides** (the biggest) come when sun and moon pull in line, at new and full moon; **neap tides** (the smallest) at half moon. For anybody working a coast, that is a working calendar, not an astronomical curiosity.
-- **A lunar eclipse** is the Earth's shadow falling on the Moon — anyone on the night side can watch it. **A solar eclipse** is the Moon's shadow falling on the Earth — visible only in a narrow track, which is why any one place sees one rarely.
+- **A lunar eclipse** is the Earth's shadow falling on the Moon — anyone on the night side can watch it. **[A solar eclipse](wiki:Solar_eclipse)** is the Moon's shadow falling on the Earth — visible only in a narrow track, which is why any one place sees one rarely.
 
 ## The solar system
 
@@ -45,12 +45,12 @@ Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune. The first four ar
 - A star is an enormous ball of gas, giving off light and heat from nuclear fusion in its core, where hydrogen is pressed into helium. Our sun does this and has done for about 4.6 billion years.
 - **Light takes time.** Sunlight takes about 8 minutes to reach us; the nearest star's light takes over 4 years. Looking out is looking back in time.
 - **Stars have life cycles** — they form from clouds of gas, burn, and end either quietly or in an explosion that scatters heavier elements. The iron in your blood and the calcium in your bones were made inside stars. That is literally true and worth saying out loud.
-- **Galaxies** are vast collections of stars. Ours is the Milky Way — the band across a really dark sky is our own galaxy seen edge-on from inside it.
+- **Galaxies** are vast collections of stars. Ours is [the Milky Way](wiki:Milky_Way) — the band across a really dark sky is our own galaxy seen edge-on from inside it.
 
 **What to learn in the sky**, in this order, because each one finds the next:
 
-1. **The Plough** (the Big Dipper), which is always up in Britain.
-2. **The Pole Star** — follow the two end stars of the Plough's bowl about five times their separation. It sits almost exactly over the north pole, so it barely moves all night and all year. **That is your compass**, permanently.
+1. **[The Plough](wiki:Big_Dipper|Ursa_Major)** (the Big Dipper), which is always up in Britain.
+2. **[The Pole Star](wiki:Polaris)** — follow the two end stars of the Plough's bowl about five times their separation. It sits almost exactly over the north pole, so it barely moves all night and all year. **That is your compass**, permanently.
 3. **Orion** in winter, with its three-star belt — the easiest constellation in the sky and a marker of the season.
 4. **Cassiopeia**, a W opposite the Plough around the Pole Star.
 5. **The planets** — they shine steadily where stars twinkle, and they move over weeks.
@@ -83,7 +83,7 @@ None of that required trusting anybody. Every one of those observations can be c
 4. Using a ball and a lamp, explain why the Moon has phases. Why is a crescent moon *not* the Earth's shadow?
 5. Why do we always see the same face of the Moon?
 6. When are the biggest tides, and why? Why does this matter to somebody fishing or gathering on a shore?
-7. What is the difference between a solar and a lunar eclipse, and why do you see far more of one than the other?
+7. What is the difference between a solar and [a lunar eclipse](wiki:Lunar_eclipse), and why do you see far more of one than the other?
 8. Name the planets in order. Which are rocky and which are giants?
 9. Pace out a scale model of the solar system with the sun as a football. Record the distances. How far away would the next star be?
 10. Find the Plough on a clear night. Use it to find the Pole Star. Describe exactly how, then check it against a compass.

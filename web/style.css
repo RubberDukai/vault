@@ -1114,3 +1114,7 @@ body.locked { display: block; background: var(--bg); }
   .recovery-phrase { grid-template-columns: repeat(3, 1fr); }
   .shell > *:not(#view), .nav, .navbar { display: none !important; }
 }
+
+/* An encyclopedia link whose article is not in the installed pack: it goes to
+   a search instead of a missing page, and says so with a dotted underline. */
+a.wiki-link.wiki-search { text-decoration-style: dotted; }

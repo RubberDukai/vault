@@ -82,20 +82,20 @@ Practise on the real thing: the *Handbook* in this Vault, a Wikipedia article, t
 
 Three **Reading shelf** packs are on the Setup page — public-domain books from [Project Gutenberg](wiki:Project_Gutenberg) with their original illustrations. They are small (the whole of the first shelf is about 12 MB) and they are the spine of this lesson.
 
-**Ages 4–7 (10 books).** *The Tale of Peter Rabbit*, *Aesop's Fables*, *Grimms' Fairy Tales*, Hans Christian Andersen, *Just So Stories*, *A Child's Garden of Verses*, Edward Lear's nonsense, *Alice's Adventures in Wonderland*, *The Wonderful Wizard of Oz*, *Pinocchio*. Mostly read aloud by you.
+**Ages 4–7 (10 books).** [*The Tale of Peter Rabbit*](wiki:The_Tale_of_Peter_Rabbit), [*Aesop's Fables*](wiki:Aesop's_Fables), [*Grimms' Fairy Tales*](wiki:Brothers_Grimm), [Hans Christian Andersen](wiki:Hans_Christian_Andersen), [*Just So Stories*](wiki:Just_So_Stories), *A Child's Garden of Verses*, [Edward Lear's nonsense](wiki:Edward_Lear), [*Alice's Adventures in Wonderland*](wiki:Alice's_Adventures_in_Wonderland), [*The Wonderful Wizard of Oz*](wiki:The_Wonderful_Wizard_of_Oz), [*Pinocchio*](wiki:The_Adventures_of_Pinocchio|Pinocchio). Mostly read aloud by you.
 
 **Ages 7–11 (26 books).** The core of KS2. A rough order of difficulty, easiest first:
 
 1. *The Wind in the Willows* — [Kenneth Grahame](wiki:Kenneth_Grahame). Character and comedy; Toad is unforgettable, and every child can tell you what kind of creature he is.
 2. *The Railway Children* and *Five Children and It* — [E. Nesbit](wiki:E._Nesbit|Edith_Nesbit). Ordinary children, clear prose, good for inferring what the grown-ups are not saying.
-3. *Black Beauty* — [Anna Sewell](wiki:Anna_Sewell). Told by the horse: a first lesson in point of view, and in a book written to change people's minds.
-4. *The Secret Garden* — [Frances Hodgson Burnett](wiki:Frances_Hodgson_Burnett). Character change across a whole book — Mary at the start and Mary at the end.
-5. *Heidi*, *The Story of Doctor Dolittle*, *Peter Pan*, *Little Lord Fauntleroy*, *The Water-Babies*.
-6. *The Jungle Book* — [Rudyard Kipling](wiki:Rudyard_Kipling). Harder language; an excellent read-aloud.
+3. [*Black Beauty*](wiki:Black_Beauty) — [Anna Sewell](wiki:Anna_Sewell). Told by the horse: a first lesson in point of view, and in a book written to change people's minds.
+4. [*The Secret Garden*](wiki:The_Secret_Garden) — [Frances Hodgson Burnett](wiki:Frances_Hodgson_Burnett). Character change across a whole book — Mary at the start and Mary at the end.
+5. *Heidi*, *The Story of Doctor Dolittle*, [*Peter Pan*](wiki:Peter_Pan), *Little Lord Fauntleroy*, *The Water-Babies*.
+6. [*The Jungle Book*](wiki:The_Jungle_Book) — [Rudyard Kipling](wiki:Rudyard_Kipling). Harder language; an excellent read-aloud.
 7. *Tales from Shakespeare* — [Charles and Mary Lamb](wiki:Tales_from_Shakespeare|Charles_Lamb|William_Shakespeare). The plots in prose, so that the plays are not strangers later.
-8. *The Arabian Nights*, *Tanglewood Tales* and *A Wonder Book* — the [Greek myths](wiki:Greek_mythology) and the story within a story.
-9. *Treasure Island* and *Kidnapped* — [Robert Louis Stevenson](wiki:Robert_Louis_Stevenson); *The Merry Adventures of Robin Hood* — [Howard Pyle](wiki:Howard_Pyle|Robin_Hood); *The Coral Island*; *Swiss Family Robinson*.
-10. *Tom Sawyer*, *Anne of Green Gables*, *Little Women*, *Through the Looking-Glass*, *The Call of the Wild*, *Around the World in Eighty Days*.
+8. [*The Arabian Nights*](wiki:One_Thousand_and_One_Nights|Arabian_Nights), *Tanglewood Tales* and *A Wonder Book* — the [Greek myths](wiki:Greek_mythology) and the story within a story.
+9. [*Treasure Island*](wiki:Treasure_Island) and *Kidnapped* — [Robert Louis Stevenson](wiki:Robert_Louis_Stevenson); *The Merry Adventures of Robin Hood* — [Howard Pyle](wiki:Howard_Pyle|Robin_Hood); *The Coral Island*; [*Swiss Family Robinson*](wiki:The_Swiss_Family_Robinson).
+10. *Tom Sawyer*, [*Anne of Green Gables*](wiki:Anne_of_Green_Gables), [*Little Women*](wiki:Little_Women), *Through the Looking-Glass*, [*The Call of the Wild*](wiki:The_Call_of_the_Wild), [*Around the World in Eighty Days*](wiki:Around_the_World_in_Eighty_Days).
 
 **Ages 11 and up (25 books).** Waiting for KS3 — Dickens, the Brontës, Austen, Verne, Wells, Sherlock Holmes, Homer, the complete Shakespeare. A strong reader can start on *A Christmas Carol*, *The Adventures of Sherlock Holmes* or *The Time Machine* at the top of KS2.
 

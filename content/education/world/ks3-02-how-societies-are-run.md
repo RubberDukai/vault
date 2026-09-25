@@ -38,7 +38,7 @@ Most real states are mixtures. **Ask of any of them the same three questions: ho
 
 - **Constitutional monarchy and parliamentary democracy.** The monarch is head of state with almost no political power; Parliament makes the law.
 - **Parliament** has two chambers: the **House of Commons**, elected, which holds the real power; and the **House of Lords**, unelected, which revises and delays.
-- **The government** is formed by whoever commands a majority in the Commons; the **Prime Minister** leads it and the **Cabinet** runs the departments.
+- **The government** is formed by whoever commands a majority in the Commons; the **[Prime Minister](wiki:Prime_Minister_of_the_United_Kingdom|Prime_minister)** leads it and the **Cabinet** runs the departments.
 - **General elections** at least every five years. The country is divided into constituencies, each returning one MP by **first past the post** — the most votes wins, even without a majority. This produces clear results and decisive governments, and it also means a party can win power on well under half the votes cast. That trade-off is a real argument with two sides.
 - **The courts** are independent of government, and there is no single written constitution — an unusual arrangement resting on convention, precedent and statute.
 - **Local government** runs housing, roads, refuse, planning and schools — and is where an individual can actually be heard.

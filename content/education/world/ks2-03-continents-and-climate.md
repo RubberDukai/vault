@@ -21,9 +21,9 @@ Draw the world from memory once a week for a month. It will be dreadful and then
 
 **The lines:**
 
-- **The Equator** — 0° latitude, round the middle.
-- **Latitude** — how far north or south, from 0° at the Equator to 90° at each pole. The lines run *across*, parallel, like the rungs of a ladder.
-- **Longitude** — how far east or west, from 0° at Greenwich to 180° on the far side. The lines run *pole to pole*, meeting at the top and bottom.
+- **[The Equator](wiki:Equator)** — 0° latitude, round the middle.
+- **[Latitude](wiki:Latitude)** — how far north or south, from 0° at the Equator to 90° at each pole. The lines run *across*, parallel, like the rungs of a ladder.
+- **[Longitude](wiki:Longitude)** — how far east or west, from 0° at Greenwich to 180° on the far side. The lines run *pole to pole*, meeting at the top and bottom.
 - **The Tropics of Cancer and Capricorn** at 23.5° north and south — the furthest the sun ever gets overhead.
 - **The Arctic and Antarctic Circles** at 66.5° — where there is at least one day a year with no sunset, and one with no sunrise.
 
@@ -57,7 +57,7 @@ At the Equator the sun's heat lifts wet air, which cools as it rises and dumps i
 
 | Biome | Where | What it is like |
 |---|---|---|
-| **Tropical rainforest** | on the Equator | hot, wet all year, the greatest variety of life anywhere |
+| **[Tropical rainforest](wiki:Rainforest)** | on the Equator | hot, wet all year, the greatest variety of life anywhere |
 | **Desert** | about 30° N and S | very dry, huge day-to-night temperature swings |
 | **Savannah/grassland** | between the two | wet season and dry season, big grazing herds |
 | **Temperate forest** | 40–60°, incl. Britain | four seasons, rain all year, deciduous trees |
@@ -72,8 +72,8 @@ At the Equator the sun's heat lifts wet air, which cools as it rises and dumps i
 
 - **Rivers** run from high to low, wearing a V-shaped valley near the source, meandering across a flood plain lower down, and dropping their silt at a delta or estuary. People have always settled on them: water, transport, power, fish, and flood-rich soil — and the price is the flood itself.
 - **Mountains** are built where the plates of the Earth's crust push into each other. The Himalayas are still growing, a few millimetres a year, because India is still pushing into Asia.
-- **Volcanoes and earthquakes** happen mostly where those plates meet — draw them on a world map and the plate edges appear, especially the ring round the Pacific. People still live there, because volcanic soil is superb.
-- **Glaciers** carved a great deal of northern Britain into U-shaped valleys and left the boulders and gravel your soil is made of.
+- **[Volcanoes](wiki:Volcano) and earthquakes** happen mostly where those plates meet — draw them on a world map and the plate edges appear, especially the ring round the Pacific. People still live there, because volcanic soil is superb.
+- **[Glaciers](wiki:Glacier)** carved a great deal of northern Britain into U-shaped valleys and left the boulders and gravel your soil is made of.
 - **Coasts** are worn away in one place and built up in another, all the time.
 
 ## Where people are, and why

@@ -56,14 +56,14 @@ The pattern is worth naming, because it keeps recurring: **a new technology arri
 
 **[The Second World War](wiki:World_War_II), 1939–45.** Roughly seventy to eighty-five million dead, most of them civilians. **[The Holocaust](wiki:The_Holocaust):** the deliberate, industrialised murder of six million Jews, and of Roma, disabled people, prisoners of war, gay men and political opponents. It was carried out by an educated, modern state, using ordinary bureaucracy — timetables, forms, clerks. That is the fact that must not be softened: it was not done by monsters in a dark age, and that is exactly why it must be remembered and taught.
 
-The war ended with the first use of nuclear weapons, and with the United Nations, the Universal Declaration of Human Rights and the Geneva Conventions — attempts to make rules for what states may do, which work imperfectly and are better than nothing.
+The war ended with the first use of nuclear weapons, and with [the United Nations](wiki:United_Nations), [the Universal Declaration of Human Rights](wiki:Universal_Declaration_of_Human_Rights) and [the Geneva Conventions](wiki:Geneva_Conventions) — attempts to make rules for what states may do, which work imperfectly and are better than nothing.
 
 ## Since 1945
 
 - **The end of empire.** Most colonies became independent states within thirty years, some peacefully, some after long wars. Many borders drawn by outsiders are still causing conflict.
-- **The Cold War**, 1947–1991 — two armed blocs, proxy wars, and the permanent possibility of nuclear annihilation.
-- **In Britain:** the National Health Service (1948), mass housebuilding, the motor car, television, and a standard of living that would have astonished a Victorian.
-- **Technology:** antibiotics, vaccination against diseases that had killed children for all of history, the contraceptive pill, the jet, the satellite, the computer and the internet. More information is now available to an ordinary person than to any king in history.
+- **[The Cold War](wiki:Cold_War)**, 1947–1991 — two armed blocs, proxy wars, and the permanent possibility of nuclear annihilation.
+- **In Britain:** [the National Health Service](wiki:National_Health_Service|Health_care) (1948), mass housebuilding, the motor car, television, and a standard of living that would have astonished a Victorian.
+- **Technology:** [antibiotics](wiki:Antibiotic), [vaccination](wiki:Vaccination) against diseases that had killed children for all of history, [the contraceptive pill](wiki:Combined_oral_contraceptive_pill|Birth_control), the jet, the satellite, the computer and the internet. More information is now available to an ordinary person than to any king in history.
 - **The costs being counted now:** a climate changed by two centuries of burning coal and oil, depleted soils and seas, and a global system in which everybody depends on supply chains almost nobody understands.
 
 That last point is the one to end on, because it is the argument for this vault: **a society can be enormously capable and, at the same time, fragile in ways it does not notice**, because the capability is spread across systems no single person can see or repair.
@@ -78,7 +78,7 @@ That last point is the one to end on, because it is the argument for this vault:
 
 ## Exercises
 
-1. Put in order: the French Revolution, the printing press, the Second World War, the abolition of slavery in the British Empire, the first railways, the Reformation.
+1. Put in order: [the French Revolution](wiki:French_Revolution), the printing press, the Second World War, the abolition of slavery in the British Empire, the first railways, the Reformation.
 2. Explain why the printing press made the Reformation possible when similar arguments a century earlier had failed.
 3. What was the lasting invention of the scientific revolution? Explain why the method mattered more than any single discovery.
 4. Why did European conquest of the Americas succeed so completely? Give the reason that mattered more than weapons.

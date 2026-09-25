@@ -22,14 +22,14 @@ Forces come in two kinds: those that need **contact** (a push, friction, air res
 
 Forces are measured in **newtons (N)**. A 1 kg mass weighs about 10 N on Earth. A rubber band or a spring with a scale beside it makes a usable force meter — the further it stretches, the bigger the force.
 
-## Gravity
+## [Gravity](wiki:Gravity)
 
 Gravity pulls everything towards the centre of the Earth. Two things surprise people:
 
 - **Mass and weight are different.** Mass is how much stuff there is — the same everywhere. Weight is the pull of gravity on it, which is less on the Moon. A 10 kg sack has 10 kg of mass wherever it goes; it weighs about 100 N here and about 16 N on the Moon.
 - **Heavy and light things fall at the same rate**, once air is out of the way. Drop a stone and a pebble together: they land together. Then drop a stone and a sheet of paper: the paper loses — not because it is lighter but because of **air resistance**. Screw the paper into a ball and drop it again, and it keeps up. That one experiment, done in that order, teaches more than a page of explanation.
 
-## Friction and air resistance
+## [Friction](wiki:Friction) and air resistance
 
 **Friction** is the force between two surfaces rubbing. It slows things down and makes heat — which is a nuisance in an axle and the whole point in a brake, a fire drill and the soles of your boots.
 
@@ -60,7 +60,7 @@ A machine does not create force out of nothing. It trades **distance for force**
 **Light travels in straight lines**, and fast — instantly, for any purpose you will have. Everything else follows from the straight lines.
 
 - **We see because light bounces off things into our eyes.** This is worth insisting on: the eye does not send anything out. In perfect darkness you see nothing, however long you wait, because there is nothing to bounce.
-- **Sources** make their own light: sun, fire, lamp, lightning, a glow-worm. Everything else only reflects. The Moon is not a source.
+- **Sources** make their own light: sun, fire, lamp, lightning, a glow-worm. Everything else only reflects. [The Moon](wiki:Moon) is not a source.
 - **Shadows** are where an object blocks the straight lines. Because the lines are straight, the shadow has the shape of the object. Move a torch closer and the shadow grows — draw the straight lines from the torch past the edges of the object to see why. Follow a stick's shadow through a whole day and you have a sundial and a compass at once (see *Seasons, weather and the sky*).
 - **Reflection.** A mirror bounces light at the same angle it arrives — like a ball off a wall. Two mirrors at an angle make multiple images; two facing each other make a tunnel of them. A periscope is two mirrors at 45°, and a child can build one from a milk carton in ten minutes.
 - **Refraction.** Light bends when it passes into water or glass. That is why a stick in a bucket looks broken at the surface, why a coin in a bowl reappears when you add water, and why a lens works. A clear jar of water is a lens: it magnifies, and in sun it will light tinder.
