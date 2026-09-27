@@ -149,6 +149,10 @@ class ArkServer {
       if (!keepData) store.data = null; // force a re-read under the new key
       store.setKey(key);
     }
+    // Spreadsheets are the household's own data too, and hold exactly the kind
+    // of thing a PIN is for (a budget, a password jotted in a cell). They live
+    // as files rather than in a Store, so they carry the key themselves.
+    this.sheets.setKey(key);
   }
 
   /**
@@ -788,6 +792,7 @@ class ArkServer {
       const phrase = await this.lock.enable(body.pin);
       this._applyKey(this.lock.key);
       await this._rewritePrivate();
+      await this.sheets.reencrypt(null); // plaintext workbooks → ciphertext
       return this.json(res, 200, { phrase, strength: pinStrength(body.pin) });
     }
 
@@ -816,6 +821,7 @@ class ArkServer {
       // Read everything into memory while the key still works, because once
       // the lock file is gone the ciphertext on disk can never be read again.
       for (const store of this.privateStores) store.load();
+      const oldKey = this.lock.key; // capture before disable() clears it
       try {
         await this.lock.disable(body.pin);
       } catch (err) {
@@ -823,6 +829,7 @@ class ArkServer {
       }
       this._applyKey(null, { keepData: true });
       await this._rewritePrivate();
+      await this.sheets.reencrypt(oldKey); // ciphertext workbooks → plaintext
       return this.json(res, 200, { ok: true });
     }
 

@@ -3,7 +3,9 @@
  * Spreadsheets.
  *
  * Workbooks live as JSON in library/sheets — the vault's own format, plain
- * enough to read with a text editor. XLSX files (Excel, LibreOffice, Google
+ * enough to read with a text editor while the vault is open. When a PIN is
+ * set they are encrypted at rest under the same key as the rest of the
+ * household's private data. XLSX files (Excel, LibreOffice, Google
  * Sheets exports) and CSVs can be imported from the same folder or uploaded;
  * workbooks export back to both. The XLSX reader and writer here are
  * deliberately small: cells, formulas, shared strings, basic styles and
@@ -18,6 +20,7 @@
 const fs = require('node:fs');
 const fsp = require('node:fs/promises');
 const path = require('node:path');
+const lock = require('./lock');
 const zlib = require('node:zlib');
 const { ZipFile } = require('./docs/zip');
 
@@ -398,6 +401,29 @@ function exportCsv(sheet) {
 class SheetLibrary {
   constructor(dir) {
     this.dir = dir;
+    // When the vault is locked, the key workbook files are written under.
+    // Null means plain JSON, which is how an unlocked vault works.
+    this._key = null;
+  }
+
+  /** Encrypt workbooks from now on, or stop. Does not rewrite existing files. */
+  setKey(key) {
+    this._key = key || null;
+    return this;
+  }
+
+  /** Bytes on disk → JSON text, decrypting if the file is ciphertext. */
+  _decode(bytes) {
+    if (lock.looksEncrypted(bytes)) {
+      if (!this._key) throw new Error('locked');
+      return lock.decrypt(this._key, bytes).toString('utf8');
+    }
+    return bytes.toString('utf8');
+  }
+
+  /** JSON text → bytes on disk, encrypting when a key is set. */
+  _encode(json) {
+    return this._key ? lock.encrypt(this._key, Buffer.from(json, 'utf8')) : json;
   }
 
   async list() {
@@ -410,9 +436,9 @@ class SheetLibrary {
       const full = path.join(this.dir, e.name);
       if (/\.json$/i.test(e.name)) {
         try {
-          const wb = JSON.parse(await fsp.readFile(full, 'utf8'));
+          const wb = JSON.parse(this._decode(await fsp.readFile(full)));
           workbooks.push({ id: e.name.replace(/\.json$/i, ''), name: wb.name || e.name, updated: wb.updated || null, sheets: (wb.sheets || []).length });
-        } catch { /* not ours */ }
+        } catch { /* not ours, or locked */ }
       } else if (/\.(xlsx|csv|tsv)$/i.test(e.name)) {
         const st = await fsp.stat(full);
         importable.push({ file: e.name, size: st.size });
@@ -429,7 +455,7 @@ class SheetLibrary {
   }
 
   async get(id) {
-    return JSON.parse(await fsp.readFile(this._path(id), 'utf8'));
+    return JSON.parse(this._decode(await fsp.readFile(this._path(id))));
   }
 
   async save(workbook) {
@@ -437,13 +463,36 @@ class SheetLibrary {
     if (!workbook.id) workbook.id = `wb${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
     workbook.updated = new Date().toISOString();
     const tmp = `${this._path(workbook.id)}.tmp`;
-    await fsp.writeFile(tmp, JSON.stringify(workbook), 'utf8');
+    await fsp.writeFile(tmp, this._encode(JSON.stringify(workbook)));
     await fsp.rename(tmp, this._path(workbook.id));
     return workbook;
   }
 
   async remove(id) {
     await fsp.unlink(this._path(id));
+  }
+
+  /**
+   * Rewrite every workbook under the current key, reading each with `fromKey`
+   * (null for plaintext). Used when the PIN is turned on (fromKey null → files
+   * become ciphertext) or removed (fromKey the old key → files become plain).
+   */
+  async reencrypt(fromKey) {
+    await fsp.mkdir(this.dir, { recursive: true });
+    const entries = await fsp.readdir(this.dir, { withFileTypes: true });
+    for (const e of entries) {
+      if (!e.isFile() || !/\.json$/i.test(e.name)) continue;
+      const full = path.join(this.dir, e.name);
+      let bytes;
+      try { bytes = await fsp.readFile(full); } catch { continue; }
+      let json;
+      try {
+        json = lock.looksEncrypted(bytes) ? lock.decrypt(fromKey, bytes).toString('utf8') : bytes.toString('utf8');
+      } catch { continue; } // not readable with the given key: leave it as-is
+      const tmp = `${full}.tmp`;
+      await fsp.writeFile(tmp, this._encode(json));
+      await fsp.rename(tmp, full);
+    }
   }
 
   /** Import a file already in the folder, or a buffer sent from the browser. */

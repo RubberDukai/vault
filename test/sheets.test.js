@@ -7,7 +7,12 @@
 
 const test = require('node:test');
 const assert = require('node:assert');
-const { parseCsv, exportCsv, importCsv, colLetters, colIndex, makeZip } = require('../src/sheets');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const crypto = require('node:crypto');
+const { parseCsv, exportCsv, importCsv, colLetters, colIndex, makeZip, SheetLibrary } = require('../src/sheets');
+const lock = require('../src/lock');
 
 test('column letters and indexes round-trip', () => {
   for (const [i, letters] of [[0, 'A'], [1, 'B'], [25, 'Z'], [26, 'AA'], [27, 'AB'], [51, 'AZ'], [52, 'BA']]) {
@@ -80,4 +85,48 @@ test('makeZip produces something that starts with the zip signature', () => {
   assert.ok(Buffer.isBuffer(buf));
   assert.strictEqual(buf.subarray(0, 2).toString('latin1'), 'PK', 'a zip begins PK');
   assert.ok(buf.includes(Buffer.from('a.txt')), 'the filename is in the archive');
+});
+
+test('workbooks are encrypted at rest when a PIN is set, and readable again when removed', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vault-sheets-enc-'));
+  const lib = new SheetLibrary(dir);
+  const secret = 'SECRET-SALARY-99999';
+  const wb = await lib.save({ name: 'Budget', sheets: [{ name: 'S1', cells: { A1: { v: secret } } }] });
+  const file = path.join(dir, `${wb.id}.json`);
+
+  // Before a PIN: plaintext on disk.
+  assert.ok(!lock.looksEncrypted(fs.readFileSync(file)), 'plaintext before a PIN');
+  assert.ok(fs.readFileSync(file, 'utf8').includes(secret));
+
+  // Enabling a PIN (server: setKey then reencrypt) encrypts existing files.
+  const key = crypto.randomBytes(32);
+  lib.setKey(key);
+  await lib.reencrypt(null);
+  const enc = fs.readFileSync(file);
+  assert.ok(lock.looksEncrypted(enc), 'ciphertext after the PIN');
+  assert.ok(!enc.toString('binary').includes(secret), 'the secret is not readable on disk');
+  assert.strictEqual((await lib.get(wb.id)).sheets[0].cells.A1.v, secret, 'still readable through the app');
+
+  // A save while locked stays ciphertext.
+  await lib.save(await lib.get(wb.id));
+  assert.ok(lock.looksEncrypted(fs.readFileSync(file)), 'a fresh save stays ciphertext');
+
+  // Removing the PIN (server: capture key, setKey(null), reencrypt(old)) restores plaintext.
+  lib.setKey(null);
+  await lib.reencrypt(key);
+  assert.ok(!lock.looksEncrypted(fs.readFileSync(file)), 'plaintext again after removing the PIN');
+  assert.strictEqual((await lib.get(wb.id)).sheets[0].cells.A1.v, secret);
+
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
+test('a locked workbook file cannot be read without the key', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vault-sheets-locked-'));
+  const key = crypto.randomBytes(32);
+  const lib = new SheetLibrary(dir).setKey(key);
+  const wb = await lib.save({ name: 'x', sheets: [] });
+
+  const noKey = new SheetLibrary(dir); // no key set = locked
+  await assert.rejects(() => noKey.get(wb.id), /locked/);
+  fs.rmSync(dir, { recursive: true, force: true });
 });
