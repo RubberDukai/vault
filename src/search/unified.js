@@ -384,16 +384,22 @@ class UnifiedSearch {
     return changed ? fixed.join(' ') : null;
   }
 
-  async searchAll(library, query, { contentLimit = 15, packLimit = 8, documentLimit = 10 } = {}) {
+  async searchAll(library, query, { contentLimit = 15, packLimit = 8, documentLimit = 10, includePacks = true } = {}) {
     // Books have hundreds of sections each; ranked in one pool with the
     // handbook they crowd it out entirely, and the concise chapter that
     // answers "child bleeding" never surfaces. So the authored content —
     // handbook, lessons, manual — is searched in its own pool and always
     // gets its slots, and books are ranked separately with a cap per book.
+    //
+    // Until the pack title indexes are built (the first minute after a cold
+    // start, or longer with a big encyclopedia), searching them means a slow
+    // scan that can take half a minute. The authored content is instant, so
+    // when `includePacks` is false we return it at once and let the caller
+    // signal that the encyclopedia is still indexing.
     const [content, ranked, packs] = await Promise.all([
       Promise.resolve(this.searchContent(query, contentLimit, (d) => d.kind !== 'document')),
       Promise.resolve(this.searchContent(query, documentLimit * 4, (d) => d.kind === 'document')),
-      this.searchPacks(library, query, packLimit * 3),
+      includePacks ? this.searchPacks(library, query, packLimit * 3) : Promise.resolve([]),
     ]);
 
     const documents = [];

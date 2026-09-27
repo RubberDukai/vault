@@ -3022,15 +3022,16 @@ async function renderSearch(params) {
   }
 
   setBusy(`Searching for “${query}”…`);
-  const data = await api(`search?q=${encodeURIComponent(query)}`);
 
   const section = (title, items, render) => items.length
     ? `<h2>${title}</h2>${items.map(render).join('')}`
     : '';
 
+  const paint = (data) => {
   view.innerHTML = `
     <h1>“${esc(query)}”</h1>
     <p class="lede">${data.total} result${data.total === 1 ? '' : 's'} across the handbook, school and your packs.</p>
+    ${data.indexing ? '<p class="faint">Showing the handbook and lessons now — the encyclopedia is still indexing and will appear in a moment.</p>' : ''}
 
     ${data.suggestion ? `<p class="did-you-mean">Did you mean
       <a href="#/search?q=${encodeURIComponent(data.suggestion)}"><strong>${esc(data.suggestion)}</strong></a>?</p>` : ''}
@@ -3072,6 +3073,27 @@ async function renderSearch(params) {
       ? ` Try <a href="#/search?q=${encodeURIComponent(data.suggestion)}">${esc(data.suggestion)}</a>.`
       : ' Try a shorter or more common word.'}</div>` : ''}
   `;
+  };
+
+  const first = await api(`search?q=${encodeURIComponent(query)}`);
+  paint(first);
+
+  // On a cold start the pack title indexes may still be building, so the first
+  // answer is the (instant) handbook and lessons. Poll quietly and fold the
+  // encyclopedia in when it is ready — but only while the reader is still on
+  // this same search.
+  if (first.indexing) pollForIndex();
+
+  async function pollForIndex() {
+    for (let tries = 0; tries < 15; tries++) {
+      await new Promise((r) => setTimeout(r, 2500));
+      if (searchInput.value.trim() !== query || !location.hash.includes('/search')) return;
+      const latest = await api(`search?q=${encodeURIComponent(query)}`);
+      if (searchInput.value.trim() !== query || !location.hash.includes('/search')) return;
+      paint(latest);
+      if (!latest.indexing) return;
+    }
+  }
 }
 
 // --------------------------------------------------------------- profiles

@@ -1555,15 +1555,22 @@ class ArkServer {
     if (route === 'search') {
       const query = q.get('q') || '';
       if (!query.trim()) return this.json(res, 200, { query, content: [], packs: [], places: [], total: 0 });
+      // The pack title indexes build behind the running server. Searching them
+      // before they are ready is the slow path (up to ~30s with a big
+      // encyclopedia), so until then we answer from the authored content —
+      // which is instant, and is what an emergency lookup needs first — and
+      // tell the page the encyclopedia is still coming.
+      const titlesReady = this.ready ? this.ready.titles : true;
       const results = await this.search.searchAll(this.library, query, {
         contentLimit: Number(q.get('limit') || 15),
         packLimit: Number(q.get('packLimit') || 8),
+        includePacks: titlesReady,
       });
       // A place name typed into the main box should offer the map, not just
       // whatever article happens to mention the town.
       let places = [];
       try { places = this.places.status().ready ? this.places.search(query, 4) : []; } catch { places = []; }
-      return this.json(res, 200, { ...results, places });
+      return this.json(res, 200, { ...results, places, indexing: !titlesReady });
     }
 
     return this.json(res, 404, { error: `Unknown endpoint: ${route}` });
