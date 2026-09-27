@@ -1047,7 +1047,12 @@ class ArkServer {
       let ok = false;
       this.annotations.update((d) => {
         const layer = d.layers.find((l) => l.id === body.layerId) || d.layers[0];
-        if (layer) { layer.strokes.push(stroke); ok = true; }
+        if (layer) {
+          layer.strokes.push(stroke);
+          // Bound a layer so a flood of strokes cannot fill the disk.
+          if (layer.strokes.length > 10000) layer.strokes = layer.strokes.slice(-10000);
+          ok = true;
+        }
       });
       return this.json(res, ok ? 200 : 404, ok ? { stroke } : { error: 'No such layer' });
     }
@@ -1086,7 +1091,11 @@ class ArkServer {
         by: String(body.by || '').slice(0, 60),
         created: new Date().toISOString(),
       };
-      this.calendar.update((d) => { d.events.push(event); });
+      this.calendar.update((d) => {
+        d.events.push(event);
+        // Bound the calendar so it cannot grow without limit on a shared LAN.
+        if (d.events.length > 5000) d.events = d.events.slice(-5000);
+      });
       return this.json(res, 200, { event });
     }
 
@@ -1116,8 +1125,12 @@ class ArkServer {
       const kinds = ['note', 'recipe', 'list'];
       const now = new Date().toISOString();
       let saved = null;
+      let full = false;
       this.notebook.update((d) => {
         const existing = body.id ? d.notes.find((n) => n.id === body.id) : null;
+        // Cap the number of pages so a flood cannot fill the disk, but never
+        // drop an existing page — editing one is always allowed.
+        if (!existing && d.notes.length >= 5000) { full = true; return; }
         const note = existing || {
           id: `n${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
           profile: String(body.profile || 'default'),
@@ -1134,6 +1147,7 @@ class ArkServer {
         if (!existing) d.notes.push(note);
         saved = note;
       });
+      if (full) return this.json(res, 400, { error: 'The notebook is full (5000 pages).' });
       return this.json(res, 200, { note: saved });
     }
 
@@ -1555,6 +1569,7 @@ class ArkServer {
       const body = await this.readBody(req);
       const name = (body.name || '').trim();
       if (!name) return this.json(res, 400, { error: 'A name is required' });
+      if (this.state.get().profiles.length >= 200) return this.json(res, 400, { error: 'Too many profiles.' });
       const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-') || `p${Date.now()}`;
       this.state.update((d) => {
         if (!d.profiles.find((p) => p.id === id)) {
