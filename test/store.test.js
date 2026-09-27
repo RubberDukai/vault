@@ -11,7 +11,9 @@ const fs = require('node:fs');
 const fsp = require('node:fs/promises');
 const os = require('node:os');
 const path = require('node:path');
+const crypto = require('node:crypto');
 const { Store } = require('../src/store');
+const lock = require('../src/lock');
 
 function tmpDir() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'vault-store-'));
@@ -81,6 +83,43 @@ test('a corrupt file is quarantined, never overwritten', () => {
   const kept = fs.readdirSync(dir).filter((f) => f.includes('.corrupt-'));
   assert.strictEqual(kept.length, 1, 'the unreadable file is kept for recovery');
   assert.strictEqual(fs.readFileSync(path.join(dir, kept[0]), 'utf8'), '{ this is not json');
+});
+
+test('a corrupt encrypted file is quarantined, not silently reset and overwritten', async () => {
+  const dir = tmpDir();
+  const file = path.join(dir, 'state.json');
+  const key = crypto.randomBytes(32);
+
+  // Write an encrypted store, then flip a byte so GCM will not authenticate it.
+  const store = new Store(file, { n: 0 }).setKey(key);
+  await store.update((d) => { d.n = 7; });
+  const bytes = fs.readFileSync(file);
+  assert.ok(lock.looksEncrypted(bytes), 'the saved file is ciphertext');
+  bytes[bytes.length - 5] ^= 0xff; // corrupt the ciphertext/tag, not the magic
+  fs.writeFileSync(file, bytes);
+
+  // Reopening with the CORRECT key must fall back to defaults AND preserve the
+  // damaged file — never overwrite the only copy that might be recoverable.
+  const reopened = new Store(file, { n: 0 }).setKey(key);
+  assert.deepStrictEqual(reopened.get(), { n: 0 }, 'falls back to defaults');
+  const kept = fs.readdirSync(dir).filter((f) => f.includes('.corrupt-'));
+  assert.strictEqual(kept.length, 1, 'the undecryptable file is kept for recovery');
+
+  // And a save afterwards writes a fresh file without destroying the kept one.
+  await reopened.update((d) => { d.n = 9; });
+  assert.strictEqual(fs.readdirSync(dir).filter((f) => f.includes('.corrupt-')).length, 1);
+});
+
+test('an encrypted file with no key still refuses to load rather than quarantine', async () => {
+  const dir = tmpDir();
+  const file = path.join(dir, 'state.json');
+  const key = crypto.randomBytes(32);
+  await new Store(file, { n: 0 }).setKey(key).update((d) => { d.n = 7; });
+
+  // No key set: locked. Must throw, and must NOT move the file aside.
+  const locked = new Store(file, { n: 0 });
+  assert.throws(() => locked.get(), /locked/);
+  assert.strictEqual(fs.readdirSync(dir).filter((f) => f.includes('.corrupt-')).length, 0);
 });
 
 test('no temp files are left behind after a write', async () => {

@@ -33,40 +33,60 @@ class Store {
 
   load() {
     if (this.data) return this.data;
-    let raw = null;
+
+    let bytes;
     try {
-      const bytes = fs.readFileSync(this.filePath);
-      // A file written while the vault was locked is ciphertext. One that
-      // predates the lock is not, and must still open — turning the lock on
-      // is a migration, not a cliff.
-      raw = lock.looksEncrypted(bytes)
-        ? (this._key ? lock.decrypt(this._key, bytes).toString('utf8') : null)
-        : bytes.toString('utf8');
-      if (raw === null) throw new Error('locked');
-    } catch (err) {
-      if (err && err.message === 'locked') {
-        // Asked to read an encrypted file with no key. Never quarantine it:
-        // that would destroy data whose only problem is that we are locked.
-        throw new Error(`${path.basename(this.filePath)} is encrypted and the vault is locked`);
-      }
-      raw = null; // no file yet, or unreadable: start from the defaults
-    }
-    if (raw === null) {
+      bytes = fs.readFileSync(this.filePath);
+    } catch {
+      // No file yet, or unreadable at the OS level: nothing to keep, start
+      // from the defaults.
       this.data = structuredClone(this.defaults);
       return this.data;
     }
+
+    // A file written while the vault was locked is ciphertext. One that
+    // predates the lock is not, and must still open — turning the lock on is
+    // a migration, not a cliff.
+    const encrypted = lock.looksEncrypted(bytes);
+    if (encrypted && !this._key) {
+      // Asked to read an encrypted file with no key. Never quarantine it:
+      // that would destroy data whose only problem is that we are locked.
+      throw new Error(`${path.basename(this.filePath)} is encrypted and the vault is locked`);
+    }
+
+    let raw;
+    if (encrypted) {
+      try {
+        raw = lock.decrypt(this._key, bytes).toString('utf8');
+      } catch (err) {
+        // Ciphertext the current key cannot authenticate — a flipped bit, a
+        // truncated write, tampering. GCM is all-or-nothing, so this is the
+        // whole store; set it aside rather than let the next save overwrite
+        // the only copy that might still be recoverable by hand.
+        this._quarantine(err);
+        this.data = structuredClone(this.defaults);
+        return this.data;
+      }
+    } else {
+      raw = bytes.toString('utf8');
+    }
+
     try {
       this.data = { ...structuredClone(this.defaults), ...JSON.parse(raw) };
     } catch (err) {
-      // A file that exists but will not parse is set aside, never overwritten:
-      // whatever is in it may be recoverable by hand, and the defaults that
-      // replace it are started fresh rather than saved over the top.
-      const quarantine = `${this.filePath}.corrupt-${new Date().toISOString().replace(/[:.]/g, '-')}`;
-      try { fs.renameSync(this.filePath, quarantine); } catch { /* leave it where it is */ }
-      console.error(`[vault] ${path.basename(this.filePath)} could not be read (${err.message}); kept as ${path.basename(quarantine)} and starting afresh`);
+      // A file that decrypts (or was plain) but will not parse is set aside
+      // too, never overwritten.
+      this._quarantine(err);
       this.data = structuredClone(this.defaults);
     }
     return this.data;
+  }
+
+  /** Move an unreadable file aside so a fresh start does not save over it. */
+  _quarantine(err) {
+    const quarantine = `${this.filePath}.corrupt-${new Date().toISOString().replace(/[:.]/g, '-')}`;
+    try { fs.renameSync(this.filePath, quarantine); } catch { /* leave it where it is */ }
+    console.error(`[vault] ${path.basename(this.filePath)} could not be read (${err.message}); kept as ${path.basename(quarantine)} and starting afresh`);
   }
 
   get() {
