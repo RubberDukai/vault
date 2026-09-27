@@ -161,7 +161,7 @@ class UnifiedSearch {
     const results = [...scores.entries()].filter(([docIndex]) => !keep || keep(this.docs[docIndex])).map(([docIndex, score]) => {
       const doc = this.docs[docIndex];
       const titleBonus = doc.title.toLowerCase().includes(lowered) ? 25 : 0;
-      return { ...doc, score: score + titleBonus, snippet: this._snippet(doc.text, terms) };
+      return { ...doc, score: (score + titleBonus) * UnifiedSearch.kindWeight(doc), snippet: this._snippet(doc.text, terms) };
     });
 
     results.sort((a, b) => b.score - a.score);
@@ -189,6 +189,32 @@ class UnifiedSearch {
    * scales — a title that actually matches still wins, which is why searching
    * "pacman" still finds the ArchWiki page ahead of anything else.
    */
+  /**
+   * How much an authored result is worth, by what kind of thing it is.
+   *
+   * When someone types "child bleeding" or "dirty water" they want the
+   * handbook chapter that tells them what to do now, not a school lesson that
+   * happens to mention the words often, and certainly not a language deck. The
+   * handbook is the actionable reference, so it is weighted above lessons;
+   * medicine and first aid — the highest-stakes, most time-critical pages —
+   * are weighted above the rest of the handbook; language decks, which are
+   * almost never the answer to a content search, are pushed down.
+   */
+  static kindWeight(doc) {
+    switch (doc.kind) {
+      case 'handbook':
+        return /medic|first aid|first-aid|wound|injur/i.test(doc.context || '') ? 1.8 : 1.4;
+      case 'recipe':
+        return 1.0;
+      case 'school':
+        return 0.8;
+      case 'language':
+        return 0.5;
+      default:
+        return 1.0;
+    }
+  }
+
   static packWeight(pack) {
     const id = String(pack.id || '').toLowerCase();
     if (/^wikipedia/.test(id)) return 1;
