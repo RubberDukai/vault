@@ -99,7 +99,9 @@ class MediaLibrary {
         'accept-ranges': 'bytes',
         'cache-control': 'private, max-age=3600',
       });
-      return fs.createReadStream(target, { start, end }).pipe(res);
+      const ranged = fs.createReadStream(target, { start, end });
+      ranged.on('error', (err) => { console.error('[vault] media stream error:', err.message); res.destroy(err); });
+      return ranged.pipe(res);
     }
     res.writeHead(200, {
       'content-type': type,
@@ -107,7 +109,9 @@ class MediaLibrary {
       'accept-ranges': 'bytes',
       'cache-control': 'private, max-age=3600',
     });
-    return fs.createReadStream(target).pipe(res);
+    const whole = fs.createReadStream(target);
+    whole.on('error', (err) => { console.error('[vault] media stream error:', err.message); res.destroy(err); });
+    return whole.pipe(res);
   }
 }
 

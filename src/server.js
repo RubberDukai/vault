@@ -515,7 +515,9 @@ class ArkServer {
         'content-length': stat.size,
         'cache-control': cacheable ? 'public, max-age=86400' : 'no-store, must-revalidate',
       });
-      fs.createReadStream(target).pipe(res);
+      const stream = fs.createReadStream(target);
+      stream.on('error', (err) => { console.error('[vault] static stream error:', err.message); res.destroy(err); });
+      stream.pipe(res);
     } catch {
       // Single-page app: unknown paths fall through to the shell.
       const shell = path.join(this.webDir, 'index.html');
@@ -677,7 +679,9 @@ class ArkServer {
             'content-length': end - start + 1,
             'accept-ranges': 'bytes',
           });
-          return fs.createReadStream(filePath, { start, end }).pipe(res);
+          const ranged = fs.createReadStream(filePath, { start, end });
+          ranged.on('error', (err) => { console.error('[vault] doc stream error:', err.message); res.destroy(err); });
+          return ranged.pipe(res);
         }
 
         res.writeHead(200, {
@@ -686,7 +690,9 @@ class ArkServer {
           'accept-ranges': 'bytes',
           'content-disposition': `inline; filename="${encodeURIComponent(doc.file)}"`,
         });
-        return fs.createReadStream(filePath).pipe(res);
+        const whole = fs.createReadStream(filePath);
+        whole.on('error', (err) => { console.error('[vault] doc stream error:', err.message); res.destroy(err); });
+        return whole.pipe(res);
       }
 
       // The text of one page, as a light page of its own. Phones cannot show a
