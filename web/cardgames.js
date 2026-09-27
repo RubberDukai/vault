@@ -54,11 +54,11 @@ function shuffle(cards) {
 
 /** One card as HTML. Face down cards show their back. */
 function cardHtml(card, extra = '') {
-  if (!card) return `<span class="card empty ${extra}"></span>`;
-  if (!card.up) return `<span class="card down ${extra}"></span>`;
+  if (!card) return `<span class="pcard empty ${extra}"></span>`;
+  if (!card.up) return `<span class="pcard down ${extra}"></span>`;
   const suit = cardSuit(card);
-  return `<span class="card ${suit.colour} ${extra}">
-    <span class="card-rank">${cardRank(card)}</span><span class="card-suit">${suit.glyph}</span>
+  return `<span class="pcard ${suit.colour} ${extra}">
+    <span class="pcard-rank">${cardRank(card)}</span><span class="pcard-suit">${suit.glyph}</span>
   </span>`;
 }
 
@@ -465,7 +465,7 @@ function renderKlondike(root) {
       <div class="klondike">
         <div class="k-row">
           <button class="k-slot stock" id="k-stock" title="Turn a card">
-            ${game.stock.length ? cardHtml({ up: false }) : '<span class="card empty recycle">↻</span>'}
+            ${game.stock.length ? cardHtml({ up: false }) : '<span class="pcard empty recycle">↻</span>'}
             <span class="k-count">${game.stock.length}</span>
           </button>
           <div class="k-slot waste" id="k-waste">
@@ -474,7 +474,7 @@ function renderKlondike(root) {
           <div class="k-gap"></div>
           ${game.foundations.map((pile, i) => `
             <div class="k-slot foundation" data-found="${i}">
-              ${pile.length ? cardHtml(pile[pile.length - 1]) : `<span class="card empty">${SUITS[i].glyph}</span>`}
+              ${pile.length ? cardHtml(pile[pile.length - 1]) : `<span class="pcard empty">${SUITS[i].glyph}</span>`}
             </div>`).join('')}
         </div>
 
@@ -499,13 +499,13 @@ function renderKlondike(root) {
     const select = (sel) => { picked = sel; paint(); highlight(); };
     const highlight = () => {
       if (!picked) return;
-      const selector = picked.zone === 'waste' ? '#k-waste .card.top'
-        : picked.zone === 'foundation' ? `[data-found="${picked.pile}"] .card`
-        : `.k-card[data-col="${picked.pile}"][data-index="${picked.index}"] .card`;
+      const selector = picked.zone === 'waste' ? '#k-waste .pcard.top'
+        : picked.zone === 'foundation' ? `[data-found="${picked.pile}"] .pcard`
+        : `.k-card[data-col="${picked.pile}"][data-index="${picked.index}"] .pcard`;
       root.querySelector(selector)?.classList.add('picked');
       if (picked.zone === 'tableau') {
         for (const el of root.querySelectorAll(`.k-card[data-col="${picked.pile}"]`)) {
-          if (Number(el.dataset.index) > picked.index) el.querySelector('.card')?.classList.add('picked');
+          if (Number(el.dataset.index) > picked.index) el.querySelector('.pcard')?.classList.add('picked');
         }
       }
     };
@@ -579,11 +579,11 @@ function renderBlackjack(root) {
       <div class="bj-table">
         <div class="bj-hand">
           <span class="faint">Dealer${game.dealer.length ? ` — ${theirs.total}${game.dealer.some((c) => !c.up) ? '+' : ''}` : ''}</span>
-          <div class="bj-cards">${game.dealer.map((c) => cardHtml(c)).join('') || '<span class="card empty"></span>'}</div>
+          <div class="bj-cards">${game.dealer.map((c) => cardHtml(c)).join('') || '<span class="pcard empty"></span>'}</div>
         </div>
         <div class="bj-hand">
           <span class="faint">You${game.player.length ? ` — ${mine.total}${mine.soft ? ' (soft)' : ''}` : ''}</span>
-          <div class="bj-cards">${game.player.map((c) => cardHtml(c)).join('') || '<span class="card empty"></span>'}</div>
+          <div class="bj-cards">${game.player.map((c) => cardHtml(c)).join('') || '<span class="pcard empty"></span>'}</div>
         </div>
       </div>
 

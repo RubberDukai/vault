@@ -1027,30 +1027,30 @@ details.answers[open] > summary::after { content: ""; }
 .sq.felt.movable:hover::after { background: rgba(255,255,255,.55); }
 
 /* --- cards, blackjack and roulette -------------------------------------- */
-.card {
+.pcard {
   display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
   width: 46px; height: 64px; border-radius: 6px; background: #f6f3ec; color: #1a1a1a;
   border: 1px solid #b9b2a3; box-shadow: 0 1px 2px rgba(0,0,0,.35); font-family: var(--sans);
   line-height: 1; user-select: none; flex-shrink: 0;
 }
-.card.red { color: #b3261e; }
-.card.black { color: #16181c; }
-.card-rank { font-size: 17px; font-weight: 700; }
-.card-suit { font-size: 16px; }
+.pcard.red { color: #b3261e; }
+.pcard.black { color: #16181c; }
+.pcard-rank { font-size: 17px; font-weight: 700; }
+.pcard-suit { font-size: 16px; }
 /* The back: a pattern, so a face-down card reads as a card and not a gap. */
-.card.down { background: repeating-linear-gradient(45deg, #2f4a7a 0 5px, #24395e 5px 10px); border-color: #16233c; }
-.card.empty { background: transparent; border-style: dashed; border-color: var(--border); color: var(--text-faint); font-size: 20px; }
-.card.picked { outline: 2px solid var(--accent); outline-offset: 1px; }
+.pcard.down { background: repeating-linear-gradient(45deg, #2f4a7a 0 5px, #24395e 5px 10px); border-color: #16233c; }
+.pcard.empty { background: transparent; border-style: dashed; border-color: var(--border); color: var(--text-faint); font-size: 20px; }
+.pcard.picked { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 /* patience */
 .klondike { display: flex; flex-direction: column; gap: 14px; }
 .k-row { display: flex; gap: 8px; align-items: flex-start; }
 .k-gap { flex: 1 1 auto; min-width: 8px; }
 .k-slot { position: relative; background: none; border: 0; padding: 0; cursor: pointer; }
-.k-slot .card { margin: 0; }
-.k-slot.waste .card.under { margin-right: -30px; opacity: .8; }
+.k-slot .pcard { margin: 0; }
+.k-slot.waste .pcard.under { margin-right: -30px; opacity: .8; }
 .k-count { position: absolute; bottom: -16px; left: 0; right: 0; text-align: center; font-size: 11px; color: var(--text-faint); font-family: var(--mono); }
-.card.recycle { display: inline-flex; align-items: center; justify-content: center; }
+.pcard.recycle { display: inline-flex; align-items: center; justify-content: center; }
 .k-row.tableau { gap: 8px; align-items: flex-start; }
 .k-col { position: relative; min-height: 64px; width: 46px; cursor: pointer; }
 .k-card { position: absolute; left: 0; top: calc(var(--i) * 20px); cursor: pointer; }
@@ -1085,7 +1085,7 @@ details.answers[open] > summary::after { content: ""; }
 .rl-recent.red { background: #a3282c; } .rl-recent.black { background: #1b1d22; } .rl-recent.green { background: #1f6b43; }
 
 @media (max-width: 760px) {
-  .card { width: 38px; height: 54px; }
+  .pcard { width: 38px; height: 54px; }
   .k-card { top: calc(var(--i) * 16px); }
   .k-col { width: 38px; }
   .rl-num, .rl-out { font-size: 11px; padding: 4px 2px; }
