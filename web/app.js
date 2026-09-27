@@ -1538,6 +1538,7 @@ async function renderMaps(params) {
     <div class="map-shell">
       <canvas id="map-canvas"></canvas>
       <div class="map-readout" id="map-readout">—</div>
+      <div class="map-attrib" id="map-attrib" hidden></div>
     </div>
 
     <div class="map-controls">
@@ -1724,12 +1725,26 @@ async function renderMaps(params) {
       : readout.dataset.position;
   };
 
+  // Map licences (ODbL for OpenStreetMap, OGL for Ordnance Survey) require the
+  // sources to be credited on the map itself. Show the attribution for
+  // whichever base map, satellite and overlays are switched on.
+  const attribEl = document.getElementById('map-attrib');
+  const attribFor = (id) => (packs.find((p) => p.id === id) || {}).attribution;
+  function updateAttribution() {
+    if (!attribEl) return;
+    const ids = [MAP.basePack, MAP.baseRaster, ...(MAP.overlayPacks || [])];
+    const credits = [...new Set(ids.map(attribFor).filter(Boolean))];
+    attribEl.textContent = credits.join('   ·   ');
+    attribEl.hidden = credits.length === 0;
+  }
+
   const baseSelect = document.getElementById('map-base');
   if (baseSelect) {
     if (savedView?.base && vectorPacks.some((p) => p.id === savedView.base)) baseSelect.value = savedView.base;
     const applyBase = () => {
       const pack = vectorPacks.find((p) => p.id === baseSelect.value);
       MAP.setBase(pack.id, pack);
+      updateAttribution();
       saveView();
     };
     baseSelect.onchange = applyBase;
@@ -1757,7 +1772,7 @@ async function renderMaps(params) {
   const satelliteSelect = document.getElementById('map-satellite');
   if (satelliteSelect) {
     if (savedView?.satellite && satellitePacks.some((p) => p.id === savedView.satellite)) satelliteSelect.value = savedView.satellite;
-    satelliteSelect.onchange = () => { MAP.setBaseRaster(satelliteSelect.value); saveView(); };
+    satelliteSelect.onchange = () => { MAP.setBaseRaster(satelliteSelect.value); updateAttribution(); saveView(); };
     if (satelliteSelect.value) MAP.setBaseRaster(satelliteSelect.value);
   }
   const hillshadeBox = document.getElementById('map-hillshade');
@@ -1771,6 +1786,7 @@ async function renderMaps(params) {
   const overlayBoxes = [...view.querySelectorAll('.map-overlay')];
   const syncOverlays = () => {
     MAP.setOverlays(overlayBoxes.filter((b) => b.checked).map((b) => b.value));
+    updateAttribution();
     saveView();
   };
   for (const box of overlayBoxes) {
@@ -1778,6 +1794,7 @@ async function renderMaps(params) {
     box.onchange = syncOverlays;
   }
   if (overlayBoxes.some((b) => b.checked)) MAP.setOverlays(overlayBoxes.filter((b) => b.checked).map((b) => b.value));
+  updateAttribution();
 
   const catBoxes = [...view.querySelectorAll('.map-cat')];
   const syncCategories = () => {

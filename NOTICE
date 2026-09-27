@@ -1,0 +1,41 @@
+Vault — third-party notices
+============================
+
+The Vault program (all code under src/, bin/, web/, tools/) is
+© 2026 Joseph Watkins and licensed under the MIT Licence (see LICENSE).
+The written handbook, lessons and language courses under content/ are the
+author's original work and copyright.
+
+The Vault reads and, when the operator chooses, distributes third-party
+knowledge. That material keeps its own licence. The full, user-facing
+credits are in the app under Manual → Credits & licences, and in
+content/manual/06-credits-and-licences.md. In summary:
+
+Encyclopedias / reference
+  Wikipedia, Simple English Wikipedia, Wikivoyage, Wiktionary
+    © Wikipedia contributors — CC BY-SA (attribution + share-alike)
+  Vikidia — © Vikidia contributors — CC BY-SA
+  WikEM — © WikEM editors — used under its own terms (wikem.org)
+
+School library
+  OpenStax textbooks — © Rice University — CC BY (not endorsed by OpenStax)
+  PhET Interactive Simulations — © University of Colorado Boulder — CC BY
+  Project Gutenberg shelves — public-domain texts, distributed as plain
+    text without the Project Gutenberg trademark or licence header
+
+Maps
+  Base map — map data © OpenStreetMap contributors — ODbL; tiles via Protomaps
+  OS Open Zoomstack — contains OS data © Crown copyright and database right
+    — Open Government Licence v3.0
+  Terrain — Mapzen / AWS Terrain Tiles (SRTM, GMTED2010, ETOPO1, others)
+  Satellite — NASA Earth Observatory Blue Marble, via GIBS
+
+Runtime
+  Node.js — MIT Licence, and bundled components (OpenSSL and others) under
+    their own licences, whose notices ship with the runtime.
+
+NonCommercial sources — offered for personal download only, NEVER bundled
+into a sold or shared copy:
+  iFixit — CC BY-NC-SA
+  Sentinel-2 cloudless (EOX IT Services GmbH) — CC BY-NC-SA 4.0
+  Hesperian health guides — by permission only
