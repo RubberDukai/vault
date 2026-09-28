@@ -1606,7 +1606,7 @@ async function renderMaps(params) {
         </label>
       </div>
 
-      <div class="map-panel">
+      <div class="map-panel map-panel-draw">
         <div class="row-between">
           <h3 style="margin:0">Your markings</h3>
           <label class="checkbox-row" style="font-size:13px">

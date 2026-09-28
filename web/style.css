@@ -475,7 +475,7 @@ a { color: var(--link); }
   border: 1px solid var(--border); border-radius: var(--radius);
   background: #fff;
 }
-.reader-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+.reader-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 10px; }
 .reader-title {
   font-size: 14px; color: var(--text-dim);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -534,6 +534,15 @@ a { color: var(--link); }
 .map-controls { display: grid; gap: 12px; margin-top: 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 .map-panel { background: var(--bg-raised); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
 .map-panel h3 { margin: 0 0 8px; font-size: 14px; }
+/* On a phone the full-height map pushed the draw tools far below it, so you
+   had to scroll away from the map to pick a pen or colour. Shorten the map so
+   the tools sit a short swipe below it and both are usable one-handed. */
+@media (max-width: 760px) {
+  .map-shell canvas { height: 52vh; min-height: 300px; }
+  /* Put the drawing tools directly under the map, ahead of the base-map and
+     points-of-interest panels, so marking the map is a short swipe not a hunt. */
+  .map-panel-draw { order: -1; }
+}
 .map-select {
   width: 100%; padding: 6px 10px;
   background: var(--bg); color: var(--text);
