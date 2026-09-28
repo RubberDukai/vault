@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Vault Setup Guide</title>
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#f4f2ea; --surface:#fffdf8; --ink:#1b1e19; --muted:#5c6156;
+    --accent:#1c7a49; --accent-soft:rgba(28,122,73,.10);
+    --line:#e3dfd2; --shadow:0 1px 2px rgba(40,44,36,.06),0 6px 20px rgba(40,44,36,.05);
+    --term-bg:#0d1310; --term-ink:#57ec87; --term-dim:#5f8a70; --term-line:#22302a;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --bg:#111310; --surface:#191c16; --ink:#e8e9e1; --muted:#9ba093;
+      --accent:#54d180; --accent-soft:rgba(84,209,128,.14);
+      --line:#2a2e25; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.28);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --bg:#111310; --surface:#191c16; --ink:#e8e9e1; --muted:#9ba093;
+    --accent:#54d180; --accent-soft:rgba(84,209,128,.14);
+    --line:#2a2e25; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.28);
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.6;
+    font-size:16px;-webkit-font-smoothing:antialiased;margin:0}
+  .wrap{max-width:730px;margin:0 auto;padding-inline:20px;padding-block:40px 72px}
+  a{color:var(--accent)}
+
+  header{border-bottom:1px solid var(--line);padding-bottom:26px;margin-bottom:34px}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--accent);margin:0 0 10px}
+  h1{font-size:clamp(30px,6vw,40px);line-height:1.1;margin:0 0 12px;letter-spacing:-.02em;text-wrap:balance}
+  .lead{font-size:18px;color:var(--muted);margin:0;max-width:60ch;text-wrap:pretty}
+
+  h2{font-size:15px;font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent);margin:52px 0 18px;padding-top:18px;border-top:1px solid var(--line)}
+  h3{font-size:20px;margin:30px 0 8px;letter-spacing:-.01em}
+  p{margin:0 0 14px}
+  strong{font-weight:640}
+  .muted{color:var(--muted)}
+
+  /* choose-one cards */
+  .choose{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0 8px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    padding:20px 20px 22px;box-shadow:var(--shadow)}
+  .card .tag{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--accent);display:block;margin-bottom:8px}
+  .card h3{margin:0 0 6px;font-size:18px}
+  .card p{font-size:14.5px;color:var(--muted);margin:0 0 12px}
+  .card ul{margin:0;padding-left:18px;font-size:14px;color:var(--muted)}
+  .card li{margin:4px 0}
+
+  /* numbered steps */
+  ol.steps{list-style:none;counter-reset:s;margin:18px 0;padding:0}
+  ol.steps>li{counter-increment:s;position:relative;padding:2px 0 16px 46px;margin:0}
+  ol.steps>li::before{content:counter(s);position:absolute;left:0;top:0;width:30px;height:30px;
+    display:grid;place-items:center;border-radius:50%;background:var(--accent-soft);color:var(--accent);
+    font-family:var(--mono);font-weight:700;font-size:14px}
+  ol.steps>li:not(:last-child)::after{content:"";position:absolute;left:15px;top:32px;bottom:2px;
+    width:1px;background:var(--line)}
+  ol.steps>li p{margin:0 0 6px}
+
+  /* the black window */
+  .term{background:var(--term-bg);border:1px solid var(--term-line);border-radius:10px;
+    padding:14px 16px;margin:16px 0;overflow-x:auto}
+  .term .bar{display:flex;gap:6px;margin-bottom:10px}
+  .term .bar i{width:10px;height:10px;border-radius:50%;background:#2b3830;display:block}
+  .term code,.term pre{font-family:var(--mono);font-size:13.5px;color:var(--term-ink);
+    white-space:pre;display:block;margin:0;line-height:1.7}
+  .term .c{color:var(--term-dim)}
+  code.inline{font-family:var(--mono);font-size:.88em;background:var(--accent-soft);color:var(--accent);
+    padding:1px 6px;border-radius:5px;word-break:break-word}
+
+  .note{border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 8px 8px 0;
+    padding:12px 16px;margin:18px 0;font-size:15px}
+  .note b{color:var(--accent)}
+  ul.plain{padding-left:20px;margin:12px 0}
+  ul.plain li{margin:6px 0}
+  footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:13.5px}
+  @media (max-width:560px){.choose{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">The offline knowledge vault</p>
+    <h1>Setting up Vault</h1>
+    <p class="lead">Two ways to put Vault on a machine: a small installer to send to friends, and a full copy on a USB stick that runs anywhere with no internet at all. This covers both, start to finish.</p>
+  </header>
+
+  <h2>Which one do you need</h2>
+  <div class="choose">
+    <div class="card">
+      <span class="tag">Send it</span>
+      <h3>The installer</h3>
+      <p>One 34&nbsp;MB file, <code class="inline">VaultSetup.exe</code>. Email it, or share a link.</p>
+      <ul>
+        <li>Best for friends with internet</li>
+        <li>Installs the app in seconds</li>
+        <li>They pick and download the encyclopedias, maps and books afterwards, from inside Vault</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag">Carry it</span>
+      <h3>The USB master</h3>
+      <p>A complete Vault on a stick — around 55&nbsp;GB with everything loaded.</p>
+      <ul>
+        <li>Needs no internet, ever</li>
+        <li>Runs straight off the stick, or copied onto any Windows PC</li>
+        <li>Already holds every pack, map, book and the program itself</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Part 1 · The installer</h2>
+  <p>Give a friend the file <code class="inline">VaultSetup.exe</code>. On their computer:</p>
+  <ol class="steps">
+    <li><p><strong>Double-click <code class="inline">VaultSetup.exe</code>.</strong> Windows will say <em>“Windows protected your PC”</em> — that is normal for a program without a paid signing certificate, not a warning that anything is wrong.</p></li>
+    <li><p><strong>Click “More info”, then “Run anyway”.</strong> It installs just for that user, into their own account — no administrator password needed.</p></li>
+    <li><p><strong>Open Vault.</strong> A shortcut is added to the Desktop and Start Menu. The first launch opens a black window and then the Vault itself in a browser.</p></li>
+    <li><p><strong>Choose what to load.</strong> Go to <strong>Setup → Get packs</strong> and tick what you want — Simple English Wikipedia, the survival handbook already ships, maps, textbooks. Each downloads in the background. This is the one step that needs a connection.</p></li>
+  </ol>
+  <div class="note"><b>No installer, no fuss.</b> If a friend’s machine blocks the <code class="inline">.exe</code> outright, send <code class="inline">Vault-1.0.0-portable.zip</code> instead. They unzip it anywhere and double-click <code class="inline">Vault.bat</code> — same program, nothing installed.</div>
+
+  <h2>Part 2 · The USB master</h2>
+  <p>This is the copy that needs nothing — no internet, no install. You build it once from your own loaded Vault, then it runs on any Windows PC.</p>
+
+  <h3>Build it onto the stick</h3>
+  <p>Plug in the USB stick and note its drive letter (say <code class="inline">E:</code>). Open a command window in your Vault folder and run one line:</p>
+  <div class="term">
+    <div class="bar"><i></i><i></i><i></i></div>
+    <pre><span class="c">rem  copies the program, packs, maps, books and Node onto the stick</span>
+node tools/make-portable.js <span class="c">E:</span>/Vault --with-packs --with-maps --with-docs --with-node</pre>
+  </div>
+  <p class="muted">It writes a self-contained <code class="inline">Vault</code> folder to the stick and skips anything half-downloaded. Around 55&nbsp;GB, so give it time. A <code class="inline">START HERE.txt</code> is written alongside it for whoever picks up the stick.</p>
+
+  <h3>Run it from the stick</h3>
+  <ol class="steps">
+    <li><p><strong>Plug the stick into any Windows computer.</strong></p></li>
+    <li><p><strong>Open the <code class="inline">Vault</code> folder</strong> on the drive.</p></li>
+    <li><p><strong>Double-click <code class="inline">Vault.bat</code>.</strong> It carries its own copy of Node, so nothing has to be installed — the black window opens and Vault appears in the browser.</p></li>
+  </ol>
+
+  <h3>Copy it onto a machine</h3>
+  <p>Running off a stick works, but a fixed disk is faster and frees the stick. To leave a permanent copy on a computer:</p>
+  <ol class="steps">
+    <li><p><strong>Copy the whole <code class="inline">Vault</code> folder</strong> from the stick to somewhere on the computer — the Desktop or Documents is fine.</p></li>
+    <li><p><strong>Open the copied folder and run <code class="inline">Vault.bat</code>.</strong> That machine now has its own Vault and no longer needs the stick.</p></li>
+  </ol>
+  <div class="note"><b>Keep the stick as the master.</b> Copy <em>from</em> it onto machines; do your own reading, note-taking and downloading in a copy on a disk. That way the stick stays a clean, complete original you can hand to the next person.</div>
+
+  <h2>Every time you open it</h2>
+  <ul class="plain">
+    <li><strong>Leave the black window open.</strong> That window <em>is</em> Vault running — close it and Vault switches off. Minimise it instead.</li>
+    <li><strong>Read it on a phone or tablet.</strong> The black window prints two or three web addresses. On a device on the <em>same wi-fi</em>, type the second address into any browser — nothing to install on the phone.</li>
+    <li><strong>If it says Node.js is missing:</strong> a copy with a <code class="inline">node</code> folder (the installer and the USB master both have one) needs nothing. Otherwise install the LTS version from <span style="font-family:var(--mono);font-size:.9em">nodejs.org</span>, accept the defaults, and open Vault again.</li>
+  </ul>
+
+  <h2>Locking it (optional)</h2>
+  <p>If the machine might be picked up by someone else, set a PIN under <strong>Setup → Privacy</strong>. It encrypts everything the household writes — notes, spreadsheets, the calendar, map markings, messages — so a lost or stolen disk gives nothing up. The encyclopedias and maps are left as they are; they are public knowledge and tell no one anything about you.</p>
+  <div class="note"><b>Write down the twelve-word recovery phrase.</b> It is shown once, when you set the PIN, and it is the only way back in if the PIN is forgotten. Put it on paper, away from the machine.</div>
+
+  <footer>
+    Vault — an offline knowledge vault. Everything in a copy works with the internet switched off.
+    The full manual is under the <strong>Manual</strong> tab inside the app.
+  </footer>
+</div>
+</body>
+</html>

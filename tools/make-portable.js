@@ -20,7 +20,7 @@ const ROOT = path.join(__dirname, '..');
 // Everything the Vault needs to run. Anything not listed is left behind.
 const ALWAYS = [
   'bin', 'src', 'web', 'content', 'tools',
-  'package.json', 'README.md', '.gitignore',
+  'package.json', 'README.md', '.gitignore', 'Getting Started.html',
   'Vault.bat', 'Create Desktop Shortcut.bat', 'vault.sh', 'vault.desktop',
 ];
 
