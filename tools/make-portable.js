@@ -107,14 +107,15 @@ async function main() {
   const destination = args.find((a) => !a.startsWith('--'));
   const withPacks = args.includes('--with-packs');
   const withMaps = args.includes('--with-maps');
+  const withDocs = args.includes('--with-docs');
   const withNode = args.includes('--with-node');
 
   if (!destination) {
     console.error(`
-  Usage: node tools/make-portable.js <destination> [--with-packs] [--with-maps] [--with-node]
+  Usage: node tools/make-portable.js <destination> [--with-packs] [--with-maps] [--with-docs] [--with-node]
 
   Example:
-    node tools/make-portable.js E:/Vault --with-packs
+    node tools/make-portable.js E:/Vault --with-packs --with-docs
 `);
     process.exit(1);
   }
@@ -161,6 +162,20 @@ async function main() {
     }
   }
 
+  // Imported books and textbooks (PDF and EPUB) — the reading shelves,
+  // OpenStax, the field guides. They re-scan on the new machine.
+  if (withDocs) {
+    const docsDir = path.join(libraryDir, 'docs');
+    if (fs.existsSync(docsDir)) {
+      await fsp.mkdir(path.join(target, 'library', 'docs'), { recursive: true });
+      for (const file of await fsp.readdir(docsDir)) {
+        if (/\.part$/i.test(file)) continue;
+        console.log(`\n  Copying document ${file}…`);
+        await copyInto(path.join(docsDir, file), path.join(target, 'library', 'docs', file));
+      }
+    }
+  }
+
   // Node itself is one file. Bundling it makes the copy self-contained on
   // this kind of machine: unzip, double-click, no installer, no internet.
   if (withNode) {
@@ -178,7 +193,7 @@ async function main() {
   console.log(`
   Done.
 
-  ${withPacks ? '' : 'The encyclopedias were NOT included — add --with-packs for those.\n  '}${withMaps ? '' : 'The maps were NOT included — add --with-maps for those.\n  '}${withNode ? '' : 'Node.js was NOT bundled — add --with-node and the copy needs no install at all.\n  '}
+  ${withPacks ? '' : 'The encyclopedias were NOT included — add --with-packs for those.\n  '}${withMaps ? '' : 'The maps were NOT included — add --with-maps for those.\n  '}${withDocs ? '' : 'The books and textbooks were NOT included — add --with-docs for those.\n  '}${withNode ? '' : 'Node.js was NOT bundled — add --with-node and the copy needs no install at all.\n  '}
   Hand over the whole folder. Whoever receives it should read
   "START HERE.txt" first.
 `);
