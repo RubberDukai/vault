@@ -1,8 +1,8 @@
 # Nothing under library/ is ever tracked: packs, charts, books and any partial download
-library/
+/library/
 
 # Runtime state: profiles, review schedules, lesson progress
-data/
+/data/
 
 # Scratch
 .tmp/
@@ -11,4 +11,4 @@ node_modules/
 
 # Built installers. Big binaries do not belong in git; build them with
 # node tools/make-installer.js when they are needed.
-dist/
+/dist/
