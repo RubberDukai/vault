@@ -2992,10 +2992,18 @@ async function setUpLockSetting({ force = false } = {}) {
       <button class="btn btn-sm" id="lock-change">Change it</button>
     </div>
     <div class="row" style="gap:8px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-sm btn-primary" id="lock-now">Lock now</button>
       <button class="btn btn-sm" id="lock-newphrase">New recovery phrase</button>
       <button class="btn btn-sm" id="lock-off">Take the lock off</button>
     </div>
     <p class="faint" id="lock-msg" style="margin:8px 0 0"></p>`;
+
+  document.getElementById('lock-now').onclick = async () => {
+    try {
+      await api('lock/lock', { method: 'POST' });
+      location.reload(); // the lock screen takes over the whole app
+    } catch (err) { document.getElementById('lock-msg').textContent = err.message; }
+  };
 
   const message = document.getElementById('lock-msg');
   document.getElementById('lock-change').onclick = async () => {

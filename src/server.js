@@ -838,6 +838,16 @@ class ArkServer {
       return this.json(res, 200, pinStrength(body.pin));
     }
 
+    if (route === 'lock/lock' && method === 'POST') {
+      // Lock the vault again without waiting for the next launch: drop the key
+      // and the decrypted copies in memory, so every private route needs the
+      // PIN once more and the reader gets the lock screen on reload.
+      if (!this.lock.exists()) return this.json(res, 400, { error: 'No PIN is set.' });
+      this.lock.relock();
+      this._applyKey(null);
+      return this.json(res, 200, { ok: true, locked: true });
+    }
+
     // --- status -----------------------------------------------------------
     // --- sharing on the local network -------------------------------------
     if (route === 'network' && method === 'GET') {

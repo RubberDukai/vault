@@ -246,6 +246,15 @@ class VaultLock {
   }
 
   /** Take the lock off entirely. Needs the PIN; the caller decrypts the files. */
+  /**
+   * Re-lock a vault that is unlocked in this session, without a restart —
+   * drop the key from memory so the PIN is needed again. The files on disk
+   * are already ciphertext, so nothing else has to change.
+   */
+  relock() {
+    this.key = null;
+  }
+
   async disable(pin) {
     const meta = this.load();
     if (!meta) return false;
