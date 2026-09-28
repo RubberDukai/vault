@@ -18,7 +18,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const http = require('node:http');
-const { ArkServer } = require('../src/server');
+const { VaultServer } = require('../src/server');
 
 let server;
 let port;
@@ -58,7 +58,7 @@ const asApp = (extra = {}) => ({ 'x-vault-client': '1', 'sec-fetch-site': 'same-
 test.before(async () => {
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vault-test-data-'));
   const libraryDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vault-test-lib-'));
-  server = new ArkServer({ port: 0, host: '127.0.0.1', dataDir, libraryDir });
+  server = new VaultServer({ port: 0, host: '127.0.0.1', dataDir, libraryDir });
   await server.init();
   await server.start();
   port = server.server.address().port;

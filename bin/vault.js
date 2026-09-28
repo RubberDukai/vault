@@ -42,14 +42,14 @@ function ageDescription(dateStr) {
 }
 
 async function cmdServe(args) {
-  const { ArkServer } = require('../src/server');
-  const server = new ArkServer({
-    port: Number(args.port || process.env.ARK_PORT || 8080),
-    host: args.host || process.env.ARK_HOST || null,
-    libraryDir: args.library || process.env.ARK_LIBRARY || path.join(ROOT, 'library'),
+  const { VaultServer } = require('../src/server');
+  const server = new VaultServer({
+    port: Number(args.port || process.env.VAULT_PORT || process.env.ARK_PORT || 8080),
+    host: args.host || process.env.VAULT_HOST || process.env.ARK_HOST || null,
+    libraryDir: args.library || process.env.VAULT_LIBRARY || process.env.ARK_LIBRARY || path.join(ROOT, 'library'),
     // Useful for a portable copy that keeps its settings somewhere else, and
     // for running a second vault without touching the first one's state.
-    dataDir: args.data || process.env.ARK_DATA || undefined,
+    dataDir: args.data || process.env.VAULT_DATA || process.env.ARK_DATA || undefined,
   });
 
   process.stdout.write('Loading vault…\n');
@@ -234,14 +234,14 @@ async function cmdInfo(args) {
 }
 
 async function cmdSearch(args) {
-  const { ArkServer } = require('../src/server');
+  const { VaultServer } = require('../src/server');
   const query = args._.slice(1).join(' ');
   if (!query) {
     console.error('Usage: vault search <query>');
     process.exit(1);
   }
 
-  const server = new ArkServer({ libraryDir: args.library || path.join(ROOT, 'library') });
+  const server = new VaultServer({ libraryDir: args.library || path.join(ROOT, 'library') });
   await server.init();
   const results = await server.search.searchAll(server.library, query);
 

@@ -1,6 +1,6 @@
 'use strict';
 /**
- * Client for the Kiwix OPDS catalogue — the only part of Ark that ever touches
+ * Client for the Kiwix OPDS catalogue — the only part of the Vault that ever touches
  * the internet, and only when you ask it to.
  *
  * Its one job: tell us what the current build of a pack is, when it was dumped

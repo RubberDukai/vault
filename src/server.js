@@ -1,6 +1,6 @@
 'use strict';
 /**
- * The Ark server.
+ * The Vault server.
  *
  * Serves the whole vault over plain HTTP on the local network, so one machine
  * holding the library can feed every phone, tablet and laptop in the house with
@@ -52,7 +52,7 @@ const NAMESPACES = new Set(['C', 'A', 'I', 'M', 'W', 'X', '-']);
 // What a page taken from a pack or an imported book may do: show itself.
 const PACK_CSP = "default-src 'self'; script-src 'none'; object-src 'none'; img-src 'self' data:; media-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; frame-ancestors 'self'; form-action 'none'";
 
-class ArkServer {
+class VaultServer {
   constructor(options = {}) {
     this.port = options.port || 8080;
     // Where to listen. Nothing given: this machine only, unless sharing has
@@ -1615,4 +1615,4 @@ class ArkServer {
   }
 }
 
-module.exports = { ArkServer };
+module.exports = { VaultServer, ArkServer: VaultServer };
