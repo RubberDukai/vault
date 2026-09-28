@@ -1,0 +1,24 @@
+name: tests
+
+# Runs the dependency-free node:test suite on every push and pull request, so
+# a parser or store regression is caught even when no one is watching. Nothing
+# to install: the Vault has no npm dependencies.
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.15'
+      - name: Syntax-check every source file
+        run: |
+          set -e
+          for f in $(find src bin tools -name '*.js'); do node --check "$f"; done
+      - name: Run the test suite
+        run: npm test
