@@ -14,6 +14,7 @@
 const fs = require('node:fs');
 const fsp = require('node:fs/promises');
 const path = require('node:path');
+const crypto = require('node:crypto');
 const { Epub } = require('./epub');
 const { PdfDocument } = require('./pdf');
 
@@ -53,7 +54,16 @@ class DocumentManager {
     const seen = new Set();
 
     for (const file of files) {
-      const id = slugify(file);
+      // Two files whose names slugify the same ("A Book.pdf", "a-book.epub")
+      // must not collide, or one would silently overwrite the other in the
+      // map and vanish. Disambiguate with a short, stable hash of the actual
+      // filename so the id is unique and unchanged from one scan to the next.
+      let id = slugify(file) || 'doc';
+      if (seen.has(id)) {
+        const suffix = crypto.createHash('sha1').update(file).digest('hex').slice(0, 6);
+        id = `${id}-${suffix}`;
+        while (seen.has(id)) id += 'x';
+      }
       seen.add(id);
       const fullPath = path.join(this.docsDir, file);
       const stat = await fsp.stat(fullPath);
