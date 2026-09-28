@@ -11,7 +11,7 @@ const path = require('node:path');
 const lock = require('./lock');
 
 class Store {
-  constructor(filePath, defaults = {}) {
+  constructor(filePath, defaults = {}, options = {}) {
     this.filePath = filePath;
     this.defaults = defaults;
     this.data = null;
@@ -19,6 +19,12 @@ class Store {
     // When the vault is locked, the key that this file is written under.
     // Null means plain JSON, which is how an unlocked vault has always worked.
     this._key = null;
+    // A schema version stamped into the file, so a future format change can be
+    // recognised and migrated rather than silently misread. `migrate(data,
+    // fromVersion)` may transform an older shape when one is loaded.
+    this.version = options.version || 1;
+    this.migrate = options.migrate || null;
+    this.schemaVersion = null; // the version last read from disk
   }
 
   /**
@@ -72,7 +78,14 @@ class Store {
     }
 
     try {
-      this.data = { ...structuredClone(this.defaults), ...JSON.parse(raw) };
+      const parsed = JSON.parse(raw);
+      // The version marker lives in the file, not in the data the app sees.
+      this.schemaVersion = typeof parsed.__schema === 'number' ? parsed.__schema : 0;
+      delete parsed.__schema;
+      this.data = { ...structuredClone(this.defaults), ...parsed };
+      if (this.migrate && this.schemaVersion < this.version) {
+        this.data = this.migrate(this.data, this.schemaVersion) || this.data;
+      }
     } catch (err) {
       // A file that decrypts (or was plain) but will not parse is set aside
       // too, never overwritten.
@@ -109,7 +122,9 @@ class Store {
   }
 
   _writeOnce() {
-    const json = JSON.stringify(this.load(), null, 2);
+    // Stamp the current schema version into the file (but never into the data
+    // object the app works with — it is stripped again on load).
+    const json = JSON.stringify({ __schema: this.version, ...this.load() }, null, 2);
     const snapshot = this._key ? lock.encrypt(this._key, Buffer.from(json, 'utf8')) : json;
     this._writeQueue = this._writeQueue.then(async () => {
       await fsp.mkdir(path.dirname(this.filePath), { recursive: true });

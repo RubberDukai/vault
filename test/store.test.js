@@ -138,3 +138,35 @@ test('a write failure is remembered rather than swallowed', async () => {
   await store.update((d) => { d.n = 1; });
   assert.ok(store.lastError, 'lastError records that the save did not happen');
 });
+
+test('the schema version is stamped in the file but never leaks into the data', async () => {
+  const dir = tmpDir();
+  const file = path.join(dir, 'state.json');
+  const store = new Store(file, { n: 0 }, { version: 3 });
+  await store.update((d) => { d.n = 5; });
+
+  // The file carries __schema; the data the app sees does not.
+  const onDisk = JSON.parse(fs.readFileSync(file, 'utf8'));
+  assert.strictEqual(onDisk.__schema, 3, 'the file records the schema version');
+  assert.deepStrictEqual(store.get(), { n: 5 }, 'get() has no __schema key');
+
+  const reopened = new Store(file, { n: 0 }, { version: 3 });
+  assert.deepStrictEqual(reopened.get(), { n: 5 });
+  assert.strictEqual(reopened.schemaVersion, 3);
+});
+
+test('a legacy file with no version marker loads and migrates', async () => {
+  const dir = tmpDir();
+  const file = path.join(dir, 'state.json');
+  fs.writeFileSync(file, JSON.stringify({ old: true }));
+
+  let migratedFrom = null;
+  const store = new Store(file, {}, {
+    version: 2,
+    migrate: (data, from) => { migratedFrom = from; return { ...data, migrated: true }; },
+  });
+  const data = store.get();
+  assert.strictEqual(migratedFrom, 0, 'a file with no marker is version 0');
+  assert.strictEqual(data.migrated, true, 'the migration ran');
+  assert.strictEqual(data.old, true, 'the old data is preserved');
+});
