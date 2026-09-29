@@ -1326,6 +1326,14 @@ class VaultServer {
       const status = this.packs.status();
       status.diskFree = await this.packs.diskFree();
       status.diskFreeHuman = status.diskFree === null ? null : humanBytes(status.diskFree);
+      // Self-heal a stalled queue. If there is work to do, nothing is running
+      // in this process, and no *live* Vault holds the download lock, (re)start
+      // it. This recovers a queue left stranded by a window that was
+      // force-closed mid-download and left a stale lock behind — otherwise it
+      // would sit there saying "another window is downloading" forever.
+      if (status.queue.length && !status.running && !status.lockedElsewhere) {
+        this.packs.run().catch((err) => console.error('[vault] download queue restart failed:', err.message));
+      }
       return this.json(res, 200, status);
     }
 
