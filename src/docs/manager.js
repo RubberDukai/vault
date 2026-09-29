@@ -96,6 +96,16 @@ class DocumentManager {
     return this.list();
   }
 
+  /**
+   * Point an id at an open EPUB, closing whatever EPUB it displaces so its
+   * file handle is released now rather than left to the garbage collector.
+   */
+  async _setEpub(id, epub) {
+    const prev = this._epubs.get(id);
+    if (prev && prev !== epub) await prev.close().catch(() => {});
+    this._epubs.set(id, epub);
+  }
+
   async _load(id, file, fullPath, stat, stamp) {
     const type = path.extname(file).slice(1).toLowerCase();
     const cachePath = path.join(this.cacheDir, `${id}.json`);
@@ -104,7 +114,7 @@ class DocumentManager {
     try {
       const cached = JSON.parse(await fsp.readFile(cachePath, 'utf8'));
       if (cached.stamp === stamp) {
-        if (type === 'epub') this._epubs.set(id, await Epub.open(fullPath));
+        if (type === 'epub') await this._setEpub(id, await Epub.open(fullPath));
         return { ...cached, path: fullPath };
       }
     } catch {
@@ -114,7 +124,7 @@ class DocumentManager {
     let doc;
     if (type === 'epub') {
       const epub = await Epub.open(fullPath);
-      this._epubs.set(id, epub);
+      await this._setEpub(id, epub);
       const info = epub.describe();
       const units = [];
       for (const chapter of info.chapters) {

@@ -36,3 +36,24 @@ test('two files whose names slugify the same both survive a scan', async () => {
 
   fs.rmSync(dir, { recursive: true, force: true });
 });
+
+test('re-pointing an id at a new EPUB closes the old handle (no fd leak)', async () => {
+  const dir = tmpDir();
+  const dm = new DocumentManager(dir, path.join(dir, '.cache'));
+  let closed = 0;
+  const epubA = { close: async () => { closed++; } };
+  const epubB = { close: async () => { closed++; } };
+
+  await dm._setEpub('x', epubA);
+  assert.strictEqual(closed, 0, 'first assignment closes nothing');
+  assert.strictEqual(dm._epubs.get('x'), epubA);
+
+  await dm._setEpub('x', epubB);
+  assert.strictEqual(closed, 1, 'replacing A with B closes A');
+  assert.strictEqual(dm._epubs.get('x'), epubB, 'B is now held');
+
+  await dm._setEpub('x', epubB); // same object again
+  assert.strictEqual(closed, 1, 'setting the same EPUB does not close it');
+
+  fs.rmSync(dir, { recursive: true, force: true });
+});
