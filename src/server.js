@@ -363,6 +363,9 @@ class VaultServer {
       lat: Math.round(lat * 1e5) / 1e5,
       lon: Math.round(lon * 1e5) / 1e5,
       name: typeof home.name === 'string' ? home.name.trim().slice(0, 80) : '',
+      // An IANA time-zone name (e.g. "Asia/Tokyo") so the clock can show the
+      // local time of the place, not just this computer's.
+      tz: typeof home.tz === 'string' ? home.tz.trim().slice(0, 64) : '',
     };
   }
 

@@ -223,6 +223,10 @@ function renderSky(root) {
       </div>
       <aside class="sky-side">
         <div class="row" style="gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+          <span class="faint" style="font-size:12px">See the sky over</span>
+          <select id="sky-country" class="map-select" style="flex:1;min-width:140px;padding:4px 8px;font-size:13px"></select>
+        </div>
+        <div class="row" style="gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
           <input type="date" id="sky-date" class="map-select" style="width:auto;padding:4px 8px;font-size:13px">
           <button class="btn btn-sm" id="sky-now">Now</button>
         </div>
@@ -254,6 +258,21 @@ function renderSky(root) {
   dateInput.value = iso(now);
   timeInput.value = now.getHours() * 60 + now.getMinutes();
   let follow = true;
+
+  // A country picker so the sky can be moved anywhere on Earth without leaving
+  // this page. Picking one sets "where you are" and re-draws for that capital.
+  const countrySel = document.getElementById('sky-country');
+  if (countrySel && window.CAPITALS) {
+    countrySel.innerHTML = '<option value="">— a country —</option>'
+      + window.CAPITALS.map((p, i) => `<option value="${i}">${p.n} · ${p.c}</option>`).join('');
+    // Show the current place as selected, if it matches a capital.
+    const match = window.CAPITALS.findIndex((p) => Math.abs(p.lat - home.lat) < 0.05 && Math.abs(p.lon - home.lon) < 0.05);
+    if (match >= 0) countrySel.value = String(match);
+    countrySel.onchange = () => {
+      const p = window.CAPITALS[Number(countrySel.value)];
+      if (p && window.setHome) window.setHome(p.lat, p.lon, `${p.c}, ${p.n}`, p.tz);
+    };
+  }
 
   const instant = () => {
     const [y, m, d] = dateInput.value.split('-').map(Number);

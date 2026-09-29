@@ -91,6 +91,15 @@ async function api(path, options) {
   return res.json();
 }
 
+// Set where the vault thinks it is, from anywhere in the app (the sky page,
+// the setup page). Saves it, remembers it, and re-renders the current page so
+// the sky, almanac and calendar move with it.
+window.setHome = async (lat, lon, name = '', tz = '') => {
+  const { home: saved } = await api('settings', { method: 'POST', body: { home: { lat, lon, name, tz } } });
+  STATUS.home = saved;
+  route();
+};
+
 function ageBadge(days) {
   if (days === null || days === undefined) return '<span class="tag">date unknown</span>';
   if (days < 1) return '<span class="tag tag-good">cloned today</span>';
@@ -644,18 +653,18 @@ async function renderSetup() {
 
       <h2>Whose vault</h2>
       <div class="card">
-        <div class="row" style="gap:8px;align-items:center;flex-wrap:wrap">
-          <label for="credit-name">Name shown in the footer</label>
-          <input id="credit-name" class="map-select" style="flex:1;min-width:200px" maxlength="120" placeholder="e.g. the Watkins family" value="${esc(STATUS?.credit || '')}">
-          <button class="btn btn-sm" id="credit-save">Save</button>
-        </div>
-        <p class="faint" style="margin:8px 0 0">Optional. A copy made for someone else starts blank, so your name does not travel with it.</p>
+        <p class="faint" style="margin:0">The footer credits the vault's author. The people who use this vault — the household, each child — are set up as <strong>profiles</strong> in the sidebar (top left): each keeps their own reading, progress and review schedule.</p>
       </div>
 
       <h2>Where you are</h2>
       <div class="card">
+        <div class="row" style="gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+          <label for="home-country" style="min-width:90px">Pick a country</label>
+          <select class="map-select" id="home-country" style="flex:1;min-width:200px"></select>
+        </div>
         <div class="row" style="gap:8px;align-items:center;flex-wrap:wrap">
-          <input class="map-select" id="home-search" style="flex:1;min-width:220px" autocomplete="off"
+          <label for="home-search" style="min-width:90px">Or a place</label>
+          <input class="map-select" id="home-search" style="flex:1;min-width:200px" autocomplete="off"
                  placeholder="a town or city, or -33.87, 151.21">
           <button class="btn btn-sm" id="home-here">Use the map's centre</button>
         </div>
@@ -2830,11 +2839,19 @@ function setUpHomeSetting() {
   if (input.dataset.wired) return;
   input.dataset.wired = '1';
 
+  const localTimeAt = (tz) => {
+    if (!tz) return '';
+    try {
+      return new Intl.DateTimeFormat('en-GB', { timeZone: tz, weekday: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date());
+    } catch { return ''; }
+  };
+
   const show = () => {
     const home = STATUS?.home;
+    const lt = home ? localTimeAt(home.tz) : '';
     current.innerHTML = home
       ? `Now set to <strong>${esc(home.name || `${home.lat.toFixed(3)}, ${home.lon.toFixed(3)}`)}</strong>
-         — ${home.lat.toFixed(4)}, ${home.lon.toFixed(4)} (${home.lat >= 0 ? 'northern' : 'southern'} hemisphere).
+         — ${home.lat.toFixed(4)}, ${home.lon.toFixed(4)} (${home.lat >= 0 ? 'northern' : 'southern'} hemisphere)${lt ? ` · local time there ${esc(lt)}` : ''}.
          <a href="#" id="home-clear">Clear</a>`
       : 'Not set. Sun, moon and star times are being worked out for the middle of Britain until you set it.';
     const clear = document.getElementById('home-clear');
@@ -2846,13 +2863,28 @@ function setUpHomeSetting() {
     };
   };
 
-  const save = async (lat, lon, name) => {
-    const { home: saved } = await api('settings', { method: 'POST', body: { home: { lat, lon, name } } });
+  const save = async (lat, lon, name, tz = '') => {
+    const { home: saved } = await api('settings', { method: 'POST', body: { home: { lat, lon, name, tz } } });
     if (STATUS) STATUS.home = saved;
     results.innerHTML = '';
     input.value = '';
+    const cs = document.getElementById('home-country');
+    if (cs) cs.value = '';
     show();
   };
+
+  // A built-in list of countries and their capitals, so a place can be set
+  // with no map pack installed — pick one and the sky, almanac and calendar
+  // move to that capital and its time zone.
+  const countrySel = document.getElementById('home-country');
+  if (countrySel && window.CAPITALS && !countrySel.options.length) {
+    countrySel.innerHTML = '<option value="">— choose a country —</option>'
+      + window.CAPITALS.map((p, i) => `<option value="${i}">${esc(p.n)} · ${esc(p.c)}</option>`).join('');
+    countrySel.onchange = () => {
+      const p = window.CAPITALS[Number(countrySel.value)];
+      if (p) save(p.lat, p.lon, `${p.c}, ${p.n}`, p.tz);
+    };
+  }
 
   let timer = null;
   input.oninput = () => {
